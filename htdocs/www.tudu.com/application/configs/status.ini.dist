@@ -1,0 +1,19 @@
+#
+# 本配置文件提供 StatusController 控制器下的监控程序配置项
+# 
+
+# 备份数据库监控配置项
+# 注意配置的第二级节点（md）应该与主配置中 resource.multidb.xxx 的名称相同
+backdb.md.adapter  = "pdo_mysql"
+backdb.md.charset  = "utf8"
+backdb.md.host     = ""
+backdb.md.username = ""
+backdb.md.password = ""
+backdb.md.dbname   = ""
+
+backdb.ts1.adapter  = "pdo_mysql"
+backdb.ts1.charset  = "utf8"
+backdb.ts1.host     = ""
+backdb.ts1.username = ""
+backdb.ts1.password = ""
+backdb.ts1.dbname   = ""

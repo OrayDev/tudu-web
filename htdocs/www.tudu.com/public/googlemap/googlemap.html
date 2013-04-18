@@ -1,0 +1,23 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"> 
+<head>
+<meta name="robots" content="noindex, nofollow" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+<title>Google Maps</title>
+<style type="text/css">
+<!--
+body{margin:0;padding:10px;font-size:12px;}
+input{border:1px solid #ABADB3;}
+button{border:1px solid #888;border-color:#fff #888 #888 #fff;}
+#mapArea{width:512px; height:320px;border:1px #999 solid;text-align:center;margin-top:10px}
+-->
+</style>
+<script type="text/javascript" src="http://oui.orayimg.com/externals/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=true&amp;key=ABQIAAAA3T1S7om24pyXxZFsj8v4hRSSRaRT6i6vm9oUis7talm0Fjw8whQWVsq_xEGB0qggRxG-13ppJ4sk-A&hl=zh-cn"></script>
+<script type="text/javascript" src="googlemap.js"></script>
+</head>
+<body onload="initMap(3)" onunload="GUnload()">
+	地址：<input type="text" name="address" id="address" value="中国" /> <button id="mapsearch">搜索</button> <button id="addMap">插入地图</button>
+	<div id="mapArea"></div>
+</body>
+</html>

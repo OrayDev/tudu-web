@@ -1,0 +1,86 @@
+[production]
+phpSettings.display_startup_errors = 0
+phpSettings.display_errors = 0
+includePaths.library = APPLICATION_PATH "/../library"
+bootstrap.path = APPLICATION_PATH "/Bootstrap.php"
+bootstrap.class = "Bootstrap"
+
+; autoloader
+autoloaderNamespaces[] = "Oray_"
+autoloaderNamespaces[] = "Dao_"
+autoloaderNamespaces[] = "Tudu_"
+autoloaderNamespaces[] = "TuduX_"
+autoloaderNamespaces[] = "Model_"
+autoloaderNamespaces[] = "OpenApi_"
+
+pluginpaths.Oray_Application_Resource = "Oray/Application/Resource"
+
+appnamespace = "Application"
+resources.frontController.controllerDirectory = APPLICATION_PATH "/controllers"
+resources.frontController.params.displayExceptions = 0
+
+; md
+resources.multidb.md.adapter  = "pdo_mysql"
+resources.multidb.md.default  = 1
+resources.multidb.md.charset  = "utf8"
+resources.multidb.md.host     = ""
+resources.multidb.md.username = ""
+resources.multidb.md.password = ""
+resources.multidb.md.dbname   = ""
+
+resources.multidb.ts1.adapter  = "pdo_mysql"
+resources.multidb.ts1.charset  = "utf8"
+resources.multidb.ts1.host     = ""
+resources.multidb.ts1.username = ""
+resources.multidb.ts1.password = ""
+resources.multidb.ts1.dbname   = ""
+
+resources.multidb.app.adapter = "pdo_mysql"
+resources.multidb.app.charset = "utf8"
+resources.multidb.app.host = "113.105.231.36"
+resources.multidb.app.username = "tudu-ts"
+resources.multidb.app.password = "tudu-ts"
+resources.multidb.app.dbname = "oray-tudu-ts"
+
+; memcached
+resources.memcache.compression   = 1
+resources.memcache.compatibility = 1
+resources.memcache.servers.host  = ""
+resources.memcache.servers.port  = 11211
+resources.memcache.servers.timeout = 30
+
+httpsqs.host = ""
+httpsqs.port = 1218
+httpsqs.chartset = "utf-8"
+httpsqs.name = "im"
+
+; 图度默认标签
+tudu.label.inbox        = "^i"
+tudu.label.drafts       = "^r"
+tudu.label.todo         = "^a"
+tudu.label.review       = "^e"
+tudu.label.starred      = "^t"
+tudu.label.sent         = "^f"
+tudu.label.forwarded    = "^w"
+tudu.label.ignore       = "^g"
+tudu.label.notice       = "^n"
+tudu.label.discuss      = "^d"
+tudu.label.meeting      = "^m"
+tudu.label.done         = "^o"
+tudu.label.all          = "^all"
+tudu.label.wait         = "^td"
+tudu.label.associate    = "^c"
+
+; 附件目录
+path.attachment = "/mfs"
+
+[staging : production]
+
+[testing : production]
+phpSettings.display_startup_errors = 1
+phpSettings.display_errors = 1
+
+[development : production]
+phpSettings.display_startup_errors = 1
+phpSettings.display_errors = 1
+resources.frontController.params.displayExceptions = 1

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tips>
+    <tip>
+        <id>tudu-015</id>
+        <path>/frame/home</path>
+        <frame>#mainframe</frame>
+        <autoshow>false</autoshow>
+        <above><![CDATA[#talk-tips]]></above>
+        <arrow>bottom</arrow>
+        <title><![CDATA[Tudu communicate software]]></title>
+        <content><![CDATA[完美融合图度平台，任务、公告等实时提醒。&nbsp;&nbsp;<a href="javascript:void(0);" class="close">[Understood]</a>]]></content>
+    </tip>
+    <tip>
+        <id>tudu-021</id>
+        <path>/frame</path>
+        <under><![CDATA[#admin-link]]></under>
+        <arrow>top</arrow>
+        <title><![CDATA[Manager Platform]]></title>
+        <content><![CDATA[Click to manage users and department.&nbsp;&nbsp;<a href="javascript:void(0);" class="close">[Unsterstood]</a>]]></content>
+    </tip>
+    <tip>
+        <id>tudu-022</id>
+        <path>/tudu/view</path>
+        <frame>#mainframe</frame>
+        <under>button[name="forward"]:eq(1)</under>
+        <arrow>top</arrow>
+        <title><![CDATA[Merge Review]]></title>
+        <content><![CDATA["Apply Review" merge into this "Forward" button。&nbsp;&nbsp;<a href="javascript:void(0);" class="close">Unsterstood]</a>]]></content>
+    </tip>
+	<tip>
+        <id>tudu-023</id>
+        <path>/tudu/modify</path>
+        <frame>#mainframe</frame>
+        <under><![CDATA[#research]]></under>
+        <arrow>top</arrow>
+        <title><![CDATA[Make More Vote]]></title>
+        <content><![CDATA[Support more vote and you can reset the vote reslut。&nbsp;&nbsp;<a href="javascript:void(0);" class="close">[Unsterstood]</a>]]></content>
+    </tip>
+    <tip>
+        <id>tudu-026</id>
+        <path>/netdisk</path>
+        <frame>#mainframe</frame>
+        <under><![CDATA[#file table:eq(0) a:eq(3)]]></under>
+        <arrow>top</arrow>
+        <title><![CDATA[支持文件共享]]></title>
+        <content><![CDATA[网盘文件支持共享。&nbsp;&nbsp;<a href="javascript:void(0);" class="close">[我知道了]</a>]]></content>
+    </tip>
+</tips>

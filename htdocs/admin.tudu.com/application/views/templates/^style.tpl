@@ -1,0 +1,2 @@
+<link href="{{$options.sites.static}}/css/style.css?1005" type="text/css" rel="stylesheet" />
+<link href="{{$options.sites.static}}/css/skin_{{if null !== $admin.option.skin}}{{$admin.option.skin}}{{else}}8{{/if}}.css?1003" type="text/css" rel="stylesheet" id="css-skin" />

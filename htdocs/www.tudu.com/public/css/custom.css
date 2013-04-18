@@ -1,0 +1,28 @@
+@charset "utf-8";body,form,div p{margin:0;padding:0;}
+html,body{height:100%;}
+footer,header{display:block;}
+body{font:12px/1.8em "微软雅黑";min-width:800px;background-color:#99ac71;}
+input[type=radio],input[type=checkbox]{margin:0 3px 1px 0;padding:0;vertical-align:middle;}
+input.text{padding:0 4px;overflow:hidden;font:14px Verdana,Geneva,sans-serif;font-weight:bold;color:#333;border:1px solid #d1d1d1;border-right-color:#95978d;background:#fff;vertical-align:middle;width:280px;outline:none;-webkit-box-shadow:-1px 0 1px #efefef inset;-moz-box-shadow:-1px 0 1px #efefef inset;box-shadow:-1px 0 1px #efefef inset;height:34px;line-height:34px;}
+a{color:#fff;text-decoration:underline;}
+.clear{clear:both;height:0;font-size:0;line-height:0;overflow:hidden;}
+.decimal{list-style-position:outside;margin:5px 0 0;padding:0 0 0 20px;_padding-left:25px;}
+.tips{color:#c00;font-size:12px;height:22px;line-height:22px;}
+footer{height:86px;line-height:86px;color:#fcfcfc;text-shadow:0 0 1px #252525;width:980px;margin:0 auto;position:relative;font-size:12px;font-family:"微软雅黑";}
+footer a{color:#fcfcfc;text-decoration:none;}
+footer a:hover{text-decoration:underline;}
+.copyright{position:absolute;top:0;right:0;}
+.logo{height:50px;overflow:hidden;padding:25px 50px;}
+.png{_filter:expression(this.nodeName == "IMG" && this.src.toLowerCase().indexOf('.png')>-1 ?(this.runtimeStyle.backgroundImage = "none",this.runtimeStyle.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='"+this.src+"',sizingMethod='image')",this.src = "https://www.oray.com/images/s.gif"):"none");}
+.content{width:980px;height:515px;margin:0 auto;overflow:hidden;z-index:10;position:relative;z-index:99;}
+.main{position:absolute;top:0;bottom:0;left:0;right:0;margin:auto;height:600px;width:100%;z-index:9;}
+.cover-layer{height:415px;min-width:980px;position:absolute;top:100px;left:0;right:0;background-color:#000;background-color:rgba(0,0,0,0.2);z-index:10;}
+.info-box{float:left;width:470px;padding-right:50px;color:#fff;overflow:hidden;font-size:16px;padding-top:100px;height:415px;overflow:hidden;line-height:1.4em;}
+.info-box .title{font-size:24px;color:#fff;height:90px;line-height:90px;}
+.login-box{float:right;width:460px;height:515px;background-color:#1b1b1b;background-color:rgba(27,27,27,0.4);color:#fff;}
+.login-box th{width:71px;font-size:14px;padding-left:0;padding-right:0;}
+.login-title{padding-top:32px;font-size:16px;font-weight:bold;}
+.btn-login{height:40px;line-height:40px;width:100px;border:0;outline:none;cursor:pointer;font-size:16px;font-weight:bold;color:#431600;background-color:#ffa81a;background-image:-moz-linear-gradient(top,#ffb800,#ffa81a);background-image:-webkit-gradient(linear,left top,left bottom,color-stop(0,#ffb800),color-stop(1,#ffa81a));-moz-border-radius:5px;-khtml-border-radius:5px;-webkit-border-radius:5px;border-radius:5px;}
+.btn-login:hover{background-color:#ffb800;background-image:-moz-linear-gradient(top,#ffa81a,#ffb800);background-image:-webkit-gradient(linear,left top,left bottom,color-stop(0,#ffa81a),color-stop(1,#ffb800));}
+.input-text-wrap{position:relative;zoom:1;}
+.input-text-wrap img{position:absolute;top:1px;right:86px;}

@@ -1,0 +1,8 @@
+# Tudu crontab #
+01 04 * * * $install_dir/coreseek/shell/index_rebuild.sh >> $install_dir/coreseek/var/log/index_rebuild.log 2>&1
+*/5 * * * * $install_dir/coreseek/shell/index_inc.sh >> $install_dir/coreseek/var/log/index_inc.log 2>&1
+
+*/1 * * * * /usr/local/webserver/php/bin/php /var/www/scripts/task/run/run.php imsqs --mode=1 --interval=3 --limit=60
+*/1 * * * * /usr/local/webserver/php/bin/php /var/www/scripts/task/run/run.php tudusqs --mode=1 --interval=3 --limit=60
+*/1 * * * * /usr/local/webserver/php/bin/php /var/www/scripts/task/run/run.php adminsqs --mode=1 --interval=3 --limit=60
+*/1 * * * * /usr/local/webserver/php/bin/php /var/www/scripts/task/run/run.php notify --mode=1 --interval=3 --limit=60

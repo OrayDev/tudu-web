@@ -1,0 +1,460 @@
+/*
+紫色  
+a{color:#2e1944;}
+.toolbar{
+    background-color:#d1b5f0;
+    border-bottom-color:#917bbc;
+}
+a:hover{background-color:#f4ebff;}
+.on a{ background-color:#714ea7;}
+.frameset{
+    background-color:#876ac5;
+}
+.content-main {
+    border-color:#876ac5;
+}
+.pop_header{ background-color:#cc9fe4;}
+.pop_footer{ background-color:#f6e3ff;}
+.readmailinfo{background-color:#f7f7ff;}
+.bd_upload {
+    background-color:#eeebfe;
+    border-color: #8145c1;
+}
+.attsep_rate{background-color:#e0c2ff;}
+.line_bold{ border-top-color:#cda6e9;}
+*/
+@charset "utf-8";
+/* CSS Document */
+a{
+    color:#2e1944; 
+}
+.font_c{
+    color:#2e1944; 
+}
+.frameset{
+    color:#2e1944;
+    background-image: url(../images/skin_6/vertical_x.jpg);
+    background-color:#876ac5;
+}
+/*==============tui-select=======================*/
+.ui-select{
+    border:1px solid #876AC5;
+}
+.tui-select-hover, .tui-select-expand {
+    border-color: #876AC5;
+}
+.option .tui-select-option-hover {
+    background-color: #F4EBFF;
+}
+/* fb => frameborder */
+.fb-top {
+    background-image:url(../images/skin_6/line_fb-top.gif);
+}
+.fb-top-left{
+    background-image:url(../images/skin_6/fb-top.jpg);
+}
+.fb-split-arrow{
+    background-image:url(../images/skin_6/split_arrow.gif);
+}
+.fb-bottom-left{
+    background-image:url(../images/skin_6/c_left.gif);
+}
+/* sb => sidebar*/
+.sb-bottom-wrap{
+    background-image:url(../images/skin_6/c_left.gif);
+}
+.sb-top {
+    background-image:url(../images/skin_6/sb-top.gif);
+}
+.sb-middle-wrap,.sb-bottom_inner{
+    background-image: url(../images/skin_6/c_left.gif);
+}
+/* container-top */
+.search{
+    background-image:url(../images/skin_6/bg_header.jpg);
+}
+.search input{
+    border-color:#876ac5;
+    background-image:url(../images/skin_6/search.jpg);
+}
+.icon_search{
+    background-image:url(../images/skin_6/search.jpg);
+}
+/*container-main*/
+.content-left a:hover{
+    background-color:#f4ebff;
+}
+.sb-middle .on a{
+    background-color:#714ea7;
+}
+.sb-middle .on a:hover{
+    background-color:#714ea7;
+}
+
+.step_item {
+    color:#666666
+}
+a.step_item:hover {
+    background: #f4ebff;
+}
+.step_item_selected {
+    background:#714ea7;
+    color:#ffffff
+}
+
+.my_note a.on{ background-color:#714ea7;}
+.my_note a.on:hover{ background-color:#714ea7;}
+.content-main{ border-color:#876ac5;}
+/* ------- webpage-------*/
+.toolbar{
+    background-color:#d1b5f0;
+    border-bottom-color:#917bbc;
+}
+.pop{ border-color:#917bbc;}
+.pop_header{ background-color:#cc9fe4;}
+.pop_footer{ background-color:#f6e3ff;}
+.bd_upload {
+    background-color:#eeebfe;
+    border-color: #8145c1;
+}
+.line_bold{ border-top-color:#cda6e9;}
+.attsep_bar{ border-color:#8145c1;}
+.attsep_rate{
+    background-color:#e0c2ff;
+}
+.composetab_sel{
+    background-image:url(../images/skin_6/tab.jpg);
+}
+.composetab_sel a{
+    color:#2e1944;
+}
+.readmailinfo{
+    background-color:#f7f7ff;
+}
+.content_box3{background-color:#ddd0f0; border-color:#917bbc;}
+.content_box2{background-color:#ddd0f0; border-bottom-color:#917bbc;}
+.mode{
+    border-right-color:#cda6e9;
+}
+.line_d{
+    border-top-color:#cda6e9;
+}
+.pop .pop_body_inner{
+    border-color:#917bbc;
+}
+.pop .list_box table .over{ background-color:#f4ebff;}
+.pop .list_box table .select,.pop .list_box a.select,.pop .list_box a:hover.select{ background-color:#714ea7;}
+.pop .list_box a:hover{
+    background-color:#f4ebff;
+}
+.btn_big{ border-color:#876ac5; background-image: url(../images/skin_6/line_x_btn.gif);}
+.board_title{
+    background-color:#d1b5f0;
+    border-bottom-color:#917bbc;
+}
+.icon_fold,.icon_unfold{
+    background-image:url(../images/skin_6/icon_fold.gif);
+}
+.position .title{
+    color:#2e1944;
+}
+.toolbar strong{
+    color:#2e1944;
+}
+.contacts_box{
+    background-color:#f4ebff;
+}
+.contacts_title{
+    border-bottom-color:#8145c1;
+    color:#2e1944;
+}
+.setting_tab {
+    background-color:#d1b5f0;
+    border-bottom-color:#917bbc;
+}
+.tabtitle li {
+    border-bottom-color:#917bbc;
+}
+.tabtitle li.selected{
+    background-color:#f7f7ff;
+    border-color:#917bbc #917bbc #f7f7ff #917bbc;
+}
+.settingbox{
+    background-color:#f7f7ff;
+}
+.pop_edit .pop_body{
+    background-color:#f7f7ff;
+    font-weight:bold
+}
+.line_bold_deeper{
+    border-color:#876ac5;
+}
+.skinsetting div.skin_select{
+    background-position:-352px 0;
+}
+.addrtitle{
+    background-color:#ddd0f0;
+}
+.file_title{
+    border-color:#917bbc;
+}
+.settingtd{
+    border-color:#917bbc;
+}
+.pop_linkman .groupopen div{
+    border-color:#917bbc;
+    background-color:#ddd0f0;
+}
+.list_over_2 tr.over{ background-color:#f4ebff;}
+.fold_box{ border-color:#917bbc;}
+.page a{ color:#2e1944;}
+.search_tab{
+    border-color:#917bbc;
+    background-color:#d1b5f0;
+}
+.search_tab strong{
+    background-color:#f7f7ff;
+    border-color:#917bbc #917bbc #f7f7ff #917bbc;
+}
+.panel_bg{
+    background-color:#f7f7ff;
+}
+.grid_list_wrap .grid_list_title {
+    border-bottom-color: #917BBC;
+    color:#2E1944;
+}
+.grid_list_btm_line {
+    border-bottom-color: #917BBC;
+}
+.children_group, .accepter_group {
+    border-bottom-color: #917BBC;
+}
+
+/*-----index------*/
+.line_part{
+    border-color:#917bbc;
+    background-color:#ddd0f0;
+}
+.panel_border .panel_header {
+    background-color:#ddd0f0;
+}
+.panel_border{
+    border-color:#917bbc;
+}
+.panel_change{
+    background-image: url(../images/skin_6/line_x.jpg);
+}
+.panel_t_l, .panel_t_r{
+    background-image:url(../images/skin_6/corner.jpg);
+}
+.panel_t_m{
+    background-color:#ddd0f0;
+}
+.c_box_body{
+    border-color:#917bbc;
+}
+.line_part3{
+    background-image:url(../images/skin_6/sideline.jpg);
+}
+.i_b_board,
+.i_b_work,
+.i_b_skin,
+.i_b_tab{
+    background-image:url(../images/skin_6/icon_big.gif);
+}
+.line_thin{
+    border-color:#917bbc;
+}
+.icon_plus{
+    background-image:url(../images/skin_6/icon.gif);
+}
+.icon_minus {
+    background-image:url(../images/skin_6/minus.gif);
+}
+.contact-dept-tree {
+    color:#2E1944;
+}
+.contact-dept-tree .tree-node-over{
+    background:#f4ebff;
+}
+.contact-dept-tree .tree-node-selected, .contact-dept-tree .tree-node-selected a {
+    background:#714ea7;
+}
+.cast-tree .tree-node-over .tree-node-el{
+    background:#f4ebff;
+}
+.tree-node-selected .nd_foldername{
+    background:#714ea7;
+}
+.contact_group_list li a:hover {
+    background:#f4ebff;
+}
+.contact_group_list li.selected a {
+    background:#714ea7;
+}
+
+#datepick-div{
+    border-color:#876ac5;
+}
+.datepick-control{
+    background-color:#876ac5;
+}
+.datepick-header,
+.datepick-header select{
+    background-color:#ddd0f0;
+}
+
+.mail_item_group {
+    color: #714ea7;
+}
+.mail_item_hover {
+    background: #f4ebff;
+}
+.mail_item_selected {
+    background:#d1b5f0;
+}
+.ac_list {
+    border-color: #917bbc;
+}
+.ac_list li.ac_item_over {
+    background: #917bbc;
+}
+.child-edit-box {
+    border-top-color:#917bbc;
+}
+.tudu_children_wrap {
+    border-top-color:#917bbc;
+}
+.tudu_children_item {
+    border-bottom-color:#917bbc;
+}
+.input_atten {
+    border-color:#917bbc
+}
+.progress_large {
+    border-color:#917bbc;
+}
+
+.progress_large .bar {
+    background-color:#917bbc
+}
+
+.select-tabs{
+    border-color:#917BBC;
+}
+.option-menu{
+    border-color:#917BBC;
+}
+.option-menu .menu-over{
+    background:#f4ebff;
+}
+.option-menu .menu-step{
+    border-top-color:#ccc;
+}
+.option-menu .menu-square{
+    background-color:#000;
+}
+
+.contact_selector_left .selector_left_title,
+.contact_selector_right .selector_right_title {
+    background-color:#f7f7ff;
+}
+.contact_selector_left .selector_inner,
+.contact_selector_right .selector_inner {
+    border-color: #917BBC;
+}
+.contact_select_groups {
+    border-top-color:#917BBC;
+}
+.contact_selector .contact_select_groups .panel_title {
+    color:#714ea7;
+    border-color:#917bbc;
+    background-color:#ddd0f0;
+}
+
+.float_tips .float_tips_body {
+    border-color: #917bbc;
+}
+.current{
+    background:#d1b5f0;
+}
+.search_tpl {
+    border-color: #917bbc;
+}
+.progress_upload {
+    background-image: url(../images/skin_6/progress.gif);
+}
+.board-class-list a.class-current {
+    background:#f4ebff;
+    border-color: #917bbc;
+    color: #917bbc;
+    font-weight:bold;
+}
+.drop-list {
+    background-color: #ddd0f0;
+    border-color: #917bbc;
+}
+.drop-list li a:hover {
+    background: #917bbc;
+}
+.toolbar_nav a:hover {
+    background:#f4ebff;
+}
+.toolbar_nav a.toolbar_nav_on{
+    background:#714ea7;
+}
+.table_list_title{
+	border-bottom-color:#cda6e9;
+}
+.table_list td{
+	border-bottom-color:#cda6e9;
+}
+.table_list th{
+	border-bottom-color:#cda6e9;
+}
+.set_flow_title{
+	border-bottom-color:#cda6e9;
+}
+.blank_box p.over{
+	background-color:#f4ebff;
+}
+/*======查看投票情况======*/
+.vote_option {
+    background-color:#F6E3FF;
+}
+.vote_option:hover{
+    background-color:#CC9FE4;
+}
+.option_selected {
+    background-color:#CC9FE4;
+}
+/*==========合并图度组窗口样式=============*/
+.merge_group{
+    border-color: #917BBC;
+}
+.merge_group .search_div{
+    border-bottom: 1px solid #917BBC;
+}
+.merge_group .tree .tree-node-selected{
+    background:#f4ebff;
+}
+.merge_group .search-list div:hover{
+    background:#f4ebff;
+}
+.merge_group .search-list div.selected{
+    background:#f4ebff;
+}
+/*=======楼层引用回复样式=======*/
+.todo_info a.floor_f, .todo_info span.floor_f {
+    color:#2E1944;
+}
+/*=======图度日程表日历样式=======*/
+.cal-table td div:hover {
+    background-color:#f4ebff;
+}
+.cal-table td .on {
+    background-color:#714ea7;
+}
+.cal-table td .on:hover{
+    background-color:#714ea7;
+}

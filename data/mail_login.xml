@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<maillogin>
+    <!-- 橄榄邮 -->
+    <mail type="olivemail">
+        <url method="post"><![CDATA[
+        http://www.olivemail.cn/coremail/index.jsp
+        ]]></url>
+        <params>
+            <action name="action:login"></action>
+            <act>dologin</act>
+            <uid referer="address" />
+            <domain referer="domainname" />
+            <username referer="uid" />
+            <password referer="password" />
+        </params>
+    </mail>
+    
+    <!-- 163 -->
+	<mail domain="163.com">
+	    <url method="post"><![CDATA[
+	    http://reg.163.com/CheckUser.jsp
+	    ]]></url>
+	    <params>
+            <url><![CDATA[http://entry.mail.163.com/coremail/fcg/ntesdoor2?lightweight=1&verifycookie=1&language=-1&style=15]]></url>
+	        <username referer="address" />
+	        <password referer="password" />
+	    </params>
+	</mail>
+	
+	<!-- 126 -->
+	<mail domain="126.com">
+        <url method="post"><![CDATA[
+        http://reg.163.com/CheckUser.jsp
+        ]]></url>
+        <params>
+            <url><![CDATA[http://entry.mail.126.com/coremail/fcg/ntesdoor2?lightweight=1&verifycookie=1&language=-1&style=15]]></url>
+            <username referer="address" />
+            <password referer="password" />
+        </params>
+    </mail>
+    
+    <!-- yeah -->
+    <mail domain="yeah.net">
+        <url method="post"><![CDATA[
+        http://reg.163.com/CheckUser.jsp
+        ]]></url>
+        <params>
+            <url><![CDATA[http://entry.mail.yeah.net/coremail/fcg/ntesdoor2?lightweight=1&verifycookie=1&language=-1&style=15]]></url>
+            <username referer="address" />
+            <password referer="password" />
+        </params>
+    </mail>
+    
+    <!-- 188 -->
+    <mail domain="188.net">
+        <url method="post"><![CDATA[
+        http://reg.mail.188.com/servlet/login?verifycookie=1&enterWebmail=1&language=0&style=-1
+        ]]></url>
+        <params>
+            <user referer="uid" />
+            <pass referer="password" />
+        </params>
+    </mail>
+    
+    <!-- 雅虎邮箱 -->
+    <mail domain="yahoo.cn">
+        <url method="post"><![CDATA[
+        https://edit.bjs.yahoo.com/config/login
+        ]]></url>
+        <params>
+            <done name=".done"><![CDATA[http://mail.cn.yahoo.com/ycn_setcookie_inset.html?.done=http%3A%2F%2Fmail.cn.yahoo.com%2Finset.html%3Frr%3D1292914244]]></done>
+            <login referer="address" />
+            <passwd referer="password" />
+        </params>
+    </mail>
+    
+    <mail domain="yahoo.com">
+        <url method="post"><![CDATA[
+        https://edit.bjs.yahoo.com/config/login
+        ]]></url>
+        <params>
+            <done name=".done"><![CDATA[http://mail.cn.yahoo.com/ycn_setcookie_inset.html?.done=http%3A%2F%2Fmail.cn.yahoo.com%2Finset.html%3Frr%3D1292914244]]></done>
+            <login referer="address" />
+            <passwd referer="password" />
+        </params>
+    </mail>
+    
+    <mail domain="yahoo.com.cn">
+        <url method="post"><![CDATA[
+        https://edit.bjs.yahoo.com/config/login
+        ]]></url>
+        <params>
+            <done name=".done"><![CDATA[http://mail.cn.yahoo.com/ycn_setcookie_inset.html?.done=http%3A%2F%2Fmail.cn.yahoo.com%2Finset.html%3Frr%3D1292914244]]></done>
+            <login referer="address" />
+            <passwd referer="password" />
+        </params>
+    </mail>
+    
+    <!-- 新浪 -->
+    <mail domain="sina.com">
+        <url method="post"><![CDATA[
+        http://mail.sina.com.cn/cgi-bin/login.cgi
+        ]]></url>
+        <params>
+            <u referer="address" />
+            <psw referer="password" />
+        </params>
+    </mail>
+
+    <mail domain="sina.cn">
+        <url method="post"><![CDATA[
+        http://mail.sina.com.cn/cgi-bin/login.cgi
+        ]]></url>
+        <params>
+            <u referer="address" />
+            <psw referer="password" />
+        </params>
+    </mail>
+    
+    <!-- sohu -->
+    <mail domain="sohu.com">
+        <url method="get"><![CDATA[
+        https://passport.sohu.com/sso/login.jsp?appid=1000&persistentcookie=0&s=1290477829636&b=6&pwdtype=1&v=26
+        ]]></url>
+        <params>
+            <userid referer="address" />
+            <password referer="password" encrypt="md5" />
+        </params>
+    </mail>
+    
+    <mail domain="sogou.com">
+        <url method="get"><![CDATA[
+        https://passport.sohu.com/sso/login.jsp?appid=1000&persistentcookie=0&s=1290477829636&b=6&pwdtype=1&v=26
+        ]]></url>
+        <params>
+            <userid referer="address" />
+            <password referer="password" encrypt="md5" />
+        </params>
+    </mail>
+    
+    <!-- QQ -->
+    <mail domain="qq.com">
+        <url method="post"><![CDATA[
+        https://mail.qq.com/cgi-bin/login?sid=,2,zh_CN
+        ]]></url>
+        <params>
+            <aliastype referer="domainname" pre="@" />
+            <checkisWebLogin>6</checkisWebLogin>
+            <f>html</f>
+            <uin referer="uid" />
+            <pp referer="password" />
+        </params>
+    </mail>
+    
+    <mail domain="vip.qq.com">
+        <url method="post"><![CDATA[
+        https://mail.qq.com/cgi-bin/login?sid=,2,zh_CN
+        ]]></url>
+        <params>
+            <aliastype referer="domainname" pre="@" />
+            <checkisWebLogin>6</checkisWebLogin>
+            <f>html</f>
+            <uin referer="uid" />
+            <pp referer="password" />
+        </params>
+    </mail>
+    
+    <mail domain="foxmail.com">
+        <url method="post"><![CDATA[
+        https://mail.qq.com/cgi-bin/login?sid=,2,zh_CN
+        ]]></url>
+        <params>
+            <aliastype referer="domainname" pre="@" />
+            <checkisWebLogin>6</checkisWebLogin>
+            <f>html</f>
+            <uin referer="uid" />
+            <pp referer="password" />
+        </params>
+    </mail>
+    
+    <!-- 21cn -->
+    <mail domain="21cn.com">
+        <url method="post"><![CDATA[
+        http://passport.21cn.com/maillogin.jsp
+        ]]></url>
+        <params>
+            <DomainName referer="domainname" />
+            <LoginName referer="uid" />
+            <UserName referer="uid" />
+            <passwd referer="password" />
+        </params>
+    </mail>
+    
+    <!-- 263 -->
+    <mail domain="263.net">
+        <url method="post"><![CDATA[
+        http://wm2e193.263.net/mail/login/opt/loginAction_loginOpt.do
+        ]]></url>
+        <params>
+            <domain referer="domainname" />
+            <func>login</func>
+            <usr referer="uid" />
+            <pass referer="password" />
+        </params>
+    </mail>
+    
+    <mail domain="263.net.cn">
+        <url method="post"><![CDATA[
+        http://wm2e193.263.net/mail/login/opt/loginAction_loginOpt.do
+        ]]></url>
+        <params>
+            <domain referer="domainname" />
+            <func>login</func>
+            <usr referer="uid" />
+            <pass referer="password" />
+        </params>
+    </mail>
+    
+    <mail domain="x263.net">
+        <url method="post"><![CDATA[
+        http://wm2e193.263.net/mail/login/opt/loginAction_loginOpt.do
+        ]]></url>
+        <params>
+            <domain referer="domainname" />
+            <func>login</func>
+            <usr referer="uid" />
+            <pass referer="password" />
+        </params>
+    </mail>
+    
+    <!-- tom -->
+    <mail domain="tom.com">
+        <url method="post"><![CDATA[
+        http://login.mail.tom.com/cgi/login
+        ]]></url>
+        <params>
+            <domain referer="domainname" />
+            <func>login</func>
+            <address name="in_username" referer="address" />
+            <user referer="uid" />
+            <pass referer="password" />
+        </params>
+    </mail>
+    
+    <mail domain="vip.tom.com">
+        <url method="post"><![CDATA[
+        http://login.mail.tom.com/cgi/login
+        ]]></url>
+        <params>
+            <domain referer="domainname" />
+            <func>login</func>
+            <address name="in_username" referer="address" />
+            <user referer="uid" />
+            <pass referer="password" />
+        </params>
+    </mail>
+    
+    <mail domain="163.net">
+        <url method="post"><![CDATA[
+        http://login.mail.tom.com/cgi/login
+        ]]></url>
+        <params>
+            <domain referer="domainname" />
+            <func>login</func>
+            <address name="in_username" referer="address" />
+            <user referer="uid" />
+            <pass referer="password" />
+        </params>
+    </mail>
+    
+    <!-- eyou -->
+    <mail domain="eyou.com">
+        <url method="post"><![CDATA[
+        http://www.eyou.com/?q=login.do
+        ]]></url>
+        <params>
+            <domain name="domain_name" referer="domainname" />
+            <go>http://www.eyou.com/?q=base</go>
+            <password />
+            <user referer="address" />
+        </params>
+    </mail>
+    
+    <!-- 139 -->
+    <mail domain="139.com">
+        <url method="post"><![CDATA[
+        https://mail.10086.cn/Login/Login.ashx
+        ]]></url>
+        <params>
+            <UserName referer="uid" />
+            <Password referer="password" />
+        </params>
+    </mail>
+    
+    <!-- 联通wo -->
+    <mail domain="wo.com.cn">
+        <url method="post"><![CDATA[
+        http://mail.wo.com.cn/smsmail/j_login
+        ]]></url>
+        <params>
+            <username name="j_username" referer="uid" />
+            <password name="j_password" referer="password" />
+        </params>
+    </mail>
+    
+    <!-- 189 不可用
+    <mail domain="189.cn">
+        <url method="post"><![CDATA[
+        http://zx.passport.189.cn/Logon/UDBCommon/S/PassportLogin.aspx?PassportLoginRequest=3500000000400101%24RmfWmlSPmpHq3PVtuIdsWFfbPdPFWmMUaH3adGcHKMYaYZ61srh0qpDBRY2jkW7hNWG2WV05%2f1Xc%0axsBo%2f7H97DSU%2bY2xvn2KMSjl0deZ3b3M%2bk6lwbZ%2fkso8YnvT7z65
+        ]]></url>
+        <params>
+            <txtUserID referer="uid" />
+            <txtPwd referer="password" />
+        </params>
+    </mail>
+    -->
+    
+    <!-- Gmail -->
+    <mail domain="gmail.com">
+        <url method="post"><![CDATA[
+        https://www.google.com/accounts/ServiceLoginAuth
+        ]]></url>
+        <params>
+            <asts></asts>
+            <continue>http://mail.google.com/mail/?</continue>
+            <service>mail</service>
+            <rm>false</rm>
+            <rmShown>1</rmShown>
+            <scc>1</scc>
+            <ltmpl>default</ltmpl>
+            <ltmplcache>2</ltmplcache>
+            <secTok></secTok>
+            <timeStmp></timeStmp>
+            <Email referer="address" />
+            <Passwd referer="password" />
+        </params>
+    </mail>
+    
+    <!-- Microsoft -->
+    <mail domain="hotmail.com">
+        <url method="post"><![CDATA[
+        https://login.live.com/ppsecure/post.srf?wa=wsignin1.0&rpsnv=11&ct=1290481857&rver=6.1.6206.0&wp=MBI&wreply=http:%2F%2Fmail.live.com%2Fdefault.aspx&lc=2052&id=64855&mkt=zh-cn&cbcxt=mai&snsc=1&bk=1290482449
+        ]]></url>
+        <params>
+            <login referer="address" />
+            <passwd referer="password" />
+        </params>
+    </mail>
+    
+    <mail domain="live.cn">
+        <url method="post"><![CDATA[
+        https://login.live.com/ppsecure/post.srf?wa=wsignin1.0&rpsnv=11&ct=1290481857&rver=6.1.6206.0&wp=MBI&wreply=http:%2F%2Fmail.live.com%2Fdefault.aspx&lc=2052&id=64855&mkt=zh-cn&cbcxt=mai&snsc=1&bk=1290482449
+        ]]></url>
+        <params>
+            <login referer="address" />
+            <passwd referer="password" />
+        </params>
+    </mail>
+</maillogin>

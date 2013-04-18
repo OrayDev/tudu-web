@@ -1,0 +1,136 @@
+@charset "utf-8";
+/*=== 漫绿 ===*/
+a{
+    color:#4c5c2f;
+}
+.icon{
+    background-image:url(../img/icon_skin_0.gif);
+}
+.select-arrow,.select-big .tui-select-arrow, .select .tui-select-arrow,.app-info .pagination a{
+    background-image:url(../img/icon_skin_0.gif);
+}
+input.text-hover,
+textarea.text-hover{
+	border-color:#4c5c2d;
+}
+.select-hover{
+	border-color:#4c5c2d;
+}
+.select-big .option,
+.option{
+	border-color:#4c5c2d;
+}
+.option-item-hover{
+	background-color:#ebf4d5;
+}
+.tui-select-hover, .tui-select-expand {
+	border-color:#4c5c2d
+}
+.option .tui-select-option-hover {
+	background-color:#ebf4d5;
+}
+.navigation{
+	background-color:#789042;
+}
+.navigation a:hover,
+.navigation a.current{
+	background:#587024;
+}
+.sidebar a{
+    color:#4c5c2f;
+}
+.sidebar a:hover{
+    background-color:#c8d4ae;
+}
+.sidebar .current a,
+.sidebar .current a:hover{
+    background-color:#587024;
+}
+.tabs{
+	border-bottom-color:#c3d0a5;
+}
+.tabs a{
+	border-color:#c3d0a5;
+	background-color:#dce8c4;
+}
+.tabs a:hover{
+    background-color:#e5eecf;
+}
+.line{
+    border-top-color:#c3d0a5;
+}
+.toolbar{
+    background-color:#bed393;
+    border-bottom-color:#99ac71;
+}
+.window-header{
+    border-color:#587024;
+    background-color:#789042;
+}
+.window-body{
+    border-color:#587024;
+}
+.window-footer{
+    border-color:#587024;
+    background-color:#ebf4d5;
+}
+.window-nofooter .window-body{
+	border-bottom-color:#587024;
+}
+.functional-block a{
+	background-color:#789042;
+}
+.functional-block a:hover{
+	background-color:#9ab35f;
+}
+.security-level{
+    background-color:#e5eecf;
+	/*border-color:#c3d0a5;*/
+}
+.app-box{
+    background-color:#e5eecf;
+	/*border-color:#c3d0a5;*/
+}
+.app-info-header{
+	border-bottom-color:#789042;
+}
+.setstate-box{
+	border-top-color:#c3d0a5;
+}
+.skinsetting div.skin_select{
+    border-color:#c3d0a5;
+}
+
+#datepick-div{
+    border-color:#566732;
+}
+.datepick-control{
+    background-color:#566732;
+}
+.datepick-header,
+.datepick-header select{
+    background-color:#d9e5c1;
+}
+
+.option-menu{
+    border-color:#99AC71;
+}
+.option-menu .menu-over{
+    background:#ebf4d8;
+}
+.option-menu .menu-step{
+    border-top-color:#ccc;
+}
+.option-menu .menu-square{
+    background-color:#000;
+}
+/*======实名上传窗口=========*/
+.realwin{
+    color: #587024;
+}
+.realwin .line-solid{
+    border-top-color: #C3D0A5;
+}
+.realwin .preview-box img{
+    border-color:#587024;
+}

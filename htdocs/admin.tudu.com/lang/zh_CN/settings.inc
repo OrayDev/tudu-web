@@ -1,0 +1,42 @@
+<?php
+return array(
+	'invalid_orgname'  => '请输入正确的公司名称',
+	'systeminfo_update_failure' => '系统信息保存失败',
+    'systeminfo_update_success' => '系统信息保存成功',
+	'logo_file_too_large' => '请选择200K以下的logo文件',
+    'invalid_image_file'  => '无效的图像文件',
+	'logo_upload_failure' => 'Logo上传失败',
+    'logo_upload_success' => 'Logo上传成功',
+
+	'login_page_update_failure' => '登录界面信息更新失败',
+    'login_page_update_success' => '登录界面信息更新成功',
+
+	'skin_update_failure' => '皮肤更新失败',
+    'skin_update_success' => '皮肤更新成功',
+
+    'timezone_GMT-12' => '[GMT+12:00] 新西兰',
+    'timezone_GMT-11' => '[GMT+11:00] 太平洋中部',
+    'timezone_GMT-10' => '[GMT+10:00] 西太平洋',
+    'timezone_GMT-9' => '[GMT+9:00] 日本 东京',
+    'timezone_GMT-8' => '[GMT+8:00] 中国标准时间 北京，重庆，香港',
+    'timezone_GMT-7' => '[GMT+7:00] 泰国 曼谷',
+    'timezone_GMT-6' => '[GMT+6:00] 中亚',
+    'timezone_GMT-5' => '[GMT+5:00] 西亚',
+    'timezone_GMT-4' => '[GMT+4:00] 阿拉伯',
+    'timezone_GMT-3' => '[GMT+3:00] 俄罗斯',
+    'timezone_GMT-2' => '[GMT+2:00] 埃及',
+    'timezone_GMT-1' => '[GMT+1:00] 意大利 罗马',
+    'timezone_GMT+0' => '[GMT+0:00] 格林威治标准时间',
+    'timezone_GMT+1' => '[GMT-1:00] 亚速尔',
+    'timezone_GMT+2' => '[GMT-2:00] 大西洋中部',
+    'timezone_GMT+3' => '[GMT-3:00] 南美洲东部',
+    'timezone_GMT+4' => '[GMT-4:00] 加拿大',
+    'timezone_GMT+5' => '[GMT-5:00] 美加东部',
+    'timezone_GMT+6' => '[GMT-6:00] 墨西哥',
+    'timezone_GMT+7' => '[GMT-7:00] 美国山区',
+    'timezone_GMT+8' => '[GMT-8:00] 太平洋',
+    'timezone_GMT+9' => '[GMT-9:00] 阿拉斯加',
+    'timezone_GMT+10' => '[GMT-10:00] 夏威夷',
+    'timezone_GMT+11' => '[GMT-11:00] 萨摩亚',
+    'timezone_GMT+12' => '[GMT-12:00] 国际日期变更线'
+);

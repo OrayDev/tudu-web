@@ -1,0 +1,54 @@
+@charset "utf-8";
+html,body{height:100%;}
+body,div,p,form,fieldset{margin:0;padding:0;}
+body{background:url(/images/icon/bg.gif) repeat;color:#fff;}
+th,td,input,button,select,body,textarea{font-size:12px;font-family:Verdana,Geneva,sans-serif;}
+a{color:#8baa9e;cursor:pointer;text-decoration:underline;}
+input,button,select{vertical-align:middle;}
+input[type=radio],input[type=checkbox]{margin:0 5px 0 0;padding:0;}
+.clear{clear:both;font-size:0;line-height:0;height:0;overflow:hidden;}
+.gray{color:#666;}
+.header{height:100px;position:relative;}
+.title{font-size:28px;font-family:"微软雅黑";line-height:28px;}
+.login-cover-layer{background:url(/images/icon/cover_layer_login.png) 0 bottom repeat-x;padding-bottom:10px;height:526px;margin-bottom:5px;}
+.login-content{width:980px;margin:0 auto;padding-top:10px;}
+.login-left{float:left;width:470px;}
+.login-right{width:460px;float:right;}
+.login-left-header{height:100px;}
+.login-left-header .title{padding-top:40px;}
+.login-left-body{height:408px;background:url(/images/icon/container_bg.png) no-repeat center center;}
+.login-left-body-common{height:408px;background:url(/images/icon/login_common.png) no-repeat center center;}
+.company-info{font-size:16px;font-family:"微软雅黑";line-height:1.6em;padding:80px 0;}
+.login-box{border:1px solid #f0f0f0;background:#fff;}
+.login-box a,.login-box a:hover{color:#2a624b;}
+.login-box-header{height:99px;overflow:hidden;border-bottom:1px solid #d9e1de;position:relative;zoom:1;}
+.login-box-header-ext{position:absolute;right:30px;bottom:30px;color:#999;}
+.login-logo{padding:30px;}
+.login-box-body{border-top:1px solid #f9f9f9;height:411px;overflow:hidden;background-color:#f4f4f4;}
+.login-form{padding:30px;color:#333;}
+.login-form th,.login-form td{padding:7px 5px;}
+.login-form th{font-size:14px;color:#666;font-weight:normal;padding-left:0;padding-right:0;}
+.login-title{font-size:16px;font-weight:bold;}
+.input-text{background:#fff url(/images/icon/input_text_bg.gif) repeat-x;border:1px solid #d1d1d1;font-size:14px;font-family:Verdana,Geneva,sans-serif;vertical-align:middle;font-weight:bold;height:36px;line-height:36px\9;padding:0 4px;outline:none;overflow-y:auto;overflow-x:hidden;}
+.input-text-hover{border:1px solid #2c654f;}
+.input-text-wrap{position:relative;zoom:1;}
+.input-text-wrap img{position:absolute;top:2px;right:2px;}
+#container-height{overflow:hidden;position:relative;}
+button.btn{margin:0;padding:0;border:none;font-size:18px;font-family:"微软雅黑";color:#342300;background:none;*overflow:visible;cursor:pointer;}
+.btn span{display:inline-block;*display:block;height:43px;line-height:40px;background-image:url(/images/icon/btn.png);background-repeat:no-repeat;zoom:1;}
+.btn .btn-left{background-position:0 0;padding-left:30px;}
+.btn:hover .btn-left{background-position:0 -135px;}
+.btn .btn-right{background-position:right -45px;_background:url(/images/icon/btn_ie6.png) no-repeat right 0;padding-right:32px;}
+.btn:hover .btn-right{background-position:right -180px;}
+.btn .btn-inner{background-position:0 -90px;background-repeat:repeat-x;display:block;}
+.btn:hover .btn-inner{background-position:0 -225px;}
+.tips_box{background:url(/images/icon/icon-mid.png) -55px -58px no-repeat;font-size:14px;padding:10px 20px 10px 40px;margin:55px 10px 10px 0;}
+.info_box{font-size:14px;}
+.info_box ol{padding:0;margin:5px 0 0 0;list-style-position:inside;}
+.info_box li{line-height:26px;}
+.footer{height:40px;padding:0 20px;color:#71a5a1;}
+.footer p{height:40px;line-height:40px;}
+.footer .copyright{text-align:right;float:right;}
+.footer-link{float:left;}
+.footer a{text-decoration:none;color:#71a5a1;display:inline-block;margin-right:20px;}
+.footer a:hover{text-decoration:underline;}

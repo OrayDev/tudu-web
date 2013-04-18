@@ -1,0 +1,6 @@
+2013-04-08T16:06:35+08:00 CRIT (2): Dao_App_App_App::getAppPermissions - SQLSTATE[42S02]: Base table or view not found: 1146 Table 'tudu-open.app_permission' doesn't exist
+[17-Apr-2013 19:23:51 Asia/Shanghai] PHP Notice:  Undefined variable: lastest in /mnt/hgfs/source/htdocs/admin.tudu.com/application/controllers/UpdateController.php on line 72
+[17-Apr-2013 19:24:16 Asia/Shanghai] PHP Notice:  Undefined variable: lastest in /mnt/hgfs/source/htdocs/admin.tudu.com/application/controllers/UpdateController.php on line 97
+[17-Apr-2013 19:26:17 Asia/Shanghai] PHP Notice:  Undefined variable: lastest in /mnt/hgfs/source/htdocs/admin.tudu.com/application/controllers/UpdateController.php on line 97
+[17-Apr-2013 19:26:26 Asia/Shanghai] PHP Notice:  Undefined variable: lastest in /mnt/hgfs/source/htdocs/admin.tudu.com/application/controllers/UpdateController.php on line 97
+[17-Apr-2013 19:27:32 Asia/Shanghai] PHP Notice:  Undefined variable: lastest in /mnt/hgfs/source/htdocs/admin.tudu.com/application/controllers/UpdateController.php on line 97

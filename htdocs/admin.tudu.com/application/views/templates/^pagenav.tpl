@@ -1,0 +1,4 @@
+<div class="toolbar-pages">
+{{if $pagenav.currpage > 1}}&nbsp;<a href="{{page_url url=$pagenav.url page=1 query=$pagenav.query}}">{{$LANG.first_page}}</a>&nbsp;<a href="{{page_url url=$pagenav.url page=$pagenav.prev query=$pagenav.query}}">{{$LANG.up_page}}</a>&nbsp;{{/if}}
+{{$pagenav.currpage}}/{{$pagenav.pagecount}} {{$LANG.page}}
+{{if $pagenav.currpage < $pagenav.pagecount}}&nbsp;<a href="{{page_url url=$pagenav.url page=$pagenav.next query=$pagenav.query}}">{{$LANG.down_page}}</a>&nbsp;<a href="{{page_url url=$pagenav.url page=$pagenav.pagecount query=$pagenav.query}}">{{$LANG.last_page}}</a>{{/if}}</div>
