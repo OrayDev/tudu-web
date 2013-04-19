@@ -34,15 +34,13 @@ simplexml<br />
 
 手工配置<br />
 --------
-1.安装配置上述运行环境中所需的服务组件
+1.安装配置运行环境所需的服务组件<br />
 2.初始化数据库，install/sql中的sql文件为数据库初始化内容，按文件名顺序执行。注意客户端连接必须使用UTF8编码(SET NAMES UTF8)
-
-3.install/conf中提供部分服务的配置模版
-  nginx-tudu.conf Nginx站点配置模板，修改域名，路径等
-  php.ini：PHP环境配置文件
-  php-fpm：php-fpm服务配置文件
-  tudu.conf 全文检索服务配置文件，需要填写部分数据库主机，密码等
-
-4.以上配置完成后打开，修改/install/conf/config.ini.dist填写对应的配置信息后复制重命名为config.ini并复制/移动到/install目录
-
-5.在浏览器中打开站点可执行Web安装程序
+3.install/conf中提供部分服务的配置模版，可以按实际环境修改<br />
+&nbsp;&nbsp;&nbsp;&nbsp;nginx-tudu.conf Nginx站点配置模板，修改域名，路径等<br />
+&nbsp;&nbsp;&nbsp;&nbsp;php.ini：PHP环境配置文件<br />
+&nbsp;&nbsp;&nbsp;&nbsp;php-fpm.conf：php-fpm服务配置文件<br />
+&nbsp;&nbsp;&nbsp;&nbsp;tudu.conf 全文检索服务配置文件，需要填写部分数据库主机，密码等<br />
+&nbsp;&nbsp;&nbsp;&nbsp;cron 图度所需的计划任务，按实际情况修改路径后添加到系统计划任务中<br />
+4.以上配置完成后打开，修改install/conf/config.ini.dist填写对应的配置信息并重命名为config.ini并复制/移动到install目录<br />
+5.在浏览器中打开站点可执行Web安装程序<br />
