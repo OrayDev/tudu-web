@@ -7,7 +7,7 @@ http://www.tudu.com/
 
 运行环境
 --------
-操作系统：Linux/Unix/Windows(Windows仅运行支持的组件和web服务)<br />
+操作系统：Linux/Unix/Windows(Windows可运行Web、PHP、mysql等支持Windows的服务，必要服务如：httpsqs，需要Linux/Unix系统运行)<br />
 数 据 库：mysql<br />
 Web 服务：nginx/Apache<br />
 队列服务：httpsqs<br />
