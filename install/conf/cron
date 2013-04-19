@@ -1,0 +1,12 @@
+# Tudu crontab #
+01 04 * * * /usr/local/coreseek/shell/index_rebuild.sh >> /usr/local/coreseek/var/log/index_rebuild.log 2>&1
+*/5 * * * * /usr/local/coreseek/shell/index_inc.sh >> /usr/local/coreseek/var/log/index_inc.log 2>&1
+
+*/1 * * * * /usr/local/php/bin/php /www/scripts/task/run/run.php tudusqs --mode=1 --interval=3 --limit=60
+*/1 * * * * /usr/local/php/bin/php /www/scripts/task/run/run.php adminsqs --mode=1 --interval=3 --limit=60
+*/1 * * * * /usr/local/php/bin/php /www/scripts/task/run/run.php notify --mode=1 --interval=3 --limit=60
+01 00 * * * /usr/local/php/bin/php /www/scripts/task/run/run.php attend
+15 00 * * * /usr/local/php/bin/php /www/scripts/task/run/run.php discuz
+30 00 * * * /usr/local/php/bin/php /www/scripts/task/run/run.php notice
+45 00 * * * /usr/local/php/bin/php /www/scripts/task/run/run.php tudu
+*/5 * * * * /usr/local/php/bin/php /www/scripts/task/run/run.php meeting
