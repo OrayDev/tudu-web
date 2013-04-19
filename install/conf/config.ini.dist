@@ -1,0 +1,21 @@
+[tudu]
+domain = 
+
+[mysql]
+host = 127.0.0.1
+port = 3306
+user = 
+password = 
+database = 
+
+[httpsqs]
+host = 127.0.0.1
+port = 12181
+
+[memcache]
+host = 127.0.0.1
+port = 11211
+
+[sphinx]
+host = 127.0.0.1
+port = 9312
