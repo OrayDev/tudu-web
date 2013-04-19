@@ -41,5 +41,6 @@ simplexml<br />
 &nbsp;&nbsp;&nbsp;&nbsp;php.ini：PHP环境配置文件<br />
 &nbsp;&nbsp;&nbsp;&nbsp;php-fpm.conf：php-fpm服务配置文件<br />
 &nbsp;&nbsp;&nbsp;&nbsp;tudu.conf 全文检索服务配置文件，需要填写部分数据库主机，密码等<br />
+&nbsp;&nbsp;&nbsp;&nbsp;cron 图度所需的计划任务，按实际情况修改路径后添加到系统计划任务中<br />
 4.以上配置完成后打开，修改install/conf/config.ini.dist填写对应的配置信息并重命名为config.ini并复制/移动到install目录<br />
 5.在浏览器中打开站点可执行Web安装程序<br />
