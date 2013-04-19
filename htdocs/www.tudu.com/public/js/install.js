@@ -3,10 +3,10 @@
  *
  * @copyright  Copyright (c) 2009-2010 Shanghai Best Oray Information S&T CO., Ltd.
  * @link       http://www.tudu.com/
- * @version    $Id: install.js 2799 2013-03-29 10:04:06Z chenyongfa $
+ * @version    $Id: install.js 2837 2013-04-19 03:05:41Z chenyongfa $
  */
 
-var Install = {    
+var Install = {
     initConfig: function() {
         var form = $('#theform'), _o = this;
         form.submit(function(){return false;});
@@ -98,5 +98,5 @@ var Install = {
         }
 
         return success;
-    },
+    }
  };
