@@ -79,8 +79,8 @@ class Model_Tudu_Send_Common extends Model_Abstract implements Model_Tudu_Send_I
                 if ($flow) {
                     $daoTudu->updateFlowProgress($tudu->tuduId, null, $flow->currentStepId);
                 }
-            } elseif ($tudu->operation == 'send') {
-                if (!$tudu->fromTudu || $tudu->fromTudu->nodeType == 'leaf') {
+            } else {
+                if (!$tudu->fromTudu || !$tudu->fromTudu->nodeType || $tudu->fromTudu->nodeType == 'leaf') {
                     $daoTudu->updateProgress($tudu->tuduId, $this->_user->uniqueId, null);
                 }
             }

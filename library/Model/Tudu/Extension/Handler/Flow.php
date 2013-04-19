@@ -347,8 +347,13 @@ class Model_Tudu_Extension_Handler_Flow extends Model_Tudu_Extension_Handler_Abs
             }
 
         } else {
+        	
+        	$steps         = $flow->steps;
+        	$lastStep      = end($steps);
+        	$currentStepId = $flow->currentStepId == '^end' ? $lastStep['stepid'] : $flow->currentStepId;
 
-            $step = isset($flow->steps[$flow->currentStepId]) ? $flow->steps[$flow->currentStepId] : null;
+            $step = isset($flow->steps[$currentStepId]) ? $flow->steps[$currentStepId] : null;
+            
             $isDisagree = false;
 
             foreach ($flow->steps as $item) {

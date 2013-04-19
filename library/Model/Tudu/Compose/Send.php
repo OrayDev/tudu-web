@@ -99,9 +99,9 @@ class Model_Tudu_Compose_Send extends Model_Tudu_Compose_Abstract
                 foreach ($accepters as $accepter) {
                     list($username, $truename) = explode(' ', $accepter['accepterinfo'], 2);
                     $childrenCount = $daoTuduGroup->getChildrenCount($tudu->tuduId, $accepter['uniqueid']);
-
+                    
                     if (isset($to[0][$username]) || $childrenCount > 0) {
-                        $to[0][$username] = array(
+                        $tuser = array(
                             'username' => $username,
                             'truename' => $truename,
                             'email'    => $username,
@@ -109,10 +109,14 @@ class Model_Tudu_Compose_Send extends Model_Tudu_Compose_Abstract
                         );
 
                         if (!isset($to[0][$username]['percent']) || $childrenCount > 0) {
-                            $to[0][$username]['percent'] = (int) $accepter['percent'];
-                            $to[0][$username]['status']  = $accepter['percent'] <= 0 ? 0 : ($accepter['percent'] >= 100 ? 2 : 1);
+                            $tuser['percent'] = (int) $accepter['percent'];
+                            $tuser['status']  = $accepter['percent'] <= 0 ? 0 : ($accepter['percent'] >= 100 ? 2 : 1);
+                        } elseif (isset($to[0][$username]['percent'])) {
+                        	$tuser['percent'] = $to[0][$username]['percent'];
+                        	$tuser['status']  = $to[0][$username]['percent'] <= 0 ? 0 : ($to[0][$username]['percent'] >= 100 ? 2 : 1);
                         }
-
+ 
+                        $to[0][$username] = $tuser;
                     }
                 }
 
