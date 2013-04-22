@@ -227,6 +227,7 @@ echo "This may take serveral miniutes.Please wait..."
 sleep 5
 mysqladmin -u root password "$mysql_root_pwd"
 mysql -uroot -p$mysql_root_pwd <<EOF
+SET NAMES utf8;
 create database \`tudu-db\`  character set utf8;
 create user 'tudu'@'localhost' identified by 'tudu.com';
 grant all on \`tudu-db\`.* to 'tudu'@'localhost';
