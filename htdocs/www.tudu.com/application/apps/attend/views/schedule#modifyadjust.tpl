@@ -8,7 +8,7 @@
 <script src="{{$options.sites.static}}/js/frame.js?1019" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/jquery.datepick/jquery.datepick.js" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/jquery.datepick/jquery.datepick-zh-cn.js" type="text/javascript"></script>
-<script src="{{$options.sites.static}}/js/attend/adjust.js?1001" type="text/javascript"></script>
+<script src="{{$options.sites.static}}/js/attend/adjust.js?1002" type="text/javascript"></script>
 </head>
 
 <body>

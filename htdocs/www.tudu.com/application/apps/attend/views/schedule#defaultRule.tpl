@@ -1,4 +1,4 @@
-<td align="left">默认班<span class="gray">({{assign var=w value="week_"|cat:$week}}{{$LANG[$w]}})</span></td>
+<td align="left"><a href="javascript:void(0)" _scid="^default" class="color_grid" style="background-color:{{$rule.bgcolor}}"></a>默认班<span class="gray">({{assign var=w value="week_"|cat:$week}}{{$LANG[$w]}})</span></td>
 <td align="right">{{$rule.checkintime|default:'-'}}</td>
 <td align="right">{{$rule.checkouttime|default:'-'}}</td>
 <td align="right">{{if $rule}}{{$rule.latestandard|default:'0'}}-{{$rule.latecheckin|default:'-'}}{{$LANG.minute}}{{else}}-{{/if}}</td>

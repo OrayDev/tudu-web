@@ -5,11 +5,10 @@
 <title>{{$LANG.attend_class}}</title>
 {{include file="^style.tpl"}}
 <script src="{{$options.sites.static}}/js/jquery-1.4.4.js" type="text/javascript"></script>
-<script src="{{$options.sites.static}}/js/frame.js?1019" type="text/javascript"></script>
+<script src="{{$options.sites.static}}/js/frame.js?1030" type="text/javascript"></script>
 <style type="text/css">
 .color_grid{
     margin:0 5px;
-    background-color: #89A136;
 }
 </style>
 </head>
@@ -19,7 +18,7 @@
     <input name="scheduleid" value="{{$schedule.scheduleid}}" type="hidden" />
     <input name="ruleid" value="{{$schedule.ruleid}}" type="hidden" />
     <input name="action" value="{{if $schedule.scheduleid}}update{{else}}create{{/if}}" type="hidden" />
-    <input name="bgcolor" value="{{$schedule.bgcolor}}" type="hidden" />
+    <input name="bgcolor" value="{{if $schedule.scheduleid}}{{$schedule.bgcolor}}{{else}}{{$randomcolor}}{{/if}}" type="hidden" />
     {{include file="attend^tab.tpl" tab="schedule"}}
     <div class="tab-panel-body">
     {{include file="schedule^toolbar.tpl" tab="schedule"}}
@@ -275,7 +274,7 @@
 
 <div class="pop_wrap" id="color_panel" style="width:218px;position:absolute;display:none">
     <div class="color_list" style="width:200px;">
-    {{foreach item=color from=$bgcolors}}<div class="color_block"><div style="background-color:{{$color}}"></div><input type="hidden" name="color" value="{{$color}}" /></div>{{/foreach}}
+    {{foreach item=color from=$bgcolors}}{{if !in_array($color, $usedcolors)}}<div class="color_block"><div style="background-color:{{$color}}"></div><input type="hidden" name="color" value="{{$color}}" /></div>{{/if}}{{/foreach}}
     </div>
 </div>
 <script type="text/javascript">

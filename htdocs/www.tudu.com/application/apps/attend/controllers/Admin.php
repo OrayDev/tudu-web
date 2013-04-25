@@ -4,7 +4,7 @@
  * @copyright  Copyright (c) 2009-2010 Shanghai Best Oray Information S&T CO., Ltd.
  * @link       http://www.tudu.com/
  * @author     Oray-Yongfa
- * @version    $Id: Admin.php 2766 2013-03-05 10:16:20Z chenyongfa $
+ * @version    $Id: Admin.php 2775 2013-03-13 09:55:13Z chenyongfa $
  */
 
 /**
@@ -133,18 +133,24 @@ class Apps_Attend_Admin extends Apps_Attend_Abstract
 
         foreach ($this->_defaultCategories as $id => $item) {
             // 默认考勤分类的审批流程
+            $flowId = Dao_App_Attend_Category::getFlowId();
             $stepId = Dao_App_Attend_Category::getStepId();
-            $steps  = array(array(
+            $steps  = <<<STEPS
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE flow PUBLIC "-//TUDU//DTD FLOW//ZH-CN" "http://www.tudu.com/dtd/tudu-flow.dtd">
+<flow id="{$flowId}"><steps><step id="{$stepId}"><type>0</type><users><![CDATA[^upper]]></users><next>^end</next></step></steps></flow>
+STEPS;
+            /*$steps  = array(array(
                 'stepid'   => $stepId,
                 'type'     => 0,
                 'next'     => '^end',
                 'sections' => '^upper'
-            ));
+            ));*/
             $daoCategory->createCategory(array(
                 'categoryid'   => $id,
                 'orgid'        => $this->_user->orgId,
                 'categoryname' => $item['name'],
-                'flowsteps'    => json_encode($steps),
+                'flowsteps'    => $steps,//json_encode($steps),
                 'issystem'     => 1,
                 'status'       => 1,
                 'isshow'       => 1,
@@ -161,6 +167,7 @@ class Apps_Attend_Admin extends Apps_Attend_Abstract
             'name'       => '默认班',
             'uniqueid'   => '^system',
             'issystem'   => 1,
+            'bgcolor'    => '#800000',
             'createtime' => $ts
         ));
         for ($i = 0; $i < 7; $i ++) {
@@ -192,6 +199,7 @@ class Apps_Attend_Admin extends Apps_Attend_Abstract
             'name'       => '免签班',
             'uniqueid'   => '^system',
             'issystem'   => 1,
+            'bgcolor'    => '#DC143C',
             'createtime' => $ts
         ));
         $daoSchedule->createScheduleRule(array(
@@ -233,7 +241,7 @@ class Apps_Attend_Admin extends Apps_Attend_Abstract
             'settings' => json_encode($settings)
         );
 
-        if ($status == 1 && $app->status != $status) {
+        if ($status == Dao_App_App_App::STATUS_NORMAL && $app->status != $status) {
             $params['activetime'] = strtotime('tomorrow');
         }
 
@@ -252,7 +260,12 @@ class Apps_Attend_Admin extends Apps_Attend_Abstract
             Dao_App_App_User::ROLE_SC
         );
 
+        $more = (bool) $this->_request->getPost('more');
         foreach ($roles as $role) {
+            if (!$more && in_array($role, array(Dao_App_App_User::ROLE_DEF, Dao_App_App_User::ROLE_SUM, Dao_App_App_User::ROLE_SC))) {
+                continue;
+            }
+
             $val = $this->getRequest()->getPost($role);
             $val = explode("\n", $val);
 

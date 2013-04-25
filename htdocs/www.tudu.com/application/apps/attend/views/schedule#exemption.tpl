@@ -4,8 +4,8 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 {{include file="^style.tpl"}}
 <script src="{{$options.sites.static}}/js/jquery-1.4.4.js" type="text/javascript"></script>
-<script src="{{$options.sites.static}}/js/frame.js?1019" type="text/javascript"></script>
-<script src="{{$options.sites.static}}/js/attend/plan.js?1002" type="text/javascript"></script>
+<script src="{{$options.sites.static}}/js/frame.js?1030" type="text/javascript"></script>
+<script src="{{$options.sites.static}}/js/attend/plan.js?1003" type="text/javascript"></script>
 <style type="text/css">
 .color_grid{
     margin:0 5px;
@@ -58,6 +58,12 @@ $(function(){
     TOP.Frame.title('{{$schedule.name}} - {{$LANG.schedule_plan}}');
     TOP.Frame.hash('m=app/attend/schedule/exemption');
 
+    var usedColors = [];
+    {{foreach item=item from=$usedcolors}}
+    usedColors['{{$item.scheduleid}}'] = '{{$item.bgcolor}}';
+    {{/foreach}}
+    Attend.Plan.usedColors = usedColors;
+    Attend.Plan.bgColors   = [{{foreach from=$bgcolors name=color item=item}}'{{$item}}'{{if $smarty.foreach.color.index != count($bgcolors) - 1}},{{/if}}{{/foreach}}];
     var role = {{if !$role.admin}}false{{else}}true{{/if}};
     Attend.Plan.initExemption(role);
 });

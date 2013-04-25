@@ -46,7 +46,7 @@
         </tr>
         <tr>
             <td></td>
-            <td><label for="more"><input type="checkbox" id="more"{{if $roles.def || $roles.sc || $roles.sum}} checked="checked" {{/if}}/> 更多设置</label></td>
+            <td><label for="more"><input type="checkbox" value="1" name="more" id="more"{{if $roles.def || $roles.sc || $roles.sum}} checked="checked" {{/if}}/> 更多设置</label></td>
             <td></td>
         </tr>
         <tbody id="more-tbody"{{if !$roles.def && !$roles.sc && !$roles.sum}} style="display:none"{{/if}}>

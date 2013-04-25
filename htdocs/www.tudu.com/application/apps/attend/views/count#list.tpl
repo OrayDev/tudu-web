@@ -63,6 +63,7 @@
                         <col width="60" />
                         <col width="60" />
                         <col width="60" />
+                        <col />
                         <col width="60" />
                     </colgroup>
                     <tr>
@@ -75,6 +76,7 @@
                         <th align="left">{{$LANG.category_late}}</th>
                         <th align="left">{{$LANG.category_leave}}</th>
                         <th align="left">{{$LANG.category_unwork}}</th>
+                        <th align="left">备注</th>
                         <th align="right">{{$LANG.operate}}</th>
                     </tr>
                     <tbody id="count-list">
@@ -89,6 +91,7 @@
                             <td align="left"><input type="checkbox" disabled="disabled"{{if $item.islate}} checked="checked"{{/if}} /></td>
                             <td align="left"><input type="checkbox" disabled="disabled"{{if $item.isleave}} checked="checked"{{/if}} /></td>
                             <td align="left"><input type="checkbox" disabled="disabled"{{if $item.iswork}} checked="checked"{{/if}} /></td>
+                            <td align="left">{{if $item.checkinstatus}}{{foreach from=$item.checkinstatus item=status name=status}}{{if $status == 0}}未签到{{elseif $status == 1}}未签退{{elseif $status == 2}}有假单{{/if}}{{if $smarty.foreach.status.index + 1 < count($item.checkinstatus)}},{{/if}}{{/foreach}}{{else}}-{{/if}}</td>
                             <td align="right"><a href="javascript:void(0)" onclick="Attend.Count.showCheckinInfo('{{$item.uniqueid}}', '{{$item.date}}')">[{{$LANG.view}}]</a></td>
                         </tr>
                         {{foreachelse}}

@@ -5,7 +5,7 @@
 <title>{{$LANG.attend_class}}</title>
 {{include file="^style.tpl"}}
 <script src="{{$options.sites.static}}/js/jquery-1.4.4.js" type="text/javascript"></script>
-<script src="{{$options.sites.static}}/js/frame.js?1019" type="text/javascript"></script>
+<script src="{{$options.sites.static}}/js/frame.js?1030" type="text/javascript"></script>
 </head>
 
 <body>
@@ -19,7 +19,7 @@
                     <div class="table_list_title"><strong>{{$LANG.attend_schedule}}</strong></div>
                     <table width="100%" cellspacing="0" cellpadding="5" align="center" class="table_list">
                         <colgroup>
-                            <col width="100" />
+                            <col width="150" />
                             <col />
                             <col />
                             <col />
@@ -42,7 +42,7 @@
                         </tr>
                         <tbody id="schedule-list">
                             <tr id="plan-_exemption">
-                                <td align="left">免签班</td>
+                                <td align="left"><a href="javascript:void(0)" _scid="^exemption" class="color_grid" style="background-color:{{$sysschedules.exemption}}"></a>免签班</td>
                                 <td align="right">免签</td>
                                 <td align="right">免签</td>
                                 <td align="right">-</td>
@@ -53,7 +53,7 @@
                                 <td align="left">{{if $role.admin}}<a href="/app/attend/schedule/exemption">[{{$LANG.modify}}]</a>{{else}}<span class="gray">[{{$LANG.modify}}]</span>{{/if}}</td>
                             </tr>
                             <tr id="plan-_default">
-                                <td align="left">默认班</td>
+                                <td align="left"><a href="javascript:void(0)" _scid="^default" class="color_grid" style="background-color:{{$sysschedules.default}}"></a>默认班</td>
                                 <td align="right">09:00</td>
                                 <td align="right">18:00</td>
                                 <td align="right">1-60{{$LANG.minute}}</td>
@@ -65,7 +65,7 @@
                             </tr>
                             {{foreach item=item from=$schedules}}
                             <tr id="plan-{{$item.scheduleid}}">
-                                <td align="left" title="{{$item.name}}">{{$item.name|truncate:15}}</td>
+                                <td align="left" title="{{$item.name}}"><a href="javascript:void(0)" _scid="{{$item.scheduleid}}" class="color_grid" style="background-color:{{$item.bgcolor}}"></a>{{$item.name|truncate:15}}</td>
                                 <td align="right">{{$item.checkintime|default:'免签'}}</td>
                                 <td align="right">{{$item.checkouttime|default:'免签'}}</td>
                                 <td align="right">{{if $item.checkintime}}{{$item.latestandard|default:'0'}}-{{$item.latecheckin|default:'-'}}{{$LANG.minute}}{{else}}-{{/if}}</td>
@@ -85,6 +85,12 @@
             <div style="height:24px;"></div>
         </div>
   </div>
+
+<div class="pop_wrap" id="color_panel" style="width:218px;position:absolute;display:none">
+    <div class="color_list" style="width:200px;">
+    {{foreach item=color from=$bgcolors}}<div class="color_block"><div style="background-color:{{$color}}"></div><input type="hidden" name="color" value="{{$color}}" /></div>{{/foreach}}
+    </div>
+</div>
 </body>
 <script type="text/javascript">
 var Lang = {modify: '{{$LANG.modify}}', 'delete': '{{$LANG.delete}}'};
@@ -93,6 +99,15 @@ $(function(){
     TOP.Frame.title('{{$LANG.attend_class}}');
     TOP.Frame.hash('m=app/attend/schedule/index');
 
+    var usedColors = [];
+    usedColors['^default'] = '{{$sysschedules.default}}';
+    usedColors['^exemption'] = '{{$sysschedules.exemption}}';
+    {{foreach item=item from=$schedules}}
+    usedColors['{{$item.scheduleid}}'] = '{{$item.bgcolor}}';
+    {{/foreach}}
+
+    Attend.Schedule.usedColors = usedColors;
+    Attend.Schedule.bgColors   = [{{foreach from=$bgcolors name=color item=item}}'{{$item}}'{{if $smarty.foreach.color.index != count($bgcolors) - 1}},{{/if}}{{/foreach}}];
     Attend.Schedule.setLang({confirm_delete_schedule: '{{$LANG.confirm_delete_schedule}}'});
     Attend.Schedule.init();
 });

@@ -6,8 +6,8 @@
 {{include file="^style.tpl"}}
 <script src="{{$options.sites.static}}/js/jquery-1.4.4.js" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/jquery.extend.js" type="text/javascript"></script>
-<script src="{{$options.sites.static}}/js/frame.js?1019" type="text/javascript"></script>
-<script src="{{$options.sites.static}}/js/attend/plan.js?1002" type="text/javascript"></script>
+<script src="{{$options.sites.static}}/js/frame.js?1030" type="text/javascript"></script>
+<script src="{{$options.sites.static}}/js/attend/plan.js?1003" type="text/javascript"></script>
 </head>
 
 <body style="padding:0 5px 5px">

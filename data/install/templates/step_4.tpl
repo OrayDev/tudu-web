@@ -26,5 +26,6 @@
         <div style="margin-top:30px;" align="center"><input class="btn-big" type="button" value="登陆图度" onclick="location='{$url}'"></div>
     </section>
 </div>
+<div style="display:none"><img src="http://www.tudu.com/upgrade/count" style="width:0;height:0" /></div>
 </body>
 </html>

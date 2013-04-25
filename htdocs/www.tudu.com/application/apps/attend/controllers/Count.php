@@ -5,7 +5,7 @@
  * @copyright  Copyright (c) 2009-2010 Shanghai Best Oray Information S&T CO., Ltd.
  * @link       http://www.tudu.com/
  * @author     Oray-Yongfa
- * @version    $Id: Count.php 2769 2013-03-07 10:09:47Z chenyongfa $
+ * @version    $Id: Count.php 2775 2013-03-13 09:55:13Z chenyongfa $
  */
 
 /**
@@ -78,9 +78,9 @@ class Apps_Attend_Count extends Apps_Attend_Abstract
                     $depts = array();
                     if (!empty($roles['moderator'])) {
                         $depts = $this->getModerateDepts(true, true);
-                    }/* else {
+                    } else {
                         $depts = $this->getRoleDepts(true, true);
-                    }*/
+                    }
 
                     if (!empty($depts)) {
                         $userCondition['deptid'] = $depts;
@@ -114,8 +114,8 @@ class Apps_Attend_Count extends Apps_Attend_Abstract
                 if (!empty($roles['moderator'])) {
                     $depts = $this->getModerateDepts(true);
                 } else {
-                    //$depts = $this->getRoleDepts(true);
-                    $depts = $this->getDepts();
+                    $depts = $this->getRoleDepts(true);
+                    //$depts = $this->getDepts();
                 }
             } else {
                 $depts = $this->getDepts();
@@ -131,6 +131,8 @@ class Apps_Attend_Count extends Apps_Attend_Abstract
             $daoUser = Tudu_Dao_Manager::getDao('Dao_Md_User_User', Tudu_Dao_Manager::DB_MD);
             $user    = $daoUser->getUserCard($userCondition);
             $users[] = $user;
+
+            $this->view->u = $user;
         }
 
         $datas = array();
@@ -318,8 +320,8 @@ class Apps_Attend_Count extends Apps_Attend_Abstract
             if (!empty($roles['moderator'])) {
                 $depts = $this->getModerateDepts(true);
             } else {
-                //$depts = $this->getRoleDepts(true);
-                $depts = $this->getDepts();
+                $depts = $this->getRoleDepts(true);
+                //$depts = $this->getDepts();
             }
         } else {
             $depts = $this->getDepts();
@@ -424,9 +426,9 @@ class Apps_Attend_Count extends Apps_Attend_Abstract
                             $depts  = array();
                             if (!empty($roles['moderator'])) {
                                 $depts = $this->getModerateDepts(true, true);
-                            }/* else {
+                            } else {
                                 $depts = $this->getRoleDepts(true, true);
-                            }*/
+                            }
 
                             if (!empty($depts)) {
                                 $userCondition['deptid'] = $depts;

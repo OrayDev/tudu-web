@@ -43,7 +43,7 @@
             </p>
             <div class="table_list_wrap" style="margin-top:10px;">
                 <div class="table_list_title">
-                    <strong>{{if $query.deptid}}{{$depts[$query.deptid].deptname}}{{else}}{{$LANG.all_dept}}{{/if}}</strong>
+                    <strong>{{if $query.deptid}}{{$depts[$query.deptid].deptname}}{{else}}{{if $roles && $roles.sum}}{{$LANG.all_dept}}{{else}}{{$u.deptname|default:'所属部门'}}{{/if}}{{/if}}</strong>
                     <div class="table_list_title_ext"><a href="/app/attend/count/export?type=month{{foreach key=key item=val from=$query}}&{{$key}}={{$val}}{{/foreach}}&url={{$currUrl}}">{{$LANG.export_data}}</a></div>
                 </div>
                 <table width="100%" cellspacing="0" cellpadding="5" align="center" class="table_list">

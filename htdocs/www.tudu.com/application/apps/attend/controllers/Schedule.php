@@ -5,7 +5,7 @@
  * @copyright  Copyright (c) 2009-2010 Shanghai Best Oray Information S&T CO., Ltd.
  * @link       http://www.tudu.com/
  * @author     Oray-Yongfa
- * @version    $Id: Schedule.php 2767 2013-03-06 09:30:50Z chenyongfa $
+ * @version    $Id: Schedule.php 2795 2013-03-26 07:11:47Z chenyongfa $
  */
 
 /**
@@ -55,9 +55,22 @@ class Apps_Attend_Schedule extends Apps_Attend_Abstract
         $daoSchedule = Tudu_Dao_Manager::getDao('Dao_App_Attend_Schedule', Tudu_Dao_Manager::DB_APP);
 
         $condition = array('orgid' => $this->_user->orgId);
-        $schedules = $daoSchedule->getSchedules($condition, array('issystem' => false, 'isvalid' => true), 'createtime DESC');
+        $schedules = $daoSchedule->getSchedules($condition, array('isvalid' => true), 'createtime DESC');
+        $schedules = $schedules->toArray('scheduleid');
+        $sysSchedules = array();
 
-        $this->view->schedules   = $schedules->toArray();
+        foreach($schedules as $scheduleId => $schedule) {
+            if ($scheduleId != '^default' && $scheduleId != '^exemption') {
+                continue;
+            }
+
+            $sysSchedules[str_replace('^', '', $scheduleId)] = $schedule['bgcolor'];
+            unset($schedules[$scheduleId]);
+        }
+
+        $this->view->sysschedules = $sysSchedules;
+        $this->view->schedules    = $schedules;
+        $this->view->bgcolors     = $this->_bgColors;
     }
 
     /**
@@ -89,16 +102,22 @@ class Apps_Attend_Schedule extends Apps_Attend_Abstract
     public function modifyAction()
     {
         $scheduleId = $this->_request->getQuery('scheduleid');
+        $tempColor = array();
 
         /* @var $daoSchedule Dao_App_Attend_Schedule */
         $daoSchedule = Tudu_Dao_Manager::getDao('Dao_App_Attend_Schedule', Tudu_Dao_Manager::DB_APP);
+        $schedules = $daoSchedule->getSchedules(
+                array('orgid' => $this->_user->orgId),
+                array('isvalid' => true),
+                'createtime DESC')
+        ->toArray('scheduleid');
 
         if ($scheduleId) {
             $condition = array(
                 'orgid'      => $this->_user->orgId,
                 'scheduleid' => $scheduleId
             );
-            $schedule = $daoSchedule->getSchedule($condition);
+            $schedule = $schedules[$scheduleId];
 
             // 方案不存在
             if (null === $schedule) {
@@ -111,8 +130,6 @@ class Apps_Attend_Schedule extends Apps_Attend_Abstract
                 Oray_Function::alert('您没有修改该排班方案的权限', '/app/attend/schedule/index');
             }
 
-            $schedule = $schedule->toArray();
-
             if ($scheduleId == '^default') {
                 $rules = $daoSchedule->getScheduleRules($condition)->toArray('week');
                 $schedule['rules'] = $rules;
@@ -121,20 +138,17 @@ class Apps_Attend_Schedule extends Apps_Attend_Abstract
                 $schedule['checkouttime'] = null !== $schedule['checkouttime'] ? explode(':', $schedule['checkouttime']) :null;
             }
 
+            foreach ($schedules as $item) {
+                $tempColor[] = $item['bgcolor'];
+            }
+
             $this->view->schedule = $schedule;
         } else {
-            $schedules = $daoSchedule->getSchedules(
-                    array('orgid' => $this->_user->orgId),
-                    array('isvalid' => true),
-                    'createtime DESC')
-            ->toArray('scheduleid');
-
             $count = count($this->_bgColors);
             if (count($schedules) >= $count) {
                 Oray_Function::alert(sprintf('最多能创建 %s 个排班方案', $count), '/app/attend/schedule/index');
             }
 
-            $tempColor   = array();
             foreach ($schedules as $item) {
                 $tempColor[] = $item['bgcolor'];
             }
@@ -149,7 +163,8 @@ class Apps_Attend_Schedule extends Apps_Attend_Abstract
             $this->view->randomcolor = $randomColor;
         }
 
-        $this->view->bgcolors = $this->_bgColors;
+        $this->view->usedcolors = $tempColor;
+        $this->view->bgcolors   = $this->_bgColors;
     }
 
     /**
@@ -691,12 +706,24 @@ class Apps_Attend_Schedule extends Apps_Attend_Abstract
      */
     public function exemptionAction()
     {
+        $tempColor = array();
+
         /* @var $daoSchedule Dao_App_Attend_Schedule */
         $daoSchedule = Tudu_Dao_Manager::getDao('Dao_App_Attend_Schedule', Tudu_Dao_Manager::DB_APP);
-        $schedule = $daoSchedule->getSchedule(array('orgid' => $this->_user->orgId, 'scheduleid' => '^exemption'));
+        $schedules   = $daoSchedule->getSchedules(
+                array('orgid' => $this->_user->orgId),
+                array('isvalid' => true),
+                'createtime DESC')
+        ->toArray('scheduleid');
+        $schedule = $schedules['^exemption'];
 
-        $this->view->schedule = $schedule->toArray();
-        $this->view->bgcolors = $this->_bgColors;
+        foreach ($schedules as $key => $item) {
+            $tempColor[] = array('scheduleid' => $key, 'bgcolor' => $item['bgcolor']);
+        }
+
+        $this->view->usedcolors = $tempColor;
+        $this->view->schedule   = $schedule;
+        $this->view->bgcolors   = $this->_bgColors;
     }
 
     /**
@@ -1450,6 +1477,111 @@ class Apps_Attend_Schedule extends Apps_Attend_Abstract
 
     /**
      *
+     * @param unknown_type $uniqueId
+     * @param unknown_type $date
+     */
+    public function getPlan($uniqueId, $date)
+    {
+        /* @var $daoSchedule Dao_App_Attend_Schedule */
+        $daoSchedule = Tudu_Dao_Manager::getDao('Dao_App_Attend_Schedule', Tudu_Dao_Manager::DB_APP);
+        /* @var $daoPlan Dao_App_Attend_Schedule_Plan */
+        $daoPlan = Tudu_Dao_Manager::getDao('Dao_App_Attend_Schedule_Plan', Tudu_Dao_Manager::DB_APP);
+
+        // 读取当前月排班计划
+        $condition = array('date' => date('Ym', $date), 'uniqueid' => $uniqueId);
+        $plan      = $daoPlan->getMonthPlan($condition);
+        $day       = date('j', $date);
+
+        if ($plan !== null) {
+            $plan = $plan->toArray();
+            $plan = $plan['plan'];
+            if (!empty($plan) && isset($plan[$day])) {
+                $scheduleId = $plan[$day];
+            }
+        } else {
+            $weekPlan = $daoPlan->getWeekPlan(array('uniqueid' => $uniqueId));
+            if ($weekPlan !== null) {
+                $weekPlan = $weekPlan->toArray();
+                $scheduleId = $this->getPlanByWeekPlan($weekPlan, $date);
+            }
+        }
+
+        $schedule = null;
+        if (!empty($scheduleId)) {
+            if ($scheduleId != '^off') {
+                if ($scheduleId == '^default') {
+                    $query = array(
+                        'orgid'      => $this->_user->orgId,
+                        'scheduleid' => '^default',
+                        'week'       => date('w', $date)
+                    );
+                    $schedule = $daoSchedule->getSchedule($query);
+                    $schedule = (null !== $schedule) ? $schedule->toArray() : null;
+                } else {
+                    $schedule = $daoSchedule->getSchedule(array('orgid' => $this->_user->orgId, 'scheduleid' => $scheduleId), array('isvalid' => true));
+                    if (null === $schedule) {
+                        $query = array(
+                            'orgid'      => $this->_user->orgId,
+                            'scheduleid' => '^default',
+                            'week'       => date('w', $date)
+                        );
+                        $schedule = $daoSchedule->getSchedule($query);
+                    }
+                    $schedule = (null !== $schedule) ? $schedule->toArray() : null;
+                }
+            } else {
+                // 非工作日的调整成工作日的，默认班填充
+                $schedule = $daoSchedule->getSchedule(array(
+                    'orgid'      => $this->_user->orgId,
+                    'scheduleid' => '^default',
+                    'week'       => date('w', $date)
+                ));
+                $schedule = (null !== $schedule) ? $schedule->toArray() : null;
+            }
+        } else {
+            $schedule = $daoSchedule->getSchedule(array(
+                'orgid'      => $this->_user->orgId,
+                'scheduleid' => '^default',
+                'week'       => date('w', $date)
+            ));
+            $schedule = (null !== $schedule) ? $schedule->toArray() : null;
+        }
+
+        return $schedule;
+        
+    }
+
+    /**
+     * 通过周排班获取当日排班
+     *
+     * @param array $plans
+     * @param int   $year
+     * @param int   $month
+     */
+    public function getPlanByWeekPlan($plan, $date)
+    {
+        if (empty($plan)) {
+            return null;
+        }
+
+        $currPlan  = null;
+        $w         = date('w', $plan['effectdate']) == 0 ? 7 : date('w', $plan['effectdate']);
+        $sd        = date('j', $plan['effectdate']) - ($w - 1);
+        $start     = strtotime(date('Y', $plan['effectdate']) . '-' . date('m', $plan['effectdate']) . '-' . $sd);
+        $i         = 1;
+
+        if ($date >= $plan['effectdate']) {
+            $wd       = date('w', $date);
+            $diff     = $this->dateWeekDiff($date, $start);
+            $value    = $wd + (($diff % $plan['cyclenum']) * 7);
+            $currPlan = $plan['plan'][$value];
+        }
+
+        return $currPlan;
+    }
+
+    /**
+     *
      * @param string $uniqueId
      * @param int $type
      * @param array $dates
@@ -1465,6 +1597,9 @@ class Apps_Attend_Schedule extends Apps_Attend_Abstract
         $start   = $dates['starttime'];
         $orgId   = $this->_user->orgId;
         while ($start <= $today) {
+            if ($start > $dates['endtime']) {
+                break;
+            }
             $dateArr[] = $start;
             $start += 86400;
         }
@@ -1494,11 +1629,65 @@ class Apps_Attend_Schedule extends Apps_Attend_Abstract
             }
 
             $params  = array();
-            if ($type == 0) {
+            $sum     = array(0);
+            if (0 == $type) {
                 if ($item['islate'] || $item['isleave'] || $item['iswork']) {
                     $params['islate'] = 0;
                     $params['isleave'] = 0;
                     $params['iswork'] = 0;
+                    $params['checkinstatus'] = 0;
+                }
+            } else {
+                $checkins = $this->getCheckins($uniqueId, $date);
+                $plan     = $this->getPlan($uniqueId, $date);
+                $checkinStatus = !empty($plan) ? $this->getCheckinStatus($checkins, $plan) : 0;
+
+                if (!empty($plan) && $plan['scheduleid'] != '^off' && $plan['scheduleid'] != '^exemption') {
+                    $isLate  = false;
+                    $isLeave = false;
+                    $isWork  = false;
+                    foreach($checkins as $checkin) {
+                        if ($checkin['status'] == Dao_App_Attend_Checkin::STATUS_LATE) {
+                            $isLate = true;
+                        } elseif ($checkin['status'] == Dao_App_Attend_Checkin::STATUS_LEAVE) {
+                            $isLeave = true;
+                        } elseif ($checkin['status'] == Dao_App_Attend_Checkin::STATUS_WORK) {
+                            $isWork = true;
+                        }
+                    }
+                    if ($isWork) {
+                        $isLate  = false;
+                        $isLeave = false;
+                    }
+                    $params['iswork']  = $isWork ? true : false;
+                    $params['islate']  = $isLate? true : false;
+                    $params['isleave'] = $isLeave ? true : false;
+                }
+
+                $sum = array($checkinStatus);
+            }
+
+            if (!empty($item['checkinstatus'])) {
+                foreach ($item['checkinstatus'] as $item) {
+                    if ($item == 2) {
+                        $sum[] = 4;
+                        break;
+                    }
+                }
+            }
+
+            $checkinStatus = array_sum($sum);
+            $params['checkinstatus'] = $checkinStatus;
+
+            if (1 == $type && empty($params['iswork'])) {
+                $rs = Dao_App_Attend_Date::formatCheckinStatus($checkinStatus);
+                if (!empty($rs)) {
+                    foreach ($rs as $item) {
+                        if (0 == $item || 1 == $item) {
+                            $params['iswork'] = 1;
+                            break;
+                        }
+                    }
                 }
             }
 
@@ -1574,12 +1763,11 @@ class Apps_Attend_Schedule extends Apps_Attend_Abstract
             $schedule = null;
             $handle   = 'default';
             $date     = strtotime($year . '-' . $month . '-' . $day);
-            if ($scheduleId == '^off') {
-                $handle = 'off';
-            } else {
-                // 若调整为非工作日
-                $adjust = $daoAdjust->getUserAdjust(array('uniqueid' => $uniqueId, 'datetime' => $date));
-                if (null !== $adjust && $adjust->type == 0) {
+
+            // 若调整为非工作日
+            $adjust = $daoAdjust->getUserAdjust(array('uniqueid' => $uniqueId, 'datetime' => $date));
+            if (null !== $adjust) {
+                if ($adjust->type == 0) {
                     $handle = 'off';
                 } else {
                     $schedule = $daoSchedule->getSchedule(array('orgid' => $orgId, 'scheduleid' => $scheduleId), array('isvalid' => true));
@@ -1587,8 +1775,7 @@ class Apps_Attend_Schedule extends Apps_Attend_Abstract
                         $schedule = $daoSchedule->getSchedule(array(
                             'orgid'      => $orgId,
                             'scheduleid' => '^default',
-                            'week'       => date('w', $date),
-                            'status'     => 1
+                            'week'       => date('w', $date)
                         ));
                     }
                     $schedule = (null !== $schedule) ? $schedule->toArray() : null;
@@ -1596,7 +1783,27 @@ class Apps_Attend_Schedule extends Apps_Attend_Abstract
                         $handle = 'off';
                     }
                 }
+            } else {
+                $schedule = $daoSchedule->getSchedule(array('orgid' => $orgId, 'scheduleid' => $scheduleId), array('isvalid' => true));
+                if (null === $schedule) {
+                    $schedule = $daoSchedule->getSchedule(array(
+                        'orgid'      => $orgId,
+                        'scheduleid' => '^default',
+                        'week'       => date('w', $date),
+                        'status'     => 1
+                    ));
+                }
+                $schedule = (null !== $schedule) ? $schedule->toArray() : null;
+                if ($schedule === null) {
+                    $handle = 'off';
+                }
             }
+
+            if (null === $adjust && $scheduleId == '^off') {
+                $handle = 'off';
+            }
+
+            $attendDate = $daoDate->getAttendDate(array('uniqueid' => $uniqueId, 'date' => $date));
 
             switch ($handle) {
                 case 'off':
@@ -1607,8 +1814,17 @@ class Apps_Attend_Schedule extends Apps_Attend_Abstract
                         'iswork'  => 0,
                         'checkinstatus' => 0
                     );
-                    $exists = $daoDate->existsRecord($uniqueId, $date);
-                    if (!$exists) {
+
+                    if (!$attendDate && !empty($attendDate->checkinStatus)) {
+                        foreach ($attendDate->checkinStatus as $item) {
+                            if ($item == 2) {
+                                $params['checkinstatus'] = 4;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!$attendDate) {
                         $params['orgid']    = $orgId;
                         $params['uniqueid'] = $uniqueId;
                         $params['date']     = $date;
@@ -1709,7 +1925,6 @@ class Apps_Attend_Schedule extends Apps_Attend_Abstract
                     }
   
                     // 考勤当天是否有考勤申请
-                    $isApply = $daoDate->isApply($uniqueId, $date);
                     $isLate  = false;
                     $isLeave = false;
                     $isWork  = false;
@@ -1717,14 +1932,12 @@ class Apps_Attend_Schedule extends Apps_Attend_Abstract
 
                     $checkins = $this->getCheckins($uniqueId, $date);
                     foreach ($checkins as $checkin) {
-                        if (!$isApply) {
-                            if ($checkin['status'] == Dao_App_Attend_Checkin::STATUS_LATE) {
-                                $isLate = true;
-                            } elseif ($checkin['status'] == Dao_App_Attend_Checkin::STATUS_LEAVE) {
-                                $isLeave = true;
-                            } elseif ($checkin['status'] == Dao_App_Attend_Checkin::STATUS_WORK) {
-                                $isWork = true;
-                            }
+                        if ($checkin['status'] == Dao_App_Attend_Checkin::STATUS_LATE) {
+                            $isLate = true;
+                        } elseif ($checkin['status'] == Dao_App_Attend_Checkin::STATUS_LEAVE) {
+                            $isLeave = true;
+                        } elseif ($checkin['status'] == Dao_App_Attend_Checkin::STATUS_WORK) {
+                            $isWork = true;
                         }
                     }
 
@@ -1732,13 +1945,29 @@ class Apps_Attend_Schedule extends Apps_Attend_Abstract
                         $isWork = true;
                     }
 
+                    if ($isWork) {
+                        $isLate  = false;
+                        $isLeave = false;
+                    }
+
                     $dateParams['iswork']  = $isWork ? true : false;
                     $dateParams['islate']  = $isLate? true : false;
                     $dateParams['isleave'] = $isLeave ? true : false;
-                    $dateParams['checkinstatus'] = !empty($schedule) ? $this->getCheckinStatus($checkins, $schedule) : 0;
 
-                    $exists = $daoDate->existsRecord($uniqueId, $date);
-                    if (!$exists) {
+                    $checkinStatus = !empty($schedule) ? $this->getCheckinStatus($checkins, $schedule) : 0;
+                    $sum = array($checkinStatus);
+                    if (!$attendDate && !empty($attendDate->checkinStatus)) {
+                        foreach ($attendDate->checkinStatus as $item) {
+                            if ($item == 2) {
+                                $sum[] = 4;
+                                break;
+                            }
+                        }
+                    }
+
+                    $dateParams['checkinstatus'] = array_sum($sum);;
+
+                    if (!$attendDate) {
                         $dateParams['orgid']    = $orgId;
                         $dateParams['uniqueid'] = $uniqueId;
                         $dateParams['date']     = $date;
@@ -1774,7 +2003,7 @@ class Apps_Attend_Schedule extends Apps_Attend_Abstract
 
         if (null === $checkins) {
             if ($plan !== null) {
-            if ($plan['checkintime'] && $plan['checkouttime']) {
+                if ($plan['checkintime'] && $plan['checkouttime']) {
                     $checkinStatus = 3;
                 } elseif ($plan['checkintime'] && !$plan['checkouttime']) {
                     $checkinStatus = 1;
@@ -2042,12 +2271,10 @@ class Apps_Attend_Schedule extends Apps_Attend_Abstract
 
         // 处理有工作日调整的情况
         $adjust = $this->getAdjustByDate($adjusts, $dateTime);
-        if (!empty($adjust)) {
-            if ($adjust['type'] == 0) {
-                $rs['scheduleid'] = '^off';
-                $rs['name']       = '';
-                return $rs;
-            }
+        if (!empty($adjust) && 0 == $adjust['type']) {
+            $rs['scheduleid'] = '^off';
+            $rs['name']       = '';
+            return $rs;
         }
 
         // 有设置排班
@@ -2066,6 +2293,9 @@ class Apps_Attend_Schedule extends Apps_Attend_Abstract
                     if (!empty($schedule) && !$schedule['status']) {
                         $schedule = array();
                     }
+                    if (empty($schedule) && !empty($adjust) && 1 == $adjust['type']) {
+                        $schedule = $this->getDefaultPlan(date('w', $dateTime));
+                    }
                 } elseif (isset($schedules[$scheduleId])) {
                     $schedule = $schedules[$scheduleId];
                 }
@@ -2080,7 +2310,7 @@ class Apps_Attend_Schedule extends Apps_Attend_Abstract
                     // 考勤状态异常
                     if (isset($dates[$dateTime])) {
                         $attendDate = $dates[$dateTime];
-                        if ($dateTime != $today && ($attendDate['islate'] || $attendDate['iswork'] || $attendDate['isleave'])) {
+                        if ($dateTime < $today && ($attendDate['islate'] || $attendDate['iswork'] || $attendDate['isleave'])) {
                             $rs['mark'] = true;
                         }
                     }
@@ -2100,7 +2330,7 @@ class Apps_Attend_Schedule extends Apps_Attend_Abstract
                         // 考勤状态异常
                         if (isset($dates[$dateTime])) {
                             $attendDate = $dates[$dateTime];
-                            if ($dateTime != $today && ($attendDate['islate'] || $attendDate['iswork'] || $attendDate['isleave'])) {
+                            if ($dateTime < $today && ($attendDate['islate'] || $attendDate['iswork'] || $attendDate['isleave'])) {
                                 $rs['mark'] = true;
                             }
                         }
@@ -2126,7 +2356,7 @@ class Apps_Attend_Schedule extends Apps_Attend_Abstract
                 // 考勤状态异常
                 if (isset($dates[$dateTime])) {
                     $attendDate = $dates[$dateTime];
-                    if ($dateTime != $today && ($attendDate['islate'] || $attendDate['iswork'] || $attendDate['isleave'])) {
+                    if ($dateTime < $today && ($attendDate['islate'] || $attendDate['iswork'] || $attendDate['isleave'])) {
                         $rs['mark'] = true;
                     }
                 }

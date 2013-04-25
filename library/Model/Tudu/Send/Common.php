@@ -387,7 +387,7 @@ class Model_Tudu_Send_Common extends Model_Abstract implements Model_Tudu_Send_I
                     $userName = isset($user['username']) ? $user['username'] : $user['email'];
 
                     $user['role']         = 'to';
-                    
+
                     $user['accepterinfo'] = $userName . ' ' . $user['truename'];
                     $user['issender']     = $userName == $tudu->sender;
 
@@ -411,6 +411,10 @@ class Model_Tudu_Send_Common extends Model_Abstract implements Model_Tudu_Send_I
         if ($tudu->cc) {
             foreach ($tudu->cc as $key => $item) {
                 if (isset($item['groupid'])) {
+
+                    if (empty($item['groupid']) || !is_string($item['groupid'])) {
+                        continue ;
+                    }
 
                     if (0 === strpos($item['groupid'], 'XG')) {
                         $users = $addressBook->getGroupContacts($orgId, $uniqueId, $item['groupid']);
@@ -442,6 +446,10 @@ class Model_Tudu_Send_Common extends Model_Abstract implements Model_Tudu_Send_I
         if ($tudu->bcc) {
             foreach ($tudu->bcc as $key => $item) {
                 if (isset($item['groupid'])) {
+
+                    if (empty($item['groupid']) || !is_string($item['groupid'])) {
+                        continue ;
+                    }
 
                     if (0 === strpos($item['groupid'], 'XG')) {
                         $users = $addressBook->getGroupContacts($orgId, $uniqueId, $item['groupid']);

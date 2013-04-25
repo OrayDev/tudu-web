@@ -39,7 +39,7 @@ $(function(){
 	jQuery.getScript(TOP._SITES.STATIC + '/js/attend/lunar-1.0.0.js', function() {
 		new Lunar({hoursTo: $('#hours'), minutesTo: $('#minutes'), lang: '{{$user.option.language|default:"zh_CN"}}'});
 	});
-	jQuery.getScript(TOP._SITES.STATIC + '/js/attend/attend.js?1004', function() {
+	jQuery.getScript(TOP._SITES.STATIC + '/js/attend/attend.js?1006', function() {
 		Attend.Checkin.setLang({checkin: '{{$LANG.checkin}}'});
 		Attend.Checkin.init();
 	});

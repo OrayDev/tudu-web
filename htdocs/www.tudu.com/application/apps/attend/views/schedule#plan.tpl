@@ -5,8 +5,8 @@
 {{include file="^style.tpl"}}
 <script src="{{$options.sites.static}}/js/jquery-1.4.2.js" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/jquery.extend.js" type="text/javascript"></script>
-<script src="{{$options.sites.static}}/js/frame.js?1019" type="text/javascript"></script>
-<script src="{{$options.sites.static}}/js/attend/plan.js?1002" type="text/javascript"></script>
+<script src="{{$options.sites.static}}/js/frame.js?1030" type="text/javascript"></script>
+<script src="{{$options.sites.static}}/js/attend/plan.js?1003" type="text/javascript"></script>
 <style type="text/css">
 <!--
 .plan-table {
@@ -122,12 +122,15 @@ $(function(){
     TOP.Frame.title('{{$LANG.schedule_plan}}');
     TOP.Frame.hash('m=app/attend/schedule/plan');
 
-    var schedules = {};
+    var schedules = {}, usedColors = [];
     schedules['^root'] = {scheduleId: '^root', name: '排班方案', title: '排班方案', color: '', parentid: ''};
     {{foreach from=$schedules key=key item=item}}
     schedules['{{$key}}'] = {scheduleId: '{{$item.scheduleid}}', name: '{{$item.name|truncate:12|escape:'html'}}', title: '{{$item.name|escape:'html'}}', color: '{{$item.bgcolor}}', parentid: '^root'};
+    usedColors['{{$key}}'] = '{{$item.bgcolor}}';
     {{/foreach}}
     Attend.Plan.setSchedules(schedules);
+    Attend.Plan.usedColors = usedColors;
+    Attend.Plan.bgColors   = [{{foreach from=$bgcolors name=color item=item}}'{{$item}}'{{if $smarty.foreach.color.index != count($bgcolors) - 1}},{{/if}}{{/foreach}}];
 
     {{if !$role.admin}}
     Attend.Plan.setDepts('{{$deptids}}');
