@@ -150,6 +150,9 @@ sleep 5
 yum update -y
 yum install gcc g++ gcc-* gcc-c++* make autoconf automake libtool imake libicu-devel libxml2-devel expat-devel libmcrypt-devel curl-devel libjpeg-devel libpng-devel freetype-devel bzip2-devel zlib-devel -y
 
+sed -i -r  's/^\s*SELINUX(.*)$/SELINUX=disabled/g' /etc/selinux/config 
+setenforce 0
+
 wget -N "$autoconf_dl"
 echo "$autoconf_dl" |sed 's#^.*/##g'|awk '{printf "tar zxvf %s\n",$1}'|bash >$tmp_dir/code.log||exit 1
 if [ ! -s "$tmp_dir/code.log" ]; then
