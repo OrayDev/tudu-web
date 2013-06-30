@@ -37,10 +37,10 @@ resources.multidb.ts1.dbname   = ""
 
 resources.multidb.app.adapter = "pdo_mysql"
 resources.multidb.app.charset = "utf8"
-resources.multidb.app.host = "113.105.231.36"
-resources.multidb.app.username = "tudu-ts"
-resources.multidb.app.password = "tudu-ts"
-resources.multidb.app.dbname = "oray-tudu-ts"
+resources.multidb.app.host = ""
+resources.multidb.app.username = ""
+resources.multidb.app.password = ""
+resources.multidb.app.dbname = ""
 
 ; memcached
 resources.memcache.compression   = 1
@@ -68,8 +68,6 @@ tudu.label.discuss      = "^d"
 tudu.label.meeting      = "^m"
 tudu.label.done         = "^o"
 tudu.label.all          = "^all"
-tudu.label.wait         = "^td"
-tudu.label.associate    = "^c"
 
 ; 附件目录
 path.attachment = "/mfs"
