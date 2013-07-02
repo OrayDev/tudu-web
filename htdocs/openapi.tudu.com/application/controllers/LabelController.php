@@ -166,7 +166,7 @@ class LabelController extends TuduX_Controller_OpenApi
 
             foreach ($labels as $label) {
                 if ($label['issystem']) {
-                    if ((isset($label['display']) && ($label['display'] & 2) != 2) || !isset($sort[$label['labelid']])) {
+                    if (!isset($sort[$label['labelid']])) {
                         continue ;
                     }
                     $num = $sort[$label['labelid']];
