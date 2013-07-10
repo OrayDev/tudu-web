@@ -117,7 +117,7 @@ class Model_Tudu_Extension_Flow extends Model_Tudu_Extension_Abstract
                 }
 
                 if (empty($params['next'])) {
-                	$step['next'] = $next;
+                    $step['next'] = $next;
                 }
                 if (0 != strpos($next, '^') && 0 !== strpos($this->_steps[$next]['prev'], '^')) {
                     $this->_steps[$next]['prev'] = $stepId;
@@ -259,6 +259,7 @@ class Model_Tudu_Extension_Flow extends Model_Tudu_Extension_Abstract
         } elseif (is_string($users)) {
             $prevUsers = array();
             // 上一步
+
             if (empty($step['section'])) {
 
                 if ($stepId == '^head' && isset($tudu)) {
@@ -296,8 +297,10 @@ class Model_Tudu_Extension_Flow extends Model_Tudu_Extension_Abstract
                 $prevUsers = end($step['section']);
             }
 
-            foreach ($prevUsers as $u) {
-                $sectionUsers = $this->_getHeigherUsers($u['username'], isset($u['deptid']) ? $u['deptid'] : null, $step['section'] == '^uppers');
+            if (!empty($prevUsers)) {
+                foreach ($prevUsers as $u) {
+                    $sectionUsers = $this->_getHeigherUsers($u['username'], !empty($u['deptid']) ? $u['deptid'] : null, $step['section'] == '^uppers');
+                }
             }
 
             $step['section'] = array_merge($step['section'], $sectionUsers);
@@ -561,8 +564,16 @@ class Model_Tudu_Extension_Flow extends Model_Tudu_Extension_Abstract
         $step = $this->_steps[$stepId];
         $currentSection = isset($step['currentSection']) ? $step['currentSection'] : 0;
 
+        if ($currentSection >= count($step['section'])) {
+            $currentSection = count($step['section']) - 1;
+        }
+
         if (null === $sectionIndex) {
             $sectionIndex = $currentSection;
+        }
+
+        if ($sectionIndex >= count($step['section'])) {
+            $sectionIndex = count($step['section']) - 1;
         }
 
         if (!isset($step['section'][$sectionIndex])) {
@@ -821,11 +832,13 @@ class Model_Tudu_Extension_Flow extends Model_Tudu_Extension_Abstract
             }
         }
 
-        if (!$currentStep || !isset($currentStep['section'][$currentStep['currentSection']])) {
+        $currentSection = $currentStep['currentSection'] >= count($currentStep['section']) ? count($currentStep['section']) - 1 : $currentStep['currentSection'];
+
+        if (!$currentStep || !isset($currentStep['section'][$currentSection])) {
             return array();
         }
 
-        return $currentStep['section'][$currentStep['currentSection']];
+        return $currentStep['section'][$currentSection];
     }
 
     /**
@@ -1063,6 +1076,10 @@ class Model_Tudu_Extension_Flow extends Model_Tudu_Extension_Abstract
             }
 
             $deptId = $user['deptid'];
+        }
+
+        if (empty($deptId)) {
+            $deptId = '^root';
         }
 
         $depts = $this->_getDepts($orgId);
