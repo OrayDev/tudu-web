@@ -267,14 +267,23 @@ class Model_Tudu_Extension_Handler_Flow extends Model_Tudu_Extension_Handler_Abs
                 $flow->fromFlow = true;
             }
 
-            if (!$tudu->isDraft) {
+            if (!$tudu->isDraft && $savedFlow) {
                 $flowInfo = $savedFlow->toArray();
+                $flowSteps = array();
+                foreach ($flowInfo['steps'] as $sid => $st) {
+                    if (empty($sid) || empty($st)) {
+                        continue ;
+                    }
+                    $flowSteps[$sid] = $st;
+                }
+                $flowInfo['steps'] = $flowSteps;
 
                 // 工作流，检查是否有拒绝或不同意项目，然后重发
                 if ($tudu->flowId || ($tudu->fromTudu && $tudu->fromTudu->appId == 'attend')) {
                     $isBreak = false;
                     $flowTo  = $flowInfo['currentstepid'];
                     foreach ($flowInfo['steps'] as $sid => $st) {
+
                         foreach ($st['section'] as $idx => $sec) {
                             foreach ($sec as $i => $u) {
                                 if (isset($u['status']) && $u['status'] > 2) {
@@ -347,16 +356,25 @@ class Model_Tudu_Extension_Handler_Flow extends Model_Tudu_Extension_Handler_Abs
             }
 
         } else {
-        	
-        	$steps         = $flow->steps;
-        	$lastStep      = end($steps);
-        	$currentStepId = $flow->currentStepId == '^end' ? $lastStep['stepid'] : $flow->currentStepId;
+
+            if (!$flow->steps || !is_array($flow->steps)) {
+                return $this->appendTuduFlow($tudu, $flow);
+            }
+
+            $steps         = $flow->steps;
+            $lastStep      = end($steps);
+            $currentStepId = $flow->currentStepId == '^end' ? $lastStep['stepid'] : $flow->currentStepId;
 
             $step = isset($flow->steps[$currentStepId]) ? $flow->steps[$currentStepId] : null;
-            
+
             $isDisagree = false;
 
             foreach ($flow->steps as $item) {
+
+                if (!isset($item['section']) || !is_array($item['section'])) {
+                    continue ;
+                }
+
                 foreach ($item['section'] as $sec) {
                     foreach ($sec as $u) {
                         if ($item['type'] == 1 && isset($u['status']) && $u['status'] > 2) {
@@ -367,9 +385,9 @@ class Model_Tudu_Extension_Handler_Flow extends Model_Tudu_Extension_Handler_Abs
                             $isDisagree = $item['type'] == 1;
                             break 3;
                         // 拒绝的
-                        } elseif ($item['type'] == 0 && ($u['status'] <= 1 || $u['status'] == 3)) {
+                        } elseif ($item['type'] == 0 && isset($u['status']) && ($u['status'] <= 1 || $u['status'] == 3)) {
 
-                        	if (null === $step && 0 === strpos($flow->currentStepId, '^')) {
+                            if (null === $step && 0 === strpos($flow->currentStepId, '^')) {
                         		$step = $item;
                         		$flow->currentStepId = $item['stepid'];
                         	}
@@ -381,6 +399,10 @@ class Model_Tudu_Extension_Handler_Flow extends Model_Tudu_Extension_Handler_Abs
             }
 
             if (null === $step) {
+                if (empty($flow->steps)) {
+                    return $this->appendTuduFlow($tudu, $flow);
+                }
+
                 return ;
             }
 
@@ -457,7 +479,7 @@ class Model_Tudu_Extension_Handler_Flow extends Model_Tudu_Extension_Handler_Abs
                     foreach ($item['section'] as $idx => $sec) {
                         if ($idx == $item['currentSection']) {
                             $isExceedSection = true;
-                            
+
                             if ($isReview) {
                             	continue ;
                             }
@@ -562,6 +584,10 @@ class Model_Tudu_Extension_Handler_Flow extends Model_Tudu_Extension_Handler_Abs
                 if (empty($flow->steps[$currentStepId]['section'])) {
                     $flow->deleteStep($step['stepid']);
                 }
+            }
+
+            if (!count($flow->steps)) {
+                $prev = '^head';
             }
 
             if ($prev && 0 !== strpos($prev, '^head')) {
@@ -834,8 +860,8 @@ class Model_Tudu_Extension_Handler_Flow extends Model_Tudu_Extension_Handler_Abs
             $reviewer = $tudu->reviewer;
 
             $stepId = $flow->addStep(array(
-            'type' => Dao_Td_Tudu_Step::TYPE_EXAMINE,
-            'prev' => $prev
+                'type' => Dao_Td_Tudu_Step::TYPE_EXAMINE,
+                'prev' => $prev
             ));
 
             $flowTo = $prev = $stepId;
@@ -851,8 +877,8 @@ class Model_Tudu_Extension_Handler_Flow extends Model_Tudu_Extension_Handler_Abs
             $to = $tudu->to;
 
             $stepId = $flow->addStep(array(
-            'type' => $tudu->acceptMode ? Dao_Td_Tudu_Step::TYPE_CLAIM : Dao_Td_Tudu_Step::TYPE_EXECUTE,
-            'prev' => $prev
+                'type' => $tudu->acceptMode ? Dao_Td_Tudu_Step::TYPE_CLAIM : Dao_Td_Tudu_Step::TYPE_EXECUTE,
+                'prev' => $prev
             ));
 
             foreach ($to as $item) {
@@ -884,10 +910,10 @@ class Model_Tudu_Extension_Handler_Flow extends Model_Tudu_Extension_Handler_Abs
 
         foreach ($su as $k => $u) {
             $users[$u['username']] = array(
-            'uniqueid' => $u['uniqueid'],
-            'username' => $u['username'],
-            'truename' => $u['truename'],
-            'email'    => $u['username']
+                'uniqueid' => $u['uniqueid'],
+                'username' => $u['username'],
+                'truename' => $u['truename'],
+                'email'    => $u['username']
             );
         }
 
@@ -896,6 +922,10 @@ class Model_Tudu_Extension_Handler_Flow extends Model_Tudu_Extension_Handler_Abs
                 $tudu->reviewer = $users;
             }
         } else {
+            if ($step['type'] == 2) {
+                $tudu->acceptMode = 1;
+            }
+
             if (!$tudu->to) {
                 $tudu->to = $users;
             }
@@ -926,7 +956,7 @@ class Model_Tudu_Extension_Handler_Flow extends Model_Tudu_Extension_Handler_Abs
         $flow->flowId = $flowTpl->flowId;
         $steps = $flowTpl->steps;
 
-        $firstStep = reset($steps);
+        //$firstStep = reset($steps);
         foreach ($steps as $item) {
             $stepId = $item['stepid'];
 
@@ -941,15 +971,17 @@ class Model_Tudu_Extension_Handler_Flow extends Model_Tudu_Extension_Handler_Abs
 
             if (is_array($item['sections'])) {
                 foreach ($item['sections'] as $section) {
-                    $flow->addStepSection($stepId, $section);
+                    $flow->addStepSection($stepId, $section, $tudu);
                 }
             } else {
-                $flow->addStepSection($stepId, $item['sections']);
+                $flow->addStepSection($stepId, $item['sections'], $tudu);
             }
         }
+        $steps = $flow->steps;
+        $firstStep = reset($steps);
 
         // 更新图度执行人
-        $users = reset($firstStep['sections']);
+        $users = reset($firstStep['section']);
         $flow->flowTo($firstStep['stepid']);
 
         //XXX
@@ -962,7 +994,7 @@ class Model_Tudu_Extension_Handler_Flow extends Model_Tudu_Extension_Handler_Abs
         } else  {
             $tudu->to = $users;
 
-            if ($firstStep == 2) {
+            if ($firstStep['type'] == 2) {
                 $tudu->acceptMode = 1;
             }
         }
