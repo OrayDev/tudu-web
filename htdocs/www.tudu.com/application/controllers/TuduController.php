@@ -4279,7 +4279,7 @@ class TuduController extends TuduX_Controller_Base
                         }
                         $html[] = implode('<span class="icon icon_flow_plus"></span>', $reviewer);
                     }
-                    $html[] = '<span class="icon icon_flow_arrow"></span>';
+                    //$html[] = '<span class="icon icon_flow_arrow">d</span>';
                 }
             }
         }
