@@ -555,7 +555,7 @@ sh buildconf.sh
 make && make install ||exit 1
 cd ..
 cd $install_dir/mmseg3/etc/
-wget http://www.wapm.cn/uploads/csft/3.2/dict/default/thesaurus.lib
+cp $file_dir/install/sphinx/thesaurus.lib $install_dir/mmseg3/etc/
 cd -
 mkdir -p $install_dir/coreseek/index
 mkdir -p $install_dir/coreseek/shell
