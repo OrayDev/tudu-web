@@ -382,5 +382,12 @@ return array(
     'HIDE_FLOOR' => '點擊收縮',
     'FLOOR_IS_NULL' => '樓層已被刪除',
 
-    'TUDU_GROUP_NOT_SYNCHRO' => '圖度組不允許設置逐級執行任務，請先刪除分工'
+    'TUDU_GROUP_NOT_SYNCHRO' => '圖度組不允許設置逐級執行任務，請先刪除分工',
+
+    'INVALID_NOTE_CONTENT' => '請輸入便簽內容',
+    'LOADDING_NOTE_CONTENT_TIPS' => '正在載入便簽內容，請稍候...',
+    'CREATE_NOTE' => '新建便簽',
+    'NOTE_CONTENT' => '便簽內容',
+    'TIMING_REMIND' => '定時提醒'
+        
 );

@@ -113,7 +113,7 @@ class Model_Tudu_Compose_Forward extends Model_Tudu_Compose_Abstract
         foreach ($accepters as $accepter) {
             list($username, $truename) = explode(' ', $accepter['accepterinfo'], 2);
 
-            if (!isset($to[$username]) && $username != $this->_user->userName) {
+            if ((!isset($to[$username]) && $username != $this->_user->userName) || $accepter['percent'] >= 100) {
                 $to[$username] = array(
                     'username' => $username,
                     'truename' => $truename,
@@ -137,6 +137,8 @@ class Model_Tudu_Compose_Forward extends Model_Tudu_Compose_Abstract
         /* @var $daoTudu Dao_Td_Tudu_Tudu */
         $daoTudu = Tudu_Dao_Manager::getDao('Dao_Td_Tudu_Tudu', Tudu_Dao_Manager::DB_TS);
 
+        $user = Tudu_User::getInstance();
+
         $attrs   = $tudu->getStorageParams();
 
         if ($this->_isModified) {
@@ -153,6 +155,11 @@ class Model_Tudu_Compose_Forward extends Model_Tudu_Compose_Abstract
             if (!empty($attrs['stepid'])) {
                 $params['stepid'] = $attrs['stepid'];
             }
+
+
+            $time = time();
+            $params['lastposttime'] = $time;
+            $params['lastposter']   = $user->trueName;
 
             if (!$daoTudu->updateTudu($tudu->tuduId, $params)) {
                 require_once 'Model/Tudu/Exception.php';
@@ -184,8 +191,10 @@ class Model_Tudu_Compose_Forward extends Model_Tudu_Compose_Abstract
 
         /* @var $daoPost Dao_Td_Tudu_Post */
         $daoPost = Tudu_Dao_Manager::getDao('Dao_Td_Tudu_Post', Tudu_Dao_Manager::DB_TS);
-        /* @var $daoFile Dao_Td_Attachment_File */
-        $daoFile = Tudu_Dao_Manager::getDao('Dao_Td_Attachment_File', Tudu_Dao_Manager::DB_TS);
+        /* @var $daoAttach Dao_Td_Attachment_File */
+        $daoAttach = Tudu_Dao_Manager::getDao('Dao_Td_Attachment_File', Tudu_Dao_Manager::DB_TS);
+        /* @var $daoFile Dao_Td_Netdisk_File */
+        $daoFile = Tudu_Dao_Manager::getDao('Dao_Td_Netdisk_File', Tudu_Dao_Manager::DB_TS);
 
         $toArr = array();
         foreach ($tudu->to as $sec) {
@@ -209,6 +218,49 @@ class Model_Tudu_Compose_Forward extends Model_Tudu_Compose_Abstract
             }
         }
 
+        $attachments = $tudu->getAttachments();
+
+        // 处理网盘附件
+        $attachNum = 0;
+        foreach ($attachments as $k => $attach) {
+            if ($attach['isnetdisk']) {
+                $fileId = $attach['fileid'];
+                if (null !== $daoAttach->getFile(array('fileid' => $fileId))) {
+                    $ret['attachment'][] = $fileId;
+                    continue ;
+                }
+
+                $file = $daoFile->getFile(array('uniqueid' => $user->uniqueId, 'fileid' => $fileId));
+
+                if (null === $file) {
+                    continue ;
+                }
+
+                $fileId = $file->fromFileId ? $file->fromFileId : $file->attachFileId;
+
+                $ret = $daoAttach->createFile(array(
+                    'uniqueid'   => $user->uniqueId,
+                    'fileid'     => $fileId,
+                    'orgid'      => $user->orgId,
+                    'filename'   => $file->fileName,
+                    'path'       => $file->path,
+                    'type'       => $file->type,
+                    'size'       => $file->size,
+                    'createtime' => $this->_time
+                ));
+
+                if ($ret) {
+                    $attachments[$k]['fileid'] = $fileId;
+                } else {
+                    unset($attachments[$k]);
+                }
+            }
+
+            if ($attach['isattach']) {
+                $attachNum ++;
+            }
+        }
+
         $postParams = array(
             'orgid'   => $tudu->orgId,
             'tuduid'  => $tudu->tuduId,
@@ -218,6 +270,7 @@ class Model_Tudu_Compose_Forward extends Model_Tudu_Compose_Abstract
             'poster'  => $this->_user->trueName,
             'email'   => $this->_user->userName,
             'content' => $tudu->content,
+            'attachnum' => $attachNum,
             'createtime' => time(),
             'header'  => $header
         );
@@ -227,7 +280,7 @@ class Model_Tudu_Compose_Forward extends Model_Tudu_Compose_Abstract
 
         $attachments = $tudu->getAttachments();
         foreach ($attachments as $id => $attach) {
-            $daoFile->addPost($tudu->tuduId, $postId, $attach['attachid'], $attach['isattachment']);
+            $daoAttach->addPost($tudu->tuduId, $postId, $attach['fileid'], $attach['isattach']);
         }
 
         $this->_tuduLog('forward', $tudu);

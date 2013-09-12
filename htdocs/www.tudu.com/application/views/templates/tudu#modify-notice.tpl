@@ -28,7 +28,7 @@ if (top == this) {
 <script src="{{$options.sites.static}}/js/jquery.datepick/jquery.datepick.js" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/jquery.datepick/jquery.datepick-zh-cn.js" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/upload.js?1009" type="text/javascript"></script>
-<script src="{{$options.sites.static}}/js/compose.js?1038" type="text/javascript"></script>
+<script src="{{$options.sites.static}}/js/compose.js?1044" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/plugins.js?1004" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/boardselector.js?1003" type="text/javascript"></script>
 
@@ -169,7 +169,7 @@ if (top == this) {
                     <table cellspacing="0" cellpadding="0">
                       <tr>
                         <td class="info_txt">{{$LANG.content}}</td>
-                        <td class="info_forms info_input"><textarea style="height:300px;" class="form_textarea" id="content" cols="" rows="">{{$tudu.content|tudu_format_content|escape:'html'}}</textarea><textarea id="postcontent" name="content" style="display:none;"></textarea></td>
+                        <td class="info_forms info_input"><textarea id="content" cols="" rows="" style="width:100%;height:180px">{{$tudu.content|tudu_format_content|escape:'html'}}</textarea><textarea id="postcontent" name="content" style="display:none;"></textarea></td>
                       </tr>
                     </table>
                 </div>
@@ -249,20 +249,25 @@ $(function(){
     var h = $(window).height(),
     ch = $(document.body).height();
 
-    {{if $user.option.settings.fontfamily}}
-    var editorCss = {
-        'font-family':'{{$user.option.settings.fontfamily}}',
-        'font-size':'{{$user.option.settings.fontsize|default:'12px'}}'
-    };
-    {{else}}
-    var editorCss = {};
-    {{/if}}
-
-    $('#content').css('height', $('#content').height() + (h - ch - 15) + 'px');
-    _EDITOR = initEditor('content', editorCss, {{if $board && $board.protect && $tudu && !$tudu.isdraft}}true{{else}}false{{/if}});
-    {{if $board.protect}}
-    setTimeout(function(){_EDITOR.disabled();}, 500);
-    {{/if}}
+    var editorHeight = Math.max($('#content').height() + (h - ch - 15), 200);
+    var editorDisabled = {{if $board && $board.protect && $tudu && !$tudu.isdraft}}true{{else}}false{{/if}};
+    _EDITOR = initEditor('content', {initialFrameHeight: editorHeight}, function(){
+        if (editorDisabled) this.disable();
+        if (!this.hasContents()) {
+        {{if $user.option.settings.fontfamily}}
+        this.setContent('<p style="font-family:{{$user.option.settings.fontfamily}};font-size:{{$user.option.settings.fontsize|default:'12px'}}"></p>');
+        {{/if}}
+        }
+        
+        this.commands['send'] = {
+            execCommand: function() {
+                composeSubmit('#theform');
+            }
+        };
+        this.addshortcutkey({
+            "send": "ctrl+13"
+        });
+    });
 
 	$('a[name="tpllist"]').click(function(e) {
         var boardId = boardSelect.getValue();
@@ -526,5 +531,5 @@ $(function(){
 	}
 });
 </script>
-{{include file="^analytics.tpl"}}
+
 </html>

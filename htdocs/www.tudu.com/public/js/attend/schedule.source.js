@@ -4,7 +4,7 @@
  * @copyright  Copyright (c) 2009-2010 Shanghai Best Oray Information S&T CO., Ltd.
  * @link       http://www.tudu.com/
  * @author     Oray-Yongfa
- * @version    $Id: schedule.source.js 2767 2013-03-06 09:30:50Z chenyongfa $
+ * @version    $Id: schedule.source.js 2773 2013-03-12 10:17:40Z chenyongfa $
  */
 var Attend = Attend || {};
 
@@ -27,6 +27,18 @@ Attend.Schedule = {
         time_area_error: '迟到标准或早退标准时间区域设置有误'
     },
 
+	/**
+	 *
+	 * @param {Object}
+	 */
+	bgColors: [],
+
+	/**
+	 *
+	 * @param {Object}
+	 */
+	usedColors: [],
+
     /**
      * 设置语言
      * @param {Object} lang
@@ -42,14 +54,31 @@ Attend.Schedule = {
      * 
      */
     init: function() {
-        var resizeTimer = null; 
+        var resizeTimer = null, _o = this; 
         $('#schedule-list tr').mousemove(function(){
             $(this).addClass("current");
         }).mouseout(function(){
             $(this).removeClass("current");
         });
 
-        $('#plan-_default').load('/app/attend/schedule/defaultRule');
+        $('#plan-_default').load('/app/attend/schedule/defaultRule', {}, function(){
+            $('.color_grid').click(function(e){
+                var scid = $(this).attr('_scid');
+                _o.selectColor(this, scid);
+                TOP.stopEventBuddle(e);
+            });
+        });
+
+        $('.color_grid').click(function(e){
+            var scid = $(this).attr('_scid');
+            _o.selectColor(this, scid);
+            TOP.stopEventBuddle(e);
+        });
+
+        $(document.body).bind('click', function(){$('#color_panel').hide(300);});
+        $('#color_panel').bind('click', function(e){
+            TOP.stopEventBuddle(e);
+        });
 
         var tableWidth = $('table.table_list').outerWidth(true);
 
@@ -205,17 +234,60 @@ Attend.Schedule = {
         onResize();
     },
 
+	/**
+	 * 更新颜色
+	 *
+	 * @param {Object} scid
+	 * @param {Object} color
+	 */
+	updateUsedColors: function(scid, color) {
+		if (typeof this.usedColors[scid] == 'undefined') {
+			return ;
+		}
+
+		this.usedColors[scid] = color;
+	},
+
+	/**
+	 * 更新颜色选择器的颜色
+	 */
+	updateColorPlan: function() {
+		var bgcolors   = this.bgColors,
+		    usedcolors = this.usedColors,
+			panel      = $('#color_panel')
+			html       = [],
+			arr        = [];
+
+		for (var id in usedcolors) {
+			arr.push(usedcolors[id]);
+		}
+
+		for (var i = 0, c = bgcolors.length; i < c; i++) {
+            if (!TOP.Util.inArray(bgcolors[i], arr)) {
+                html.push('<div class="color_block"><div style="background-color:'+bgcolors[i]+'"></div><input type="hidden" name="color" value="'+bgcolors[i]+'" /></div>');
+            }
+        }
+
+		panel.find('.color_list').html(html.join(''));
+	},
+
     /**
      * 选择颜色
      */
-    selectColor: function(obj) {
+    selectColor: function(obj, scid) {
         var block = $(obj),
             panel = $('#color_panel');
-        var offset = block.offset();
+        var offset = block.offset(),
+		    _o = this;
 
         if ($('#color_panel:visible').size()) {
             panel.hide();
         }
+		
+		if (typeof scid != 'undefined') {
+			panel.find('.color_list').empty();
+			_o.updateColorPlan();
+		}
 
         panel.css({top: offset.top + block.height()  + 'px', left: offset.left + 'px'})
         .show(300);
@@ -225,10 +297,31 @@ Attend.Schedule = {
         .bind('click', function(){
             var color = $(this).find('input[name="color"]').val();
 
-            block.css('background-color', color);
-            $('#theform').find('input[name="bgcolor"]').val(color);
-
-            panel.hide(300);
+            if (typeof scid != 'undefined') {
+                $.ajax({
+                    type: 'POST',
+                    dataType: 'json',
+                    url: '/app/attend/schedule/updatecolor',
+                    data: {
+                        scheduleid: scid,
+                        bgcolor: color
+                    },
+                    success: function(ret){
+                        TOP.showMessage(ret.message, 5000, ret.success ? 'success' : null);
+                        if (ret.success) {
+                            block.css('background-color', color);
+                            panel.hide(300);
+							_o.updateUsedColors(scid, color);
+                        }
+                    },
+                    error: function(res){
+                    }
+                });
+            } else {
+                block.css('background-color', color);
+                $('#theform').find('input[name="bgcolor"]').val(color);
+                panel.hide(300);
+            }
         });
     },
 

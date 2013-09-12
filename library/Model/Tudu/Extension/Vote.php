@@ -9,7 +9,7 @@
  * @package    Tudu_Model
  * @copyright  Copyright (c) 2009-2010 Shanghai Best Oray Information S&T CO., Ltd.
  * @link       http://www.oray.com/
- * @version    $Id: Tudu.php 2070 2012-08-22 09:37:26Z cutecube $
+ * @version    $Id: Vote.php 2886 2013-06-18 01:11:54Z cutecube $
  */
 
 /**
@@ -242,7 +242,7 @@ class Model_Tudu_Extension_Vote extends Model_Tudu_Extension_Abstract
             'isnew'     => !isset($option['optionid'])
         );
 
-        $this->_votes['options'][$item['optionid']] = $item;
+        $this->_votes[$voteId]['options'][$item['optionid']] = $item;
 
         return $item['optionid'];
     }

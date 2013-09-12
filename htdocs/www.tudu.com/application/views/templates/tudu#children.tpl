@@ -94,7 +94,7 @@
                         <span class="tips_label_bl"><span class="tips_label_br"><span class="tips_label_bc"></span></span></span>
                     </span>
                     {{/if}}
-                    {{if in_array($user.username, $childtudu.accepter, true) && ($childtudu.selftudustatus < 2 && !$childtudu.selfaccepttime)}}
+                    {{if in_array($user.username, $childtudu.accepter, true) && ($childtudu.selftudustatus < 2 && !$childtudu.selfaccepttime && $childtudu.status < 2)}}
                     <span class="tips_label tips_receive" style="margin-left:5px">
                         <span class="tips_label_tl"><span class="tips_label_tr"><span class="tips_label_tc"></span></span></span>
                         <span class="tips_label_body" style="text-align:center">{{$LANG.need_accept}}</span>

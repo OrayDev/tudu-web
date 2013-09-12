@@ -4,7 +4,7 @@
  * @copyright  Copyright (c) 2009-2010 Shanghai Best Oray Information S&T CO., Ltd.
  * @link       http://www.tudu.com/
  * @author     Oray-Yongfa
- * @version    $Id: apply.source.js 2769 2013-03-07 10:09:47Z chenyongfa $
+ * @version    $Id: apply.source.js 2906 2013-07-02 06:27:24Z cutecube $
  */
 var Attend = Attend || {};
 
@@ -54,18 +54,22 @@ Attend.Apply = {
             ch = $(document.body).height(),
             editorHeight = Math.max($('#content').height() + (h - ch - 15), 200);
         $('#content').css('height', editorHeight + 'px');
-        this.editor = new TOP.Editor(document.getElementById('content'), {
-            resizeType : 1,
-            width: '100%',
-            minHeight: 200,
-            themeType : 'tudu',
-            css: o.editorCss,
-            scope: window,
-            pasteType: 2,
-            disabled: forbid.editor,
-            ctrl: {
-                13: function(){$('#action').val('send');o.send('send');}
+        this.editor = new TOP.UEditor('content', {initialFrameHeight: editorHeight}, window, jQuery, function(){
+            if (forbid.editor) {
+                this.disable();
             }
+
+            if (!this.hasContents() && typeof o.editorCss.fontfamily != 'undefined' && typeof o.editorCss.fontsize != 'undefined') {
+                this.setContent('<p style="font-family:'+o.editorCss.fontfamily+';font-size:'+o.editorCss.fontsize+'"></p>');
+            }
+            this.commands['send'] = {
+                execCommand: function() {
+                    Attend.Apply.send('send');
+                }
+            };
+            this.addshortcutkey({
+                "send": "ctrl+13"
+            });
         }, jQuery);
 
         // 地图
@@ -114,8 +118,8 @@ Attend.Apply = {
             this.value = this.value.replace(/[^0-9.]+/, '');
             if (this.value.indexOf('.') != -1) {
                 var val = this.value.split('.');
-                if (typeof val[1] != 'undefined' && val[1].length > 1) {
-                    this.value = val[0] + '.' + val[1].substring(0, 1);
+                if (typeof val[1] != 'undefined' && val[1].length > 2) {
+                    this.value = val[0] + '.' + val[1].substring(0, 2);
                 }
             }
         }).blur(function(){
@@ -281,7 +285,7 @@ Attend.Apply = {
             var checkintype = parseInt($(':radio[name="checkintype"]:checked').val()),
                 cd = $('#checkindate').val();
 
-            if (!checkindate) {
+            if (!cd) {
                 return ;
             }
 
@@ -488,7 +492,7 @@ Attend.Apply = {
             var Win = TOP.Frame.TempWindow;
             Win.append(html, {
                 width:470,
-                draggalbe: true,
+                draggable: true,
                 onShow: function() {
                     Win.center();
                 },
@@ -497,7 +501,7 @@ Attend.Apply = {
                 }
             });
 
-            var params = {appendTo: Win.find('div.pop_body'), enableGroup: containGroup, selected: selected, mailInput: mailInput, childOf: undefined !== childOf ? childOf : null};
+            var params = {appendTo: Win.find('div.pop_body'), enableGroup: containGroup, selected: selected, maxCount: limit, mailInput: mailInput, childOf: undefined !== childOf ? childOf : null};
             if (undefined !== limit) {
                 params.maxSelect = limit;
             }

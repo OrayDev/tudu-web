@@ -1,7 +1,7 @@
 /**
  * 考勤应用 - 排班设置
  *
- * @version    $Id: plan.source.js 2767 2013-03-06 09:30:50Z chenyongfa $
+ * @version    $Id: plan.source.js 2883 2013-06-04 02:56:03Z cutecube $
  */
 var Attend = Attend || {};
 
@@ -67,6 +67,18 @@ Attend.Plan = {
 		missing_users: '没有选择关联的用户',
 		weekdays: ['一', '二', '三', '四', '五', '六', '日']
 	},
+	
+	/**
+     *
+     * @param {Object}
+     */
+    bgColors: [],
+
+    /**
+     *
+     * @param {Object}
+     */
+    usedColors: [],
 	
 	/**
 	 * 设置语言
@@ -411,6 +423,43 @@ Attend.Plan = {
 	},
 	
 	/**
+     * 更新颜色
+     *
+     * @param {Object} scid
+     * @param {Object} color
+     */
+    updateUsedColors: function(scid, color) {
+        if (typeof this.usedColors[scid] == 'undefined') {
+            return ;
+        }
+
+        this.usedColors[scid] = color;
+    },
+
+    /**
+     * 更新颜色选择器的颜色
+     */
+    updateColorPlan: function() {
+        var bgcolors   = this.bgColors,
+            usedcolors = this.usedColors,
+            panel      = $('#color_panel')
+            html       = [],
+            arr        = [];
+
+        for (var id in usedcolors) {
+            arr.push(usedcolors[id]);
+        }
+
+        for (var i = 0, c = bgcolors.length; i < c; i++) {
+            if (!TOP.Util.inArray(bgcolors[i], arr)) {
+                html.push('<div class="color_block"><div style="background-color:'+bgcolors[i]+'"></div><input type="hidden" name="color" value="'+bgcolors[i]+'" /></div>');
+            }
+        }
+
+        panel.find('.color_list').html(html.join(''));
+    },
+	
+	/**
 	 * 选择颜色
 	 */
 	selectColor: function(obj, realTime, callback){
@@ -418,6 +467,11 @@ Attend.Plan = {
 		
 		if ($('#color_panel:visible').size()) {
 			panel.hide();
+		}
+		
+		if (realTime) {
+			panel.find('.color_list').empty();
+			me.updateColorPlan();
 		}
 		
 		panel.css({
@@ -493,7 +547,9 @@ Attend.Plan = {
 		});
 		
 		$('.color_grid').click(function(e){
-			me.selectColor(this, true);
+			me.selectColor(this, true, function(scheduleid, color){
+                me.updateUsedColors(scheduleid, color);
+            });
 			TOP.stopEventBuddle(e);
 		});
 		
@@ -647,6 +703,7 @@ Attend.Plan = {
 						panel.find('a[_scid="' + schedule.scheduleId + '"] span.color_grid').bind('click', function(e){
 							me.selectColor(this, true, function(scheduleid, color){
 								me.updateScheduleColor(scheduleid, color);
+								me.updateUsedColors(scheduleid, color);
 								if (me.grid) {
 									me.grid.updateSchedules(this._schedules);
 									me.grid.updateGridColor(scheduleid, color);
@@ -1061,9 +1118,10 @@ Attend.Plan = {
 		
 		var html = '<div class="pop pop_linkman"><div class="pop_header"><strong>' + TOP.TEXT.SELECT_CONTACT + '</strong><a class="icon icon_close close"></a></div><div class="pop_body"></div><div class="pop_footer"><button type="button" name="confirm" class="btn">' + TOP.TEXT.CONFIRM + '</button><button type="button" class="btn close">' + TOP.TEXT.CANCEL + '</button></div></div>';
 		var Win = TOP.Frame.TempWindow;
+
 		Win.append(html, {
 			width: 470,
-			draggalbe: true,
+			draggable: true,
 			onShow: function(){
 				Win.center();
 			},
@@ -1432,7 +1490,7 @@ SelectGrid.prototype = {
 					isChecked = $('input[name="member[]"]:eq(' + (r - 1) + ')').is(':checked');
 					for (c = minCell; c <= maxCell; c++) {
 						mtr.find('td:eq(' + c + ') div.select').addClass(cls).attr('_scid', scheduleId).css({
-							'background': color
+							'background': sc.color
 						});
 						me._gridData[r - 1][c] = {
 							row: r - 1,
@@ -1511,7 +1569,7 @@ SelectGrid.prototype = {
 							var userMember = $('input[name="user[]"]:eq(' + (i - 1) + ')').val(), userName = $('input[name="user-' + userMember + '"]').val();
 							for (var j = minCol; j <= maxCol; j++) {
 								table.find('tr:eq(' + i + ') td:eq(' + j + ') div.select').addClass(cls).attr('_scid', scheduleId).css({
-									'background': color
+									'background': sc.color
 								});
 								me._gridData[i - 1][j] = {
 									row: i - 1,
@@ -1563,7 +1621,7 @@ SelectGrid.prototype = {
 							var userMember = $('input[name="user[]"]:eq(' + (i - 1) + ')').val(), userName = $('input[name="user-' + userMember + '"]').val();
 							for (var j = 0, c = me._cfg.cell; j < c; j++) {
 								table.find('tr:eq(' + i + ') td:eq(' + j + ') div.select').addClass(cls).attr('_scid', scheduleId).css({
-									'background': color
+									'background': sc.color
 								});
 								me._gridData[i - 1][j] = {
 									row: i - 1,

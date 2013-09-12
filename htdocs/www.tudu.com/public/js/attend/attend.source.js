@@ -236,8 +236,10 @@ Attend.Messager = {
 
                     // 签到
                     this.find('button[name="btn-checkin"]').click(function() {
+                        var btn = $(this);
                         o.closeCheckinMessager();
 
+                        btn.attr('disabled', 'disabled');
                         Attend.Checkin.signIn(0, function(ret) {
                             if (ret.success && ret.data) {
                                 var status = ret.data.status;
@@ -245,6 +247,8 @@ Attend.Messager = {
                                     o.initLateMessager();
                                 }
                                 o.getCheckinTips();
+                            } else {
+                                btn.removeAttr('disabled');
                             }
                         });
                     });
@@ -669,7 +673,7 @@ Attend.Count = {
             location.href = url;
         });
 
-        var tableWidth = $('table.table_list').outerWidth(true);
+        var tableWidth = $('table.table_list').outerWidth(true) + 20;
 
         function onResize() {
             var bodyWidth  = document.body.offsetWidth,
@@ -760,7 +764,7 @@ Attend.Count = {
             }
         });
 
-        var tableWidth = $('table.table_list').outerWidth(true);
+        var tableWidth = $('table.table_list').outerWidth(true) + 20;
 
         function onResize() {
             var bodyWidth  = document.body.offsetWidth,

@@ -117,7 +117,7 @@ class Model_Tudu_Extension_Flow extends Model_Tudu_Extension_Abstract
                 }
 
                 if (empty($params['next'])) {
-                    $step['next'] = $next;
+                	$step['next'] = $next;
                 }
                 if (0 != strpos($next, '^') && 0 !== strpos($this->_steps[$next]['prev'], '^')) {
                     $this->_steps[$next]['prev'] = $stepId;

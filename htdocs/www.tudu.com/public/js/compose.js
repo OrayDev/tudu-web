@@ -14,6 +14,8 @@ var TOP = getTop(),
 	_END_PICKER = null,
 	_UPLOAD = null,
 	_CLASSES = {},
+	_IS_SAVING = false,
+	_SET_TIMEOUT_FUNCTION = null;
 	autosaveTudu = null,
 	boardSelect = null;
 
@@ -22,17 +24,8 @@ var TOP = getTop(),
  * @param id
  * @return
  */
-function initEditor(id, css, disabled) {
-	var editor = new TOP.Editor(document.getElementById('content'), {
-		resizeType : 1,
-		width: '100%',
-		minHeight: 200,
-		themeType : 'tudu',
-		css: css,
-		scope: window,
-		disabled: disabled,
-		ctrl: {13: function(){$('button[name="send"]:eq(0)').click();}}
-	}, jQuery);
+function initEditor(target, params, callback){
+	var editor = new TOP.UEditor(target, params, window, jQuery, callback);
 	
 	return editor;
 }
@@ -300,6 +293,7 @@ function editorCheckNull(editor) {
 }
 
 function composeSubmit(form, callback) {
+	var tmpForm = form;
 	form = $(form);
 	
 	if (!$('#bid').val()) {
@@ -396,18 +390,18 @@ function composeSubmit(form, callback) {
         }
 
         if ($('#week:checked').size() && $('#mode-week-1:checked').size() && !$(':checkbox[name="week-1-weeks[]"]:checked').size()) {
-            return TOP.showMessage(TOP.TEXT.INVALID_TASK_INTERVAL);
+			return TOP.showMessage(TOP.TEXT.INVALID_TASK_INTERVAL);
         }
     }
     
     // 处理HTML
     var src = _EDITOR.getSource();
     
-    if (!checkContentImage(src, _EDITOR, function(){composeSubmit(form, callback);})) {
+    if (!checkContentImage(src, _EDITOR, function(){composeSubmit(tmpForm, callback);})) {
     	return ;
     }
     
-    var reg = /<img([^>]+)src="([^"]+)"([^>]+)_aid="([^"]+)"([^>]+)\/>/ig;
+    var reg = /<img([^>]+)src="([^"]+)"([^>]+)_aid="([^"]+)"([^>]*)\/>/ig;
     form.find(':hidden[name="file[]"]').remove();
     while ((result = reg.exec(src)) != null) {
     	form.append('<input type="hidden" name="file[]" value="'+result[4]+'" />');
@@ -418,7 +412,7 @@ function composeSubmit(form, callback) {
     
 	$('#postcontent').val(src);
 
-	if (!whileUploading(TOP.TEXT.WAITING_UPLOAD, function(){composeSubmit(form);}, form)) {
+	if (!whileUploading(TOP.TEXT.WAITING_UPLOAD, function(){composeSubmit(tmpForm);}, form)) {
 		return ;
 	}
 	
@@ -431,7 +425,20 @@ function composeSubmit(form, callback) {
 	var data = form.serializeArray();
 
     TOP.showMessage(TOP.TEXT.POSTING_DATA, 0, 'success');
-    form.find(':input').attr('disabled', true);
+	
+	if (null !== _SET_TIMEOUT_FUNCTION) {
+		clearTimeout(_SET_TIMEOUT_FUNCTION);
+	}
+	
+	if (_IS_SAVING) {
+		_SET_TIMEOUT_FUNCTION = setTimeout(function(){composeSubmit(tmpForm, callback);}, 500);
+        return ;
+    }
+	
+	form.find(':input').attr('disabled', true);
+	
+	_IS_SAVING = true;
+	_SET_TIMEOUT_FUNCTION = false;
     
     $.ajax({
         type: 'POST',
@@ -439,6 +446,7 @@ function composeSubmit(form, callback) {
         data: data,
         url: form.attr('action'),
         success: function(ret) {
+			_IS_SAVING = false;
             TOP.showMessage(ret.message, 5000, ret.success ? 'success' : null);
             
             if (ret.data) {
@@ -448,22 +456,6 @@ function composeSubmit(form, callback) {
 	                for (var i = 0; i<ret.data.childtid.length; i++) {
 	                	cl.find('input[name="ftid-'+i+'"]').val(ret.data.childtid[i]);
 	                }
-                }
-                
-                // 处理返回投票选项
-                if (ret.data.votes) {
-                	var votes = ret.data.votes;
-                	for (var k in votes) {
-                		var opt = $(':hidden[name="newoption[]"][value="'+k+'"]');
-                		if (opt.size()) {
-                			$('#option-' + k).attr('id', 'option-' + votes[k]);
-                			
-                			opt.attr('name', 'optionid[]').val(votes[k]);
-                			$('input[name="text-'+k+'"]').attr('name', 'text-' + votes[k]);
-                			$('input[name="ordernum-'+k+'"]').attr('name', 'ordernum-' + votes[k]);
-                			
-                		}
-                	}
                 }
             }
             
@@ -494,6 +486,7 @@ function composeSubmit(form, callback) {
             }
         },
         error: function(res) {
+			_IS_SAVING = false;
         	form.find(':input:not([_disabled])').attr('disabled', false);
             TOP.showMessage(TOP.TEXT.PROCESSING_ERROR);
         }
@@ -530,7 +523,7 @@ function postSubmit(form, callback) {
 	} else {
     	// 处理图片
         var src = _EDITOR.getSource();
-        var reg = /<img([^>]+)src="([^"]+)"([^>]+)_aid="([^"]+)"([^>]+)\/>/ig;
+        var reg = /<img([^>]+)src="([^"]+)"([^>]+)_aid="([^"]+)"([^>]*)\/>/ig;
         form.find(':hidden[name="file[]"]').remove();
         while ((result = reg.exec(src)) != null) {
         	form.append('<input type="hidden" name="file[]" value="'+result[4]+'" />');
@@ -622,7 +615,7 @@ function initSelectLink(obj, mailInput, valInput, containGroup, order) {
         var Win = TOP.Frame.TempWindow;
         Win.append(html, {
         	width:470,
-        	draggalbe: true,
+        	draggable: true,
         	onShow: function() {
 				Win.center();
 			},
@@ -1263,8 +1256,16 @@ Tudu.TuduSubmit = function() {
 		form = $(this.settings.form);
 	form.find('input[name="action"]').val('save');
 	
+	if (_IS_SAVING) {
+		return ;
+	}
+	
 	var bid = boardSelect.getValue();
 	if (!bid) {
+		return false;
+	}
+	var subject = $('#subject').val().replace(/\s+/, '');
+	if (!subject.length) {
 		return false;
 	}
 	
@@ -1283,7 +1284,13 @@ Tudu.TuduSubmit = function() {
     src = src.replace(/\s+id="[^"]+"/g, '');
 	$('#postcontent').val(src);
 	
+	if (!$('#postcontent').val()) {
+		return false;
+	}
+	
 	var data = form.serializeArray();
+	
+	_IS_SAVING = true;
 	
     $.ajax({
         type: 'POST',
@@ -1291,6 +1298,7 @@ Tudu.TuduSubmit = function() {
         data: data,
         url: form.attr('action'),
         success: function(ret) {
+			_IS_SAVING = false;
             if (ret.data) {
                 $('#ftid').val(ret.data.tuduid);
                 if (ret.data.childtid != undefined && ret.data.childtid != null) {
@@ -1321,6 +1329,7 @@ Tudu.TuduSubmit = function() {
             }
         },
         error: function(res) {
+			_IS_SAVING = false;
         }
     });
 	
@@ -1713,11 +1722,10 @@ var Capturer = {
 		                    eval('ret=' + response + ';');
 		                } catch (e) {}
 		
-		                var fileid = ret.fileid ? ret.fileid : (ret.data ? ret.data.fileid : null);
-		                if (fileid) {
-		                    var url = '/attachment/img?fid=' + fileid;
+		                if (ret.fileid) {
+		                    var url = '/attachment/img?fid=' + ret.fileid;
 		
-		                    html = '<img src="'+ url +'" _aid="'+fileid+'" /><br />';
+		                    html = '<img src="'+ url +'" _aid="'+ret.fileid+'" />';
 		                    me.editor.pasteHTML(html);
 		                } else {
 		                    TOP.showMessage(TOP.TEXT.CAPTURER_UPLOAD_FILE_ERROR);

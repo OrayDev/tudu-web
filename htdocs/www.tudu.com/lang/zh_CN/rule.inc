@@ -23,6 +23,7 @@ return array(
         'from' => '发起人',
         'to' => '执行人',
         'cc' => '抄送人',
+        'type' => '类型',
         'subject' => '标题',
         'then' => '则',
         'label' => '添加标签',
@@ -54,5 +55,7 @@ return array(
     'mail_remind_tips' => '(可设置多个邮箱，用分号隔开)',
     'mail_remind_operation' => '收到图度时，邮件提醒',
     'mailbox_null_tips' => '请输入接收邮件提醒的邮箱',
-    'invalid_mailbox_address' => '邮箱格式有误，请检查设置后再提交'
+    'invalid_mailbox_address' => '邮箱格式有误，请检查设置后再提交',
+
+    'tudu_type' => '类型'
 );

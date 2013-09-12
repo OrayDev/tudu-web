@@ -41,7 +41,7 @@ class Model_Tudu_Extension_Handler_Group extends Model_Tudu_Extension_Handler_Ab
      *
      * @var Model_Tudu_Send_Interface
      */
-    protected $_sendModel = null;
+    protected static $_sendModel = null;
 
     /**
      *
@@ -83,6 +83,11 @@ class Model_Tudu_Extension_Handler_Group extends Model_Tudu_Extension_Handler_Ab
 
         $children = $group->getChildren();
         foreach ($children as &$child) {
+
+            if ($tudu->fromTudu && !$tudu->fromTudu->isDraft && !$child->isModified) {
+                continue ;
+            }
+
             $params = array(&$child);
 
             // 继承父任务内容
@@ -139,11 +144,19 @@ class Model_Tudu_Extension_Handler_Group extends Model_Tudu_Extension_Handler_Ab
                 'uniqueid' => $tudu->uniqueId,
                 'rootid'   => $tudu->rootId
             ));
+        } elseif ($tudu->fromTudu->nodeType == 'leaf') {
+            $daoGroup->updateNode($tudu->tuduId, array(
+                'type' => count($group->getChildren()) > 0 ? 'node' : 'leaf',
+            ));
         }
 
         $children = $group->getChildren();
         $model    = $this->getModel();
         foreach ($children as &$child) {
+
+            if ($tudu->fromTudu && !$tudu->fromTudu->isDraft && !$child->isModified) {
+                continue ;
+            }
 
             $params = array(&$child);
 
@@ -185,15 +198,23 @@ class Model_Tudu_Extension_Handler_Group extends Model_Tudu_Extension_Handler_Ab
     /**
      *
      */
+    public static function setSendModel(Model_Tudu_Send_Interface $sendModel)
+    {
+        self::$_sendModel = $sendModel;
+    }
+
+    /**
+     *
+     */
     public function getSendModel()
     {
-        if (null === $this->_sendModel) {
+        if (null === self::$_sendModel) {
             $className = 'Model_Tudu_Send_Common';
             Zend_Loader::loadClass($className);
 
-            $this->_sendModel = new $className();
+            self::$_sendModel = new $className();
         }
 
-        return $this->_sendModel;
+        return self::$_sendModel;
     }
 }

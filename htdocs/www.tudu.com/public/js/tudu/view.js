@@ -1161,7 +1161,7 @@ Tudu.View = {
 		
 		var editor = Tudu.Reply.getEditor();
 		editor.pasteHTML(html);
-		editor.focus();
+		editor.focus(true);
 	},
 	
 	/**
@@ -1190,7 +1190,7 @@ Tudu.View = {
 		
 		var editor = Tudu.Reply.getEditor();
 		editor.pasteHTML(html);
-		editor.focus();
+		editor.focus(true);
 	},
 	
 	/**
@@ -1760,18 +1760,20 @@ Tudu.Reply = {
 		// 调整输入框位置
 		$('div.post-content>li').css({'margin-left': '25px'});
 		
-		this._editor = new TOP.Editor(document.getElementById('content'), {
-			cssPath: '/css/common.css',
-		    resizeType : 1,
-		    width: '100%',
-		    minHeight: 150,
-		    themeType : 'tudu',
-			css: Tudu.GetEditorCss(),
-		    scope: window,
-		    ctrl: {
-				13: function(){Tudu.Reply.send('reply');}
-			}
-		}, jQuery);
+		this._editor = new TOP.UEditor('content', {initialFrameHeight: '150'}, window, jQuery, function(){
+            if (!this.hasContents() && typeof Tudu.GetEditorCss().fontfamily != 'undefined' && typeof Tudu.GetEditorCss().fontsize != 'undefined') {
+				this.setContent('<p style="font-family:'+Tudu.GetEditorCss().fontfamily+';font-size:'+Tudu.GetEditorCss().fontsize+'"></p>');
+            }
+            
+            this.commands['send'] = {
+                execCommand: function() {
+                    Tudu.Reply.send('reply');
+                }
+            };
+            this.addshortcutkey({
+                "send": "ctrl+13"
+            });
+        });
 		
 		$('#link-fullreply').click(function(){
             var content = me._editor.getSource(),
@@ -2085,20 +2087,17 @@ Tudu.Reply = {
 			}
 		}
 		
-		if (TOP.Device.iOS || TOP.Device.Android) {
-		    var src = $('#content').val();
-		    src = src.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br />');
-		} else {
-    		// 处理图片
-    		var src = this._editor.getSource();
-    		var reg = /<img([^>]+)src="([^"]+)"([^>]+)_aid="([^"]+)"([^>]+)\/>/ig;
+		// 处理图片
+		var src = this._editor.getSource();
+		if (src) {
+    		var reg = /<img([^>]+)src="([^"]+)"([^>]+)_aid="([^"]+)"([^>]*)\/>/ig;
     		
     		if (action != 'autosave') {
     			if (!checkContentImage(src, this._editor, function(){Tudu.Reply.send(action, callback);})) {
     		    	return ;
     		    }
     		}
-    		
+
     	    this._form.find(':hidden[name="file[]"]').remove();
     	    while ((result = reg.exec(src)) != null) {
     	    	this._form.append('<input type="hidden" name="file[]" value="'+result[4]+'" />');
@@ -2106,7 +2105,7 @@ Tudu.Reply = {
     	    
     	    src = src.replace(reg, '<img$1src="AID:$4"$3_aid="$4"$5/>');
     	    src = src.replace(/\s+id="[^"]+"/g, '');
-    	}
+		}
 	    
 	    $('#postcontent').val(src);
 		
@@ -2759,29 +2758,21 @@ var Capturer = {
 		        onUploaded: function(uploader) {
 		            if (uploader) {
 		            	me.uploaddialog.dialog.container.find('div.progress_large div.bar').css('width', '95%');
-
+		
 		                var response = uploader.HttpReault.match(/\{.*\}/);
 
 		                var ret;
 		                try {
-
 		                    eval('ret=' + response + ';');
 		                    //ret = (new Function('return ' + response + ';'))();
 		                } catch (e) {}
 		
-		                if (ret) {
-		                	var fileid = ret.data ? ret.data.fileid : ret.fileid;
-
-		                	if (!fileid) {
-		                		TOP.showMessage(ret.message);
-		                		return ;
-		                	}
-		                	
+		                if (ret && ret.fileid) {
 		                	if (me.editor !== null) {
 		                		//Modify.appendTOEditor(ret.fileid)
-			                    var url = '/attachment/img?fid=' + fileid;
+			                    var url = '/attachment/img?fid=' + ret.fileid;
 			
-			                    html = '<img src="'+ url +'" _aid="'+fileid+'" />';
+			                    html = '<img src="'+ url +'" _aid="'+ret.fileid+'" />';
 			                    //me.editor.loadBookmark();
 			                    me.editor.pasteHTML(html);
 		                    }
@@ -2837,7 +2828,7 @@ Tudu.ReviewWin = {
 		'</table>',
 		'<table cellspacing="2" cellpadding="0" width="535">',
 		'<tr>',
-		'<td><textarea class="form_textarea" name="content" id="review-content" cols="" rows="" style="width:450px;height:120px"></textarea></td>',
+		'<td><textarea name="content" id="review-content" cols="" rows=""></textarea></td>',
 		'</tr>',
 		'</table>',
 		'</div>',
@@ -2875,6 +2866,7 @@ Tudu.ReviewWin = {
 		Win.append(this._tpl, {
 		    id: 'review-win',
 		    width: 580,
+			draggable: true,
 		    onShow: function(){
 	    	   if (null != editor) {
 	        	   editor.focus();
@@ -3074,17 +3066,12 @@ Tudu.ReviewWin = {
 		Win.show();
 	
 		// 编辑器，需要目标textarea可见时方可初始化
-		editor = new TOP.Editor(TOP.document.getElementById('review-content'), {
-		    resizeType : 0,
-		    width: '100%',
-		    minHeight: 150,
-		    themeType : 'tudu',
-			css: Tudu.GetEditorCss(),
-		    statusbar: false,
-		    scope: TOP
-		}, TOP.getJQ());
-
-		editor.focus();
+		editor = new TOP.UEditor('review-content', {initialFrameHeight: '120', zIndex: 9000}, TOP, TOP.getJQ(), function(){
+            if (!this.hasContents() && typeof Tudu.GetEditorCss().fontfamily != 'undefined' && typeof Tudu.GetEditorCss().fontsize != 'undefined') {
+                this.setContent('<p style="font-family:'+Tudu.GetEditorCss().fontfamily+';font-size:'+Tudu.GetEditorCss().fontsize+'"></p>');
+            }
+			this.focus();
+        });
 	}
 };
 
@@ -3347,10 +3334,10 @@ VirtualForm.prototype = {
 				v2 = this._data, c1 = 0, c2 = 0;
 			
 			for (var k in v1) {
-				if (v2[k] == undefined) {
+				if (v2[k] == undefined && k != 'content') {
 					return false;
 				}
-				if (v1[k].constructor == window.Array) {
+				if (v1[k] && v1[k].constructor == window.Array) {
 					if (!_compareArray(v1[k], v2[k])) {
 						return false;
 					}
@@ -3369,7 +3356,7 @@ VirtualForm.prototype = {
 			
 			return c1 == c2;
 		}
-		
+
 		/**
 		 * 
 		 */

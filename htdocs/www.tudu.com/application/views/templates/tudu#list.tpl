@@ -14,8 +14,12 @@
     {{if in_array('star', $columns)}}
     <td width="20"><a href="javascript:void(0);" class="icon icon_attention{{if in_array('^t', $tudu.labels)}} attention{{/if}}" title="{{if in_array('^t', $tudu.labels)}}{{$LANG.cancel_starred}}{{else}}{{$LANG.mark_starred}}{{/if}}" title="{{if in_array('^t', $tudu.labels)}}{{$LANG.cancel_starred}}{{else}}{{$LANG.mark_starred}}{{/if}}"></a></td>
     {{/if}}
+    {{* 便签 *}}
+    {{if in_array('note', $columns)}}
+    <td width="20">{{if $tudu.mark}}<a class="icon icon_tudu_note" href="/note"></a>{{else}}<a class="icon icon_tudu_note_add" title="{{$LANG.click_create_note}}" href="javascript:void(0)"></a>{{/if}}</td>
+    {{/if}}
     <td class="g_i">
-      <div class="g_i_l{{if $tudu.priority > 0}} ipt{{/if}}"></div>
+      <div class="g_i_l{{if $tudu.priority > 0 || ($tudu.special & 8) == 8}} ipt{{/if}}"></div>
       {{if $label.labelalias == 'drafts'}}
       <div class="g_i_c Rr{{if !$tudu.isdraft || $tudu.istudugroup}}g{{/if}}u{{if $tudu.special == 1}}_c{{/if}}"></div>
       {{else}}
@@ -27,7 +31,7 @@
       <table class="g_in_table" cellspacing="0" cellpadding="0">
         <tr>
           {{if in_array('sender', $columns)}}
-          <td class="sender"><div class="space"><a href="/contact/view?email={{$tudu.sender}}&back={{$currUrl}}">{{if $tudu.sender==$user.email}}{{$LANG.me}}{{else}}{{$tudu.from.0|default:'-'}}{{/if}}</a></div></td>
+          <td class="sender"><div class="space"><a _email="{{$tudu.sender}}" href="/contact/view?email={{$tudu.sender}}&back={{$currUrl}}">{{if $tudu.sender==$user.email}}{{$LANG.me}}{{else}}{{$tudu.from.0|default:'-'}}{{/if}}</a></div></td>
           {{/if}}
           <td class="subject">
           <div class="space">
@@ -55,8 +59,6 @@
             <a href="/tudu/view?tid={{$tudu.tuduid}}&back={{$currUrl}}"{{if $tudu.isdone}} class="gray"{{/if}} title="{{$tudu.subject|escape:'html'}}">{{$tudu.subject|escape:'html'|default:$LANG.null_subject}}</a>
             {{* 列表分页 *}}
             {{tudu_list_pagenav recordcount=$tudu.replynum+1 pagesize=20 url='/tudu/view' query='tid='|cat:$tudu.tuduid|cat:'&back='|cat:$currUrl}}
-            {{* 便签 *}}
-            {{if $tudu.mark}}<span class="icon icon_tudu_note" title="{{$LANG.note}}"></span>{{/if}}
             {{*主题后面的待接受跟确认提示*}}
             {{if $tudu.status >= 2 && !$tudu.isdone && $tudu.sender == $user.email}}
             <span class="tips_label" style="margin-left:5px">
@@ -126,6 +128,10 @@
     {{if in_array('star', $columns)}}
     <td width="20"><a href="javascript:void(0);" class="icon icon_attention{{if in_array('^t', $tudu.labels)}} attention{{/if}}" title="{{if in_array('^t', $tudu.labels)}}{{$LANG.cancel_starred}}{{else}}{{$LANG.mark_starred}}{{/if}}"></a></td>
     {{/if}}
+    {{* 便签 *}}
+    {{if in_array('note', $columns)}}
+    <td width="20">{{if $tudu.mark}}<a class="icon icon_tudu_note" href="/note"></a>{{else}}<a class="icon icon_tudu_note_add" title="{{$LANG.click_create_note}}" href="javascript:void(0)"></a>{{/if}}</td>
+    {{/if}}
     <td class="g_i">
       <div class="g_i_l{{if $tudu.priority > 0}} ipt{{/if}}"></div>
       <a href="/tudu/view?tid={{$tudu.tuduid}}&newwin=1&back={{$currUrl}}" target="_blank" class="g_i_c R{{if $tudu.type == 'discuss'}}d{{elseif $tudu.type == 'notice'}}n{{elseif $tudu.type == 'meeting'}}m{{else}}r{{/if}}{{if !$tudu.isread}}u{{/if}}"></a>
@@ -135,7 +141,7 @@
       <table class="g_in_table" cellspacing="0" cellpadding="0">
         <tr>
           {{if in_array('sender', $columns)}}
-          <td class="sender"><div class="space"><a href="/contact/view?email={{$tudu.sender}}&back={{$currUrl}}">{{if $tudu.sender==$user.email}}{{$LANG.me}}{{else}}{{$tudu.from.0|default:'-'}}{{/if}}</a></div></td>
+          <td class="sender"><div class="space"><a _email="{{$tudu.sender}}" href="/contact/view?email={{$tudu.sender}}&back={{$currUrl}}">{{if $tudu.sender==$user.email}}{{$LANG.me}}{{else}}{{$tudu.from.0|default:'-'}}{{/if}}</a></div></td>
           {{/if}}
           <td class="subject">
 	          <div class="space">
@@ -151,8 +157,6 @@
 	            {{* 列表分页 *}}
                 {{tudu_list_pagenav recordcount=$tudu.replynum+1 pagesize=20 url='/tudu/view' query='tid='|cat:$tudu.tuduid|cat:'&back='|cat:$currUrl}}
 	            {{if $tudu.special == 2}}<span class="icon icon_vote"></span>{{/if}}
-	            {{* 便签 *}}
-                {{if $tudu.mark}}<span class="icon icon_tudu_note" title="{{$LANG.note}}"></span>{{/if}}
 	          </div>
 	          {{*标签*}}
 	          <div class="label_div">

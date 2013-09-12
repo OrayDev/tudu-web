@@ -458,3 +458,10 @@ a.step_item:hover {
 .cal-table td .on:hover{
     background-color:#714ea7;
 }
+/*=======图片上传tab样式=======*/
+.modal-dialog .tab-header li.active a{
+    color:#2E1944;
+}
+.modal-dialog .tab-header li a:hover{
+    color:#2E1944;
+}

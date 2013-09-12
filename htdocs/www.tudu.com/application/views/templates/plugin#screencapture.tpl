@@ -90,7 +90,7 @@ body{
 }
 
 ul li {
-    margin-bottom:10px
+	margin-bottom:10px
 }
 -->
 </style>
@@ -135,7 +135,7 @@ ul li {
                 <tr>
                     <td>
                     <p style="font-size:14px;margin-bottom:5px;"><strong>FireFox</strong>用户请下载并安装以下文件，并重启浏览器生效</p>
-                    <ul style="padding:0 0 0 14px;;margin:0;line-height:22px;font-size:14px"><li><a href="//oray.tudu.com/download/activex_prtscrn_18706.exe">在线截屏控件</a></li><li><a href="https://addons.mozilla.org/addon/sunlogin-controller-plugin/">Oray插件适配器</a></li></ul>
+                    <ul style="padding:0 0 0 14px;;margin:0;line-height:22px;font-size:14px"><li><a href="/download/activex_prtscrn_18706.exe">在线截屏控件</a></li><li><a href="https://addons.mozilla.org/addon/sunlogin-controller-plugin/">Oray插件适配器</a></li></ul>
                     </td>
                 </tr>
                 <tr>
@@ -209,8 +209,8 @@ var isIE = -1 != ua.indexOf('msie'),
     isOPERA  = -1 != ua.indexOf('opera');
 
 var plugins = {
-    capture: {id: 'capture', 'classid': 'CLSID:05B7C812-0B49-4626-AF71-8082013509A7', 'codebase': protocol + '//oray.tudu.com/download/activex_prtscrn_18706.cab#version=2,2,9,18706', attrs: {width: 1, height: 1}},
-    upload: {id: 'upload', 'classid': 'CLSID:86EDE142-7BC9-48F2-91E4-E3FE9F598484', 'codebase': protocol + '//oray.tudu.com/download/activex_prtscrn_18706.cab#version=2,2,9,18706', attrs: {width: 1, height: 1}},
+    capture: {id: 'capture', 'classid': 'CLSID:05B7C812-0B49-4626-AF71-8082013509A7', 'codebase': protocol + '//'+host+'/download/activex_prtscrn_18706.cab#version=2,2,9,18706', attrs: {width: 1, height: 1}},
+    upload: {id: 'upload', 'classid': 'CLSID:86EDE142-7BC9-48F2-91E4-E3FE9F598484', 'codebase': protocol + '//'+host+'/download/activex_prtscrn_18706.cab#version=2,2,9,18706', attrs: {width: 1, height: 1}},
     npffadapter: {id: 'npffadapter', 'classid': 'CLSID:0CFECBBF-CC45-4EF4-97D9-984963438F01', 'codebase': '', attrs: {width: 1, height: 1}}
 };
 
@@ -233,20 +233,20 @@ window.onload = function() {
 
             if (!obj.getVersion()) {
                 if (isIE) {
-                     document.getElementById('install-ie').style.display = '';
+             	    document.getElementById('install-ie').style.display = '';
                 } else {
-                    document.getElementById('install-ff').style.display = '';
+                	document.getElementById('install-ff').style.display = '';
                 }
             } else {
-                document.getElementById('success-div').style.display = '';
+            	document.getElementById('success-div').style.display = '';
             }
         } catch (e) {
-                if (isIE) {
+           	 if (isIE) {
                  document.getElementById('install-ie').style.display = '';
              } else if (isFF) {
                  document.getElementById('install-ff').style.display = '';
              } else {
-                    document.getElementById('unsupport-div').style.display = '';
+           	     document.getElementById('unsupport-div').style.display = '';
              }
         }
     }
@@ -261,7 +261,7 @@ window.onload = function() {
 
 // 创建ActiveX对象
 function createActiveX(id, classId, codebase, attrs) {
-    var tagName = 'object';
+	var tagName = 'object';
 
     if (isFF) {
         tagName = 'embed';
@@ -275,7 +275,9 @@ function createActiveX(id, classId, codebase, attrs) {
     ];
 
     if (isFF) {
-        html.push('type="application/x-oray-npffadapter" pluginspage="https://addons.mozilla.org/zh-CN/firefox/addon/sunlogin-controller-plugin/"');
+        var protocol = location.protocol,
+            host     = location.host;
+        html.push('type="application/x-oray-npffadapter" pluginspage="'+protocol+'//'+host+'/download/npffadapter.xpi"');
     }
 
     if (typeof(attrs) == 'object') {

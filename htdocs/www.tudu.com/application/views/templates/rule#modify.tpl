@@ -6,7 +6,7 @@
 {{include file="^style.tpl"}}
 <script src="{{$options.sites.static}}/js/jquery-1.4.4.js" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/jquery.extend.js?1009" type="text/javascript"></script>
-<script src="{{$options.sites.static}}/js/frame.js?1030" type="text/javascript"></script>
+<script src="{{$options.sites.static}}/js/frame.js?1031" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/selectboard.control.js" type="text/javascript"></script>
 
 </head>
@@ -408,7 +408,7 @@ function affectRule(ruleId) {
 
 $(function(){
     TOP.Label.focusLabel();
-    TOP.Frame.title('{{$LANG.mailbox_bind}}');
+    TOP.Frame.title('{{$LANG.tudu_rule}}');
     TOP.Frame.hash('#m=/rule/modify{{if $rule.ruleid}}&ruleid={{$rule.ruleid}}{{/if}}');
 
     var miFROM = initMailInput('mi-from', '#input-from', '#from', null, 1);
@@ -461,7 +461,11 @@ $(function(){
             var o = $(this),
                 idx = o.find(':hidden[name="filters[]"]').val();
             if (o.find(':checkbox[name="isvalid-' + idx + '"]:checked').size()) {
-                var val = o.find('input[name="value-' + idx + '"]').val().replace(/\s+/ig, '');
+                if (o.find('input[name="value-' + idx + '"]').size()) {
+                    var val = o.find('input[name="value-' + idx + '"]').val().replace(/\s+/ig, '');
+                } else {
+                    var val = o.find('select[name="value-' + idx + '"]').val();
+                }
 
                 if (!val.length) {
                     TOP.showMessage(TOP.TEXT.RULE_FILTER_VALUE);

@@ -43,7 +43,7 @@
                 <span class="tips_label_bl"><span class="tips_label_br"><span class="tips_label_bc"></span></span></span>
             </span>
             {{/if}}
-            {{if $tudu.accepter == $user.email && !$tudu.accepttime}}
+            {{if $tudu.accepter == $user.email && !$tudu.accepttime && $tudu.status < 2}}
             <span class="tips_label tips_receive" style="margin-left:5px">
                 <span class="tips_label_tl"><span class="tips_label_tr"><span class="tips_label_tc"></span></span></span>
                 <span class="tips_label_body" style="text-align:center">{{$LANG.need_accept}}</span>

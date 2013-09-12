@@ -32,7 +32,8 @@ var UI = {
 	/**
 	 * 自动ID
 	 */
-	autoId: 0,	
+	autoId: 0,
+	
 	/**
 	 * UI对象列表，[ID,引用]键值对
 	 */
@@ -55,56 +56,36 @@ var UI = {
 	 * @memberOf UI
 	 */
 	extend: (function() {
-		// inline overrides
-        var io = function(o){
-            for(var m in o){
-                this[m] = o[m];
-            }
-        };
-        var oc = Object.prototype.constructor;
-
-        return function(sb, sp, overrides){
-            if(UI.isObject(sp)){
-                overrides = sp;
-                sp = sb;
-                sb = overrides.constructor != oc ? overrides.constructor : function(){sp.apply(this, arguments);};
-            }
-            var F = function(){},
-                sbp,
-                spp = sp.prototype;
-
-            F.prototype = spp;
-            sbp = sb.prototype = new F();
-            sbp.constructor=sb;
-            sb.superclass=spp;
-            if(spp.constructor == oc){
-                spp.constructor=sp;
-            }
-            sb.override = function(o){
-                UI.override(sb, o);
-            };
-            sbp.superclass = sbp.supr = (function(){
-                return spp;
-            });
-            sbp.override = io;
-            UI.override(sb, overrides);
-            sb.extend = function(o){UI.extend(sb, o);};
-            return sb;
-        };
+		var _cp = function(obj, overrides) {
+			for (var k in overrides) {
+				if (k == 'constructor') {
+					continue ;
+				}
+				obj[k] = overrides[k];
+			}
+		};
+		
+		return function(parent, overrides) {
+			var cls;
+			if (xFive.isFunction(overrides.constructor)) {
+				cls = overrides.constructor;
+			} else {
+				cls = xFive.isObject(parent) ? Object.prototype.constructor : parent.prototype.constructor;
+			}
+			
+			cls.prototype = {};
+			
+			_cp(cls.prototype, parent.prototype);
+			
+			if (xFive.isObject(overrides)) {
+				_cp(cls.prototype, overrides);
+			}
+			
+			cls.prototype.parentClass = parent.prototype;
+			
+			return cls;
+		};
 	})(),
-	
-	/**
-	 * 
-	 */
-	override : function(origclass, overrides){
-        if(overrides){
-            var p = origclass.prototype;
-            UI.apply(p, overrides);
-            if(UI.browser.msie && overrides.toString != origclass.toString){
-                p.toString = overrides.toString;
-            }
-        }
-    },
 	
 	/**
 	 * 合并参数类表中所有对象的成员，并返回包含所有成员的对象。
@@ -114,18 +95,18 @@ var UI = {
 	 * @returns {Object}
 	 * @memberOf UI
 	 */
-    apply: function(o, c, defaults) {
-        // no "this" reference for friendly out of scope calls
-        if (defaults) {
-            UI.apply(o, defaults);
-        }
-        if (o && c && typeof c == 'object') {
-            for (var p in c) {
-                o[p] = c[p];
-            }
-        }
-        return o;
-    },
+	apply: function() {
+		var o = {};
+		for (var i = 0, c = arguments.length; i < c; i++) {
+			if (xFive.isObject(arguments[i])) {
+				for (var k in arguments[i]) {
+					o[k] = arguments[i][k];
+				}
+			}
+		}
+		
+		return o;
+	},
 	
 	/**
 	 * 动态加载外部js文件
@@ -175,27 +156,8 @@ var UI = {
 	 * @return boolean
 	 */
 	isArray: function(obj) {
-		return obj && obj.length && /function\s+Array/.test(obj.constructor.toString());
-	},
-	
-	/**
-	 * 给定参数是否对象
-	 * 
-	 * @param mixed obj
-	 * @return boolean
-	 */
-	isObject: function(obj) {
-		return obj && typeof (obj) == 'object';
-	},
-	
-	/**
-	 * 给定参数是否函数
-	 * 
-	 * @param mixed obj
-	 * @return boolean
-	 */
-	isFunction: function(obj) {
-		return obj && typeof (obj) == 'function';
+		var a = [];
+		return (typeof(obj) == typeof(a));
 	},
 	
 	/**
@@ -214,7 +176,7 @@ var UI = {
 	 * @param string id
 	 */
 	deleteComponent: function(id) {
-		if (this.components[id]) {
+		if (this.component[id]) {
 			delete this.components[id];
 		}
 	},
@@ -262,20 +224,6 @@ UI.Dom = {
 	 */
 	create: function(tag, scope) {
 		return jQuery(tag, scope);
-	},
-	
-	/**
-	 * 阻止事件冒泡
-	 * 
-	 * return false
-	 */
-	cancelBuddle: function(e) {
-		e.cancelBubble = true;
-		if (e.stopPropagation) {
-			e.stopPropagation();
-		}
-		
-		return false;
 	}
 };
 
@@ -286,16 +234,11 @@ UI.Dom = {
  * @class UI.Component
  */
 UI.Component = function(params) {
-	this._id = typeof(params.id) == 'string' ? params.id : 'tui-' + UI.getAutoId();
-	this.setConfig(params).init();
-	UI.setComponent(this._id, this);
+	this.setConfig(params).init(params);
 	
-	// 
-	if (params.scope) {
-		this._scope = this._config.scope;
-	} else {
-		this._scope = document.body;
-	}
+	this._id = typeof(params[id]) == 'string' ? params[id] : 'tui-' + UI.getAutoId();
+	
+	UI.setComponent(this._id, this);
 };
 
 /**
@@ -349,7 +292,7 @@ UI.Component.prototype = {
 	 * @memberOf UI.Component
 	 * @private
 	 */
-	_scope: null,
+	_scope: window,
 	
 	/**
 	 * 设置插件配置内容
@@ -386,7 +329,7 @@ UI.Component.prototype = {
 		}
 		
 		return this._config[key];
-	},
+	}
 
 	/**
 	 * 初始化
@@ -394,15 +337,7 @@ UI.Component.prototype = {
 	 * @memberOf UI.Component
 	 */
 	init: function() {
-	},
-	
-	/**
-	 * 获取当前对象DOM元素
-	 * 
-	 * @memberOf UI.Component
-	 */
-	getEl: function() {
-		return this._el;
+
 	},
 	
 	/**
@@ -415,16 +350,6 @@ UI.Component.prototype = {
 		
 		if (!this._isRendered) {
 			this._render();
-		}
-		
-		if (this._el) {
-			if (this._config.cls) {
-				this._el.addClass(this._config.cls);
-			}
-			
-			if (this._config.css) {
-				this._el.css(this._config.css);
-			}
 		}
 		
 		this._isRendered = true;
@@ -458,23 +383,6 @@ UI.Component.prototype = {
 	},
 	
 	/**
-	 * 添加到指定元素前
-	 * 
-	 * @memberOf UI.Component
-	 */
-	prependTo: function(container) {
-		if (!this._isRendered) {
-			this.render();
-		}
-		
-		if (null !== this._el) {
-			this._el.prependTo(container);
-		}
-		
-		return this;
-	},
-	
-	/**
 	 * 替换文档中指定元素
 	 * 
 	 * @memberOf UI.Component
@@ -499,10 +407,6 @@ UI.Component.prototype = {
 	 * @return UI.Component
 	 */
 	bind: function(event, callback) {
-		if (!this._events) {
-			this._events = {};
-		}
-		
 		if (typeof this._events[event] == 'undefined') {
 			this._events[event] = [];
 		}
@@ -522,7 +426,7 @@ UI.Component.prototype = {
 	 * @return UI.Component
 	 */
 	unbind: function(event, callback) {
-		if (!this._events || typeof this._events[event] == 'undefined') {
+		if (typeof this._events[event] == 'undefined') {
 			return ;
 		}
 		
@@ -548,7 +452,7 @@ UI.Component.prototype = {
 	 * @return UI.Component
 	 */
 	triggerEvent: function(event, args) {
-		if (!this._events || typeof this._events[event] == 'undefined') {
+		if (typeof this._events[event] == 'undefined') {
 			return this;
 		}
 		
@@ -562,28 +466,6 @@ UI.Component.prototype = {
 		
 		return this;
 	},
-	
-	/**
-	 * 获取焦点
-	 */
-	focus: function() {
-		this._el.focus();
-		
-		return this;
-	},
-	
-	/**
-	 * 失去焦点
-	 */
-	blur: function() {
-		this._el.blur();
-		
-		return this;
-	},
-	
-	disabled: function() {},
-	
-	enabled: function() {},
 	
 	/**
 	 * 获取当前对象ID
@@ -600,8 +482,6 @@ UI.Component.prototype = {
 	 * @return null
 	 */
 	destroy: function() {
-		this._destroy();
-		
 		for (var k in this._events) {
 			delete this._events[k];
 		}

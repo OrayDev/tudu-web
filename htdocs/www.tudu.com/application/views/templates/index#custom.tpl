@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>登录图度</title>
 {{include file="^icon.tpl"}}
-<link href="{{$options.sites.www}}/css/custom.css" type="text/css" rel="stylesheet">
+<link href="{{$options.sites.www}}/css/login.css" type="text/css" rel="stylesheet">
 {{if array_key_exists('selected', $loginskin) && $loginskin.selected.type == 'color'}}
 <style type="text/css">
 body {background-color:{{$loginskin.selected.color}};}
@@ -173,7 +173,7 @@ $(function(){
 });
 </script>
 {{if array_key_exists('selected', $loginskin) && $loginskin.selected.type == 'pic'}}
-<script type="text/javascript" src="{{$options.sites.www}}/js/jquery.fullscreen.js"></script>
+<script type="text/javascript" src="{{$options.sites.www}}/js/jquery/jquery.fullscreen.js"></script>
 <script type="text/javascript">
 $(document).ready(function () {
     var img = new Image();
@@ -181,7 +181,7 @@ $(document).ready(function () {
     img.height = 1123;
 
     {{if $loginskin.selected.issystem}}
-    var src="{{$options.sites.www}}/images/login/{{$loginskin.selected.pic}}";
+    var src="{{$options.sites.www}}/img/login/{{$loginskin.selected.pic}}";
     {{else}}
     var src="{{$options.sites.www}}/file/?hash={{$loginskin.selected.pic}}&type=loginpic";
     {{/if}}

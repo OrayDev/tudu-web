@@ -9,7 +9,7 @@
  * @package    Model_Auth
  * @copyright  Copyright (c) 2009-2010 Shanghai Best Oray Information S&T CO., Ltd.
  * @link       http://www.oray.com/
- * @version    $Id: Exception.php 1894 2012-05-31 08:02:57Z cutecube $
+ * @version    $Id: Vote.php 2886 2013-06-18 01:11:54Z cutecube $
  */
 
 /**
@@ -29,7 +29,7 @@ require_once 'Tudu/Dao/Manager.php';
  * @package    Model_Auth
  * @copyright  Copyright (c) 2009-2010 Shanghai Best Oray Information S&T CO., Ltd.
  */
-class Model_Tudu_Extension_Handler_Cycle extends Model_Tudu_Extension_Handler_Abstract
+class Model_Tudu_Extension_Handler_Vote extends Model_Tudu_Extension_Handler_Abstract
 {
     /**
      *
@@ -46,6 +46,7 @@ class Model_Tudu_Extension_Handler_Cycle extends Model_Tudu_Extension_Handler_Ab
         $vote = $tudu->getExtension('Model_Tudu_Extension_Vote');
 
         $votes = $vote->getVotes();
+        $tudu->special = Dao_Td_Tudu_Tudu::SPECIAL_VOTE;
 
         if (count($votes) <= 0) {
             $tudu->special = 0;
@@ -58,94 +59,135 @@ class Model_Tudu_Extension_Handler_Cycle extends Model_Tudu_Extension_Handler_Ab
      */
     public function action(Model_Tudu_Tudu &$tudu)
     {
-        $vote = $tudu->getExtension('Model_Tudu_Extension_Vote');
-
         /* @var $daoVote Dao_Td_Tudu_Vote */
         $daoVote = Tudu_Dao_Manager::getDao('Dao_Td_Tudu_Vote', Tudu_Dao_Manager::DB_TS);
         $tuduId  = $tudu->tuduId;
+
+        if ($tudu->special != Dao_Td_Tudu_Tudu::SPECIAL_VOTE) {
+            $daoVote->deleteVotes($tuduId);
+            return ;
+        }
+
+        // 草稿时候删除投票后重建
+        if ($tudu->operation == 'save' || (!empty($tudu->fromtudu) && $tudu->fromtudu->isDraft)) {
+            $daoVote->deleteVotes($tuduId);
+        }
+
+        $vote = $tudu->getExtension('Model_Tudu_Extension_Vote');
 
         if (!$vote) {
             return ;
         }
 
-        $votes   = $vote->getVotes();
-        $deleted = $vote->getDeleteVotes();
+        $votes     = $vote->getVotes();
+        $fromVotes = $this->_getTuduVotes($tuduId);
+        $delVotes  = array();
 
-        foreach ($votes as $vote) {
+        if ($fromVotes) {
+            $currVoteIds = array_keys($votes);
+            $fromVoteIds = array_keys($fromVotes);
+
+            // 找出需要删除的投票
+            $delVotes = array_diff($fromVoteIds, $currVoteIds);var_dump($delVotes);
+            foreach ($delVotes as $id) {
+                $daoVote->deleteVote($tuduId, $id);
+            }
+
+            foreach ($votes as $voteId => $item) {
+                if ($daoVote->existsVote($tuduId, $voteId)) {
+                    $optIds  = array_keys($item['options']);
+                    $options = $fromVotes[$voteId]['options'];
+                    $votes[$voteId]['removeoptions'] = array_diff(array_keys($options), $optIds);
+                }
+            }
+        }
+var_dump($votes);
+        foreach ($votes as $voteId => $vote) {
             if (!empty($vote['isnew'])) {
                 $vote['tuduid'] = $tuduId;
                 $ret = $daoVote->createVote($vote);
-
+var_dump($ret);
                 if (!$ret) {
                     continue ;
                 }
 
                 foreach ($vote['options'] as $opt) {
+                    $opt['tuduid'] = $tuduId;
+                    $opt['voteid'] = $voteId;
                     $daoVote->createOption($opt);
                 }
 
             } else {
                 // 删除选项
-                if (!empty($vote['deleteoptions'])) {
-
-                    $sv     = $this->_getTuduVote($vote['voteid']);
-                    $voters = $daoVote->getVoters($tuduId, $vote['voteid']);
+                if (!empty($vote['removeoptions'])) {
+                    $voters = $daoVote->getVoters($tuduId, $voteId);
                     $offset = 0;
-                    if (null !== $sv) {
-                        foreach ($vote['deleteoptions'] as $optionId) {
-                            $offset += (int) $sv['options'][$optionId]['votecount'];
 
-                            foreach ($voters as $val) {
-                                if (in_array($optionId, $val['options'])) {
-                                    $daoVote->deleteVoter($val['uniqueid'], $tuduId, $vote['voteid']);
-                                }
+                    foreach ($vote['removeoptions'] as $optionId) {
+                        $offset += (int) $fromVotes[$voteId]['options'][$optionId]['votecount'];
+
+                        foreach ($voters as $val) {
+                            if (in_array($optionId, $val['options'])) {
+                                $daoVote->deleteVoter($val['uniqueid'], $tuduId, $voteId);
                             }
-
-                            // 删除选项
-                            $daoVote->deleteOption($tuduId, $vote['voteid'], $optionId);
                         }
 
-                        if ($offset > 0) {
-                            $vote['votecount'] = $sv['votecount'] - (int) $offset;
-                        }
+                        // 删除选项
+                        $daoVote->deleteOption($tuduId, $voteId, $optionId);
+                    }
 
-                        // 清零
-                        if ($vote['isreset']) {
-                            $daoVote->clearVote($tuduId, $vote['voteid']);
-                        }
+                    if ($offset > 0) {
+                        $vote[$voteId]['votecount'] = $fromVotes[$voteId]['votecount'] - (int) $offset;
                     }
                 }
 
-                $daoVote->updateVote($tuduId, $vote['voteid'], $vote);
-
-                foreach ($vote['deleteoptions'] as $dopt) {
-                    $daoVote->deleteOption($tuduId, $vote['voteid'], $dopt);
+                // 清零
+                if (!empty($vote['isreset'])) {
+                    $daoVote->clearVote($tuduId, $voteId);
                 }
+var_dump($vote);
+                if (!empty($vote['options'])) {
 
-                foreach ($vote['options'] as $opt) {
-                    if ($opt['isnew']) {
-                        $daoVote->createOption($opt);
-                    } else {
-                        $daoVote->updateOption($tuduId, $vote['voteid'], $opt['optionid'], $opt);
+                    $daoVote->updateVote($tuduId, $voteId, $vote);
+
+                    foreach ($vote['options'] as $opt) {
+                        if ($opt['isnew']) {
+                            $opt['tuduid'] = $tuduId;
+                            $opt['voteid'] = $voteId;
+                            $daoVote->createOption($opt);
+                        } else {
+                            $daoVote->updateOption($tuduId, $voteId, $opt['optionid'], $opt);
+                        }
                     }
                 }
             }
         }
 
-        foreach ($deleted as $id) {
-            $daoVote->deleteVote($tuduId, $id);
-        }
+        echo 'x';exit;
     }
 
-    private function _getTuduVote($voteId)
+    /**
+     * 获取图度投票
+     *
+     * @param string $tuduId
+     */
+    private function _getTuduVotes($tuduId)
     {
         if (null === $this->_votes) {
             /* @var $daoVote Dao_Td_Tudu_Vote */
             $daoVote = Tudu_Dao_Manager::getDao('Dao_Td_Tudu_Vote', Tudu_Dao_Manager::DB_TS);
 
-            $this->_votes = $daoVote->getVotesByTuduId($tudu->tuduId)->toArray('voteid');
+            $votes = $daoVote->getVotesByTuduId($tuduId);
+            if ($votes) {
+                $votes = $votes->toArray();
+                $votes = $daoVote->formatVotes($votes);
+            } else {
+                $votes = null;
+            }
+
+            $this->_votes = $votes;
         }
 
-        return isset($this->_votes[$voteId]) ? $this->_votes[$voteId] : null;
+        return isset($this->_votes) ? $this->_votes : null;
     }
 }

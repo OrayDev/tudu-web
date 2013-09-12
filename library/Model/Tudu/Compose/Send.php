@@ -90,6 +90,10 @@ class Model_Tudu_Compose_Send extends Model_Tudu_Compose_Abstract
             $tudu->flowId   = $this->_fromTudu->flowId;
             $tudu->isDraft  = $this->_fromTudu->isDraft;
 
+            if ($this->_fromTudu->status > 2) {
+                $tudu->status = 1;
+            }
+
             /* @var $daoTuduGroup Dao_Td_Tudu_Group */
             $daoTuduGroup = Tudu_Dao_Manager::getDao('Dao_Td_Tudu_Group', Tudu_Dao_Manager::DB_TS);
             if (!$this->_fromTudu->isDraft) {
@@ -99,7 +103,7 @@ class Model_Tudu_Compose_Send extends Model_Tudu_Compose_Abstract
                 foreach ($accepters as $accepter) {
                     list($username, $truename) = explode(' ', $accepter['accepterinfo'], 2);
                     $childrenCount = $daoTuduGroup->getChildrenCount($tudu->tuduId, $accepter['uniqueid']);
-                    
+
                     if (isset($to[0][$username]) || $childrenCount > 0) {
                         $tuser = array(
                             'username' => $username,
@@ -115,7 +119,7 @@ class Model_Tudu_Compose_Send extends Model_Tudu_Compose_Abstract
                         	$tuser['percent'] = $to[0][$username]['percent'];
                         	$tuser['status']  = $to[0][$username]['percent'] <= 0 ? 0 : ($to[0][$username]['percent'] >= 100 ? 2 : 1);
                         }
- 
+
                         $to[0][$username] = $tuser;
                     }
                 }
@@ -136,7 +140,6 @@ class Model_Tudu_Compose_Send extends Model_Tudu_Compose_Abstract
                 throw new Model_Tudu_Exception('Board not exists', Model_Tudu_Exception::BOARD_NOTEXISTS);
             }
         }
-
     }
 
     /**
@@ -153,6 +156,16 @@ class Model_Tudu_Compose_Send extends Model_Tudu_Compose_Abstract
 
         // 保存图度
         if (null !== $tudu->fromTudu) {
+
+            if (!$tudu->fromTudu->isDraft) {
+                $user = Tudu_User::getInstance();
+                $time = time();
+
+                $tudu->lastPostTime = $time;
+                $tudu->lastPoster   = $user->trueName;
+                $tudu->lastModify   = implode(chr(9), array($user->uniqueId, $time, $user->trueName));
+            }
+
             $this->_updateTudu($tudu);
         } else {
             $this->_createTudu($tudu);
@@ -176,8 +189,13 @@ class Model_Tudu_Compose_Send extends Model_Tudu_Compose_Abstract
 
         // 添加到自己
         $daoTudu->addUser($tudu->tuduId, $this->_user->uniqueId, array(
-            'role' => 'from'
+            'role' => 'from',
+            'accepterinfo' => $this->_user->userName . ' ' . $this->_user->trueName
         ));
+
+        // 移除草稿标签
+        $r = $daoTudu->deleteLabel($tudu->tuduId, $this->_user->uniqueId, '^r');
+
         $daoTudu->addLabel($tudu->tuduId, $this->_user->uniqueId, '^all');
 
         if (!$tudu->parentId) {
@@ -187,11 +205,6 @@ class Model_Tudu_Compose_Send extends Model_Tudu_Compose_Abstract
         // 已发送
         if (!$this->_fromTudu || $this->_fromTudu->sender == $this->_user->userName) {
             $daoTudu->addLabel($tudu->tuduId, $this->_user->uniqueId, '^f');
-        }
-
-        // 移除草稿标签
-        if ($this->_fromTudu && $this->_fromTudu->isDraft) {
-            $daoTudu->deleteLabel($tudu->tuduId, $this->_user->unqiueId, '^r');
         }
 
         if ($tudu->type == 'notice') {

@@ -9,7 +9,7 @@
  * @package    Tudu_Model
  * @copyright  Copyright (c) 2009-2010 Shanghai Best Oray Information S&T CO., Ltd.
  * @link       http://www.oray.com/
- * @version    $Id: Tudu.php 2070 2012-08-22 09:37:26Z cutecube $
+ * @version    $Id: Meeting.php 2821 2013-04-11 09:47:02Z chenyongfa $
  */
 
 /**
@@ -82,11 +82,6 @@ class Model_Tudu_Extension_Meeting extends Model_Tudu_Extension_Abstract
     public function setAttributes(array $attributes)
     {
         foreach ($attributes as $k => $val) {
-            if ($k == 'steps') {
-                $this->_steps = $val;
-                continue ;
-            }
-
             $this->setAttribute($k, $val);
         }
 
@@ -103,12 +98,6 @@ class Model_Tudu_Extension_Meeting extends Model_Tudu_Extension_Abstract
     {
         $key = strtolower($key);
 
-        if ($key == 'steps') {
-            $this->_steps = $value;
-
-            return $this;
-        }
-
         $this->_attrs[$key] = $value;
 
         return $this;
@@ -120,9 +109,6 @@ class Model_Tudu_Extension_Meeting extends Model_Tudu_Extension_Abstract
      */
     public function __get($name)
     {
-        if ($name == 'steps') {
-            return $this->_steps;
-        }
         return $this->getAttribute($name);
     }
 
@@ -132,9 +118,6 @@ class Model_Tudu_Extension_Meeting extends Model_Tudu_Extension_Abstract
      */
     public function __set($name, $value)
     {
-        if ($name == 'steps') {
-            return $this->_steps = $value;
-        }
         $this->setAttribute($name, $value);
     }
 

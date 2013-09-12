@@ -6,8 +6,7 @@
 {{include file="^style.tpl"}}
 <script src="{{$options.sites.static}}/js/jquery-1.4.4.js" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/jquery.extend.js?1009" type="text/javascript"></script>
-<script src="{{$options.sites.static}}/js/frame.js?1030" type="text/javascript"></script>
-<script src="{{$options.sites.static}}/js/boardsearch.source.js" type="text/javascript"></script>
+<script src="{{$options.sites.static}}/js/frame.js?1031" type="text/javascript"></script>
 </head>
 <body>
     <div class="position">
@@ -23,11 +22,11 @@
             <table width="100%" border="0" cellspacing="0" cellpadding="0">
               <tr>
                 <td align="right" width="130"><a href="javascript:void(0)" id="select-from">{{$LANG.sender}}</a>{{$LANG.cln}}</td>
-                <td><input class="input_text" name="from" type="text" id="inputfrom" /><input id="from" type="hidden" value="" /></td>
+                <td><input class="input_text" name="from" type="text" id="inputfrom" /></td>
               </tr>
               <tr>
                 <td align="right"><a href="javascript:void(0)" id="select-to">{{$LANG.receiver}}</a>{{$LANG.cln}}</td>
-                <td><input class="input_text" name="to" type="text" id="inputto" /><input id="to" type="hidden" value="" /></td>
+                <td><input class="input_text" name="to" type="text" id="inputto" /></td>
               </tr>
               <tr>
                 <td align="right">{{$LANG.tudu_type}}{{$LANG.cln}}</td>
@@ -72,12 +71,88 @@
 </form>
 <script type="text/javascript">
 <!--
-$(function(){
-    TOP.Frame.title('{{$LANG.board_search}}');
-    TOP.Frame.hash('m=board/search-form');
-    BoardSearch.init();
+TOP.Frame.title('{{$LANG.board_search}}');
+
+$('#theform').submit(function(){
+	var form = $(this);
+
+	if (!form.find('input[name="keyword"]').val()
+		&& !form.find('input[name="to"]').val()
+		&& !form.find('input[name="from"]').val()
+		&& !form.find('input[name="time"]').val())
+	{
+		form.find('input[name="keyword"]').focus();
+	    TOP.showMessage('{{$LANG.missing_search_condition}}');
+	    return false;
+	}
 });
+
+$('#select-from, #select-to').click(function(){
+    var instance = this;
+    var title = $(this).text();
+    var input = $('#input' + this.id.replace('select-', ''));
+
+    _CAST_WIN = TOP.Frame.CastSelector.show({
+        mtitle: title,
+        onConfirm: function(ret){
+            var users = TOP.Cast.get('users'),
+                val = [];
+            for (var i = 0, c = ret.users.length; i < c; i++) {
+                for (var j = 0, l = users.length; j < l; j++) {
+                    if (users[j].userid == ret.users[i]) {
+                        val.push(users[j].truename);
+                    }
+                }
+            }
+            input.val(val.join(''));
+        },
+        selected: {users: [], groups: []},
+        maxCount: 1,
+        noGroup: true
+    });
+});
+
+new $.autocomplete({
+    target: $('#inputfrom'),
+    data: {users: TOP.Cast.get('users')},
+    url: '/frame/cast',
+    onLoaded: castLoaded,
+    columns: {users: ['truename', 'address', 'pinyin']},
+    width: 220,
+    arrowSupport: true,
+    template: {
+        users:'{truename} <span class="gray">&lt;{address}&gt;</span>'
+    },
+    onSelect: function(item){
+        $('#inputfrom').val(item.data.truename);
+    }
+});
+
+new $.autocomplete({
+    target: $('#inputto'),
+    data: {users: TOP.Cast.get('users')},
+    url: '/frame/cast',
+    onLoaded: castLoaded,
+    columns: {users: ['truename', 'address', 'pinyin']},
+    width: 220,
+    arrowSupport: true,
+    template: {
+        users:'{truename} <span class="gray">&lt;{address}&gt;</span>'
+    },
+    onSelect: function(item){
+        $('#inputto').val(item.data.truename);
+    }
+});
+
+function castLoaded(ret) {
+	TOP.Cast.set('users', ret.data.users);
+	TOP.Cast.set('depts', ret.data.depts);
+	TOP.Cast.set('groups', ret.data.groups);
+
+    this.data = {users: ret.data.users};
+}
 -->
 </script>
+
 </body>
 </html>

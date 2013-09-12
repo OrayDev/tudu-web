@@ -234,6 +234,7 @@ return array(
     'user_tudu' => '发起图度',
 
     'tudu_timeover' => '已超期',
+    'status_sending'    => '待发送',
     'status_needaccept' => '未接受',
     'status_waitaccept' => '待定',
     'status_accepted'   => '已接受',
@@ -300,6 +301,8 @@ return array(
 	'board_not_exists'       => '版块不存在或已被删除',
     'tudu_not_exists'        => '图度不存在或已被删除',
     'post_not_exists'        => '回复不存在或已被删除',
+
+    'board_not_exists_or_deny'       => '版块不存在或没有权限发送到该板块',
 
     // 权限
     'perm_deny_view_tudu'   => '你没有查看该图度的权限',
@@ -621,5 +624,27 @@ return array(
     'target_tudugroup_not_exists' => '目标图度组不存在或已被删除',
 
     'post_remind' => '回复提醒',
-    'vote_anonymous' => '创建人显示投票参与人'
+    'vote_anonymous' => '创建人显示投票参与人',
+
+    'remind_detail' => array(
+        'mode_once' => '仅一次',
+        'mode_define' => '自定义',
+        'mode_day' => '每天',
+        'mode_weekday' => '每个工作日',
+        'week_sun' => '周日',
+        'week_mon' => '周一',
+        'week_tue' => '周二',
+        'week_wed' => '周三',
+        'week_thu' => '周四',
+        'week_fri' => '周五',
+        'week_sat' => '周六'
+    ),
+    'timing_remind' => '定时提醒',
+    'open_timing_remind' => '开启定时提醒功能',
+    'timing_remind_tips' => '任务进度未100%时提醒，只提醒执行人',
+    'remind_settings' => '提醒设置',
+    'remind_time' => '提醒时间',
+    'remind_notifyall' => '有更新时提醒抄送人、审批人',
+
+    'tudu_type' => '类型'
 );

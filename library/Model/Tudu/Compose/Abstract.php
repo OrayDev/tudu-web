@@ -303,11 +303,17 @@ abstract class Model_Tudu_Compose_Abstract extends Model_Abstract
         }
 
         $params['attachnum'] = $attachNum;
-        
+
         if (!empty($params['acceptmode'])) {
         	$params['accepttime'] = null;
         	$params['status']     = 0;
         }
+
+        if ($tudu->fromTudu && !$tudu->fromTudu->isDraft) {
+            unset($params['createtime']);
+        }
+
+        unset($params['from']);
 
         if (!$daoTudu->updateTudu($tudu->tuduId, $params)) {
             require_once 'Model/Tudu/Exception.php';

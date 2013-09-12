@@ -23,6 +23,7 @@ return array(
         'from' => '發起人',
         'to' => '執行人',
         'cc' => '抄送人',
+        'type' => '類型',
         'subject' => '標題',
         'then' => '則',
         'label' => '添加標籤',
@@ -54,5 +55,7 @@ return array(
     'mail_remind_tips' => '(可設置多個郵箱，用分號隔開)',
     'mail_remind_operation' => '收到圖度時，郵件提醒',
     'mailbox_null_tips' => '請輸入接收郵件提醒的郵箱',
-    'invalid_mailbox_address' => '郵箱格式有誤，請檢查設置後再提交'
+    'invalid_mailbox_address' => '郵箱格式有誤，請檢查設置後再提交',
+
+    'tudu_type' => '類型'
 );

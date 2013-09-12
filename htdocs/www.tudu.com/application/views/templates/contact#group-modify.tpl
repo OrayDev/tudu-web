@@ -6,7 +6,7 @@
 {{include file="^style.tpl"}}
 <script src="{{$options.sites.static}}/js/jquery-1.4.4.js" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/jquery.extend.js?1009" type="text/javascript"></script>
-<script src="{{$options.sites.static}}/js/frame.js?1030" type="text/javascript"></script>
+<script src="{{$options.sites.static}}/js/frame.js?1031" type="text/javascript"></script>
 
 </head>
 <body>

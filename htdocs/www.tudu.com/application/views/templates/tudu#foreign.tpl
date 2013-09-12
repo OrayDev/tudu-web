@@ -41,9 +41,9 @@
         <tbody>
         <tr>
         <td width="20%" title="{{$item.info.1}}{{if $item.info.0}}&lt;{{$item.info.0}}&gt;{{/if}}">{{$item.info.1}}</td>
-        <td style="overflow:hidden;white-space:nowrap;"><a href="javascript:void(0)" onclick="TOP.copyToClipboard('https://{{$tudu.orgid}}.tudu.com/foreign/tudu?tid={{$tudu.tuduid}}&fid={{$item.uniqueid}}&ts={{$user.tsid}}')" title="https://{{$tudu.orgid}}.tudu.com/foreign/tudu?tid={{$tudu.tuduid}}&fid={{$item.uniqueid}}&ts={{$user.tsid}}">https://{{$tudu.orgid}}.tudu.com/foreign/tudu?tid={{$tudu.tuduid}}&fid={{$item.uniqueid}}&ts={{$user.tsid}}</a></td>
+        <td style="overflow:hidden;white-space:nowrap;"><a href="javascript:void(0)" onclick="TOP.copyToClipboard('http://{{$tudu.orgid}}.tudu.com/foreign/tudu?tid={{$tudu.tuduid}}&fid={{$item.uniqueid}}&ts={{$user.tsid}}')" title="https://{{$tudu.orgid}}.tudu.com/foreign/tudu?tid={{$tudu.tuduid}}&fid={{$item.uniqueid}}&ts={{$user.tsid}}">http://{{$tudu.orgid}}.tudu.com/foreign/tudu?tid={{$tudu.tuduid}}&fid={{$item.uniqueid}}&ts={{$user.tsid}}</a></td>
         {{if $tudu.isauth}}<td width="80" align="center">{{$item.authcode}}</td>{{/if}}
-        <td width="100" align="center">[<a href="javascript:void(0)" onclick="TOP.copyToClipboard('https://{{$tudu.orgid}}.tudu.com/foreign/tudu?tid={{$tudu.tuduid}}&fid={{$item.uniqueid}}&ts={{$user.tsid}}')">{{$LANG.copy_link}}</a>]{{if $tudu.type != 'task'}}[<a href="javascript:void(0)" name="delete" id="del-{{$item.uniqueid}}">{{$LANG.delete}}</a>]{{/if}}</td>
+        <td width="100" align="center">[<a href="javascript:void(0)" onclick="TOP.copyToClipboard('http://{{$tudu.orgid}}.tudu.com/foreign/tudu?tid={{$tudu.tuduid}}&fid={{$item.uniqueid}}&ts={{$user.tsid}}')">{{$LANG.copy_link}}</a>]{{if $tudu.type != 'task'}}[<a href="javascript:void(0)" name="delete" id="del-{{$item.uniqueid}}">{{$LANG.delete}}</a>]{{/if}}</td>
         </tr>
         </tbody>
         </table>
@@ -70,9 +70,9 @@
         <tbody>
         <tr>
         <td width="20%" title="{{$item.info.1}}{{if $item.info.0}}&lt;{{$item.info.0}}&gt;{{/if}}">{{$item.info.1}}</td>
-        <td style="overflow:hidden;white-space:nowrap;"><a href="javascript:void(0)" onclick="TOP.copyToClipboard('https://{{$tudu.orgid}}.tudu.com/foreign/tudu?tid={{$tudu.tuduid}}&fid={{$item.uniqueid}}&ts={{$user.tsid}}')" title="https://{{$tudu.orgid}}.tudu.com/foreign/tudu?tid={{$tudu.tuduid}}&fid={{$item.uniqueid}}&ts={{$user.tsid}}">https://{{$tudu.orgid}}.tudu.com/foreign/tudu?tid={{$tudu.tuduid}}&fid={{$item.uniqueid}}&ts={{$user.tsid}}</a></td>
+        <td style="overflow:hidden;white-space:nowrap;"><a href="javascript:void(0)" onclick="TOP.copyToClipboard('http://{{$tudu.orgid}}.tudu.com/foreign/tudu?tid={{$tudu.tuduid}}&fid={{$item.uniqueid}}&ts={{$user.tsid}}')" title="http://{{$tudu.orgid}}.tudu.com/foreign/tudu?tid={{$tudu.tuduid}}&fid={{$item.uniqueid}}&ts={{$user.tsid}}">http://{{$tudu.orgid}}.tudu.com/foreign/tudu?tid={{$tudu.tuduid}}&fid={{$item.uniqueid}}&ts={{$user.tsid}}</a></td>
         {{if $tudu.isauth}}<td width="80" align="center">{{$item.authcode}}</td>{{/if}}
-        <td width="100" align="center">[<a href="javascript:void(0)" onclick="TOP.copyToClipboard('https://{{$tudu.orgid}}.tudu.com/foreign/tudu?tid={{$tudu.tuduid}}&fid={{$item.uniqueid}}&ts={{$user.tsid}}')">{{$LANG.copy_link}}</a>][<a href="javascript:void(0)" name="delete" id="del-{{$item.uniqueid}}">{{$LANG.delete}}</a>]</td>
+        <td width="100" align="center">[<a href="javascript:void(0)" onclick="TOP.copyToClipboard('http://{{$tudu.orgid}}.tudu.com/foreign/tudu?tid={{$tudu.tuduid}}&fid={{$item.uniqueid}}&ts={{$user.tsid}}')">{{$LANG.copy_link}}</a>][<a href="javascript:void(0)" name="delete" id="del-{{$item.uniqueid}}">{{$LANG.delete}}</a>]</td>
         </tr>
         </tbody>
         </table>

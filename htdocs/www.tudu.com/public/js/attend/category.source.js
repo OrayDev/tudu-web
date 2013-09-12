@@ -4,7 +4,7 @@
  * @copyright  Copyright (c) 2009-2010 Shanghai Best Oray Information S&T CO., Ltd.
  * @link       http://www.tudu.com/
  * @author     Oray-Yongfa
- * @version    $Id: category.source.js 2769 2013-03-07 10:09:47Z chenyongfa $
+ * @version    $Id: category.source.js 2773 2013-03-12 10:17:40Z chenyongfa $
  */
 var Attend = Attend || {};
 
@@ -197,7 +197,7 @@ Attend.Category = {
                                 $('#step-' + stepKey).find('.a_select').attr({'id': 'select-' + stepKey});
                                 // 联系人控件
                                 var input = new TOP.ContactInput({id: 'review-input-'+stepKey, target: $('#step-' + stepKey).find('input.i_users'), valuePlace: $('#step-' + stepKey).find('input.users'), group: false, contact: false, review: true,jq: jQuery});
-                                $('#review-input-'+stepKey).css({'display': 'inline-block', 'width': '90px', 'height': '16px', 'zoom': 1, '_display': 'inline'});
+                                $('#review-input-'+stepKey).css({'width': '90px'});
                                 o.initSelectLink('#select-'+stepKey, input, $('#step-' + stepKey).find('input.users'), false, true);
                                 if (parseInt($('select[name="type-'+stepKey+'"] option:selected').val()) != 2) {
                                     $('#step-' + stepKey).find('p.null_users').hide();
@@ -212,6 +212,7 @@ Attend.Category = {
                     html.insertBefore(item.find('.branch_last'));
                 }
                 item.find('.step_box_item:not(:last)').css({'margin-right': '18px'});
+                item.find('.step_box_item:last').css({'margin-right': '0px'});
             } else {
                 var item = $(o.stepTpl),
                     option = '';
@@ -289,12 +290,12 @@ Attend.Category = {
 
                 if (attrId.length == 2) {
                     var input = new TOP.ContactInput({id: 'review-input-'+stepKey, target: item.find('input[name="i-users-'+stepKey+'"]'), valuePlace: item.find('input[name="users-'+stepKey+'"]'), group: false, contact: false, review: true,jq: jQuery});
-                    $('#review-input-'+stepKey).css({'display': 'inline-block', 'width': '90px', 'height': '16px', 'zoom': 1, '_display': 'inline'});
+                    $('#review-input-'+stepKey).css({'width': '90px'});
                     o.initSelectLink($(this), input, item.find('input[name="users-'+stepKey+'"]'), false, true);
                 } else if (attrId.length == 3) {
                     var branchKey = attrId[2];
                     var input = new TOP.ContactInput({id: 'review-input-'+stepKey+'-'+branchKey, target: item.find('input[name="i-users-'+stepKey+'-'+branchKey+'"]'), valuePlace: item.find('input[name="users-'+stepKey+'-'+branchKey+'"]'), group: false, contact: false, review: true,jq: jQuery});
-                    $('#review-input-'+stepKey+'-'+branchKey).css({'display': 'inline-block', 'width': '90px', 'height': '16px', 'zoom': 1, '_display': 'inline'});
+                    $('#review-input-'+stepKey+'-'+branchKey).css({'width': '90px'});
                     o.initSelectLink($(this), input, item.find('input[name="users-'+stepKey+'-'+branchKey+'"]'), false, true);
                 }
             });
@@ -328,6 +329,7 @@ Attend.Category = {
         item.find('input.i_users').attr({'name': 'i-users-' + id});
         item.find('.a_select').attr({'id': 'select-' + id});
         item.find('.step_box_wrap').prepend('<input type="hidden" value="'+id+'" name="member[]" /><input type="hidden" value="'+id+'" name="order-'+id+'" />');
+
         // 删除步骤
         item.find('.step_box_tool .icon_stepclose').bind('click', function(){
             o.removeStep(id);
@@ -359,7 +361,7 @@ Attend.Category = {
 
         // 联系人控件
         o.input[id] = new TOP.ContactInput({id: 'review-input-'+id, target: item.find('input.i_users'), valuePlace: item.find('input.users'), group: false, contact: false, review: true,jq: jQuery});
-        $('#review-input-'+id).css({'display': 'inline-block', 'width': '90px', 'height': '16px', 'zoom': 1, '_display': 'inline'});
+        $('#review-input-'+id).css({'width': '90px'});
         o.initSelectLink('#select-'+id, o.input[id], item.find('input.users'), false, true);
         o.index ++;
 
@@ -395,19 +397,24 @@ Attend.Category = {
             obj.find('input.i_users').attr({'name': 'i-users-' + id + '-' + bid, 'disabled': false});
             obj.find('.a_select').attr({'id': 'select-' + id + '-' + bid});
             var input = new TOP.ContactInput({id: 'review-input-'+id + '-' + bid, target: obj.find('input.i_users'), valuePlace: obj.find('input.users'), group: false, contact: false, review: true,jq: jQuery});
-            $('#review-input-'+id + '-' + bid).css({'display': 'inline-block', 'width': '90px', 'height': '16px', 'zoom': 1, '_display': 'inline'});
+            $('#review-input-'+id + '-' + bid).css({'width': '90px'});
             o.initSelectLink('#select-'+id + '-' + bid, input, obj.find('input.users'), false, true);
 
+            obj.find('select').unbind('change');
             obj.find('select').attr({'name': 'type-' + id + '-' + bid}).bind('change', function(){
                 var stepIndex = $(this).closest('tr').attr('id').replace('step-', '');
                 var branchKey = $(this).closest('div').attr('id').replace('branch-'+ stepIndex+'-', '');
                 var t = $(this).val();
                 if (parseInt(t) == 2) {
-                    $(this).closest('div').find('p:last').show();
-                    $(this).closest('div').find('p.null_users').hide();
+                    //$(this).closest('div').find('p:last').show();
+                    //$(this).closest('div').find('p.null_users').hide();
+                    $('#branch-' + stepIndex + '-' + branchKey).find('p:last').show();
+                    $('#branch-' + stepIndex + '-' + branchKey).find('p.null_users').hide();
                 } else {
-                    $(this).closest('div').find('p:last').hide();
-                    $(this).closest('div').find('p.null_users').show();
+                    //$(this).closest('div').find('p:last').hide();
+                    //$(this).closest('div').find('p.null_users').show();
+                    $('#branch-' + stepIndex + '-' + branchKey).find('p:last').hide();
+                    $('#branch-' + stepIndex + '-' + branchKey).find('p.null_users').show();
                 }
             });
 
@@ -424,6 +431,7 @@ Attend.Category = {
                     $('#step-' + id).find('input[name^="branch-"]').remove();
                     $('#step-' + id).find('.mail_input').remove();
                     $('#step-' + id).find('.step_box_item').css({'margin-right': '0px'}).removeAttr('id').children('a').hide();
+                    $('#step-' + id).find('.step_box_item select').unbind('change');
                     $('#step-' + id).find('.step_box_item select').attr({'name': 'type-' + id}).bind('change', function(){
                         var type = $('select[name="type-'+id+'"] option:selected').val();
                         if (parseInt(type) == 2) {
@@ -439,7 +447,7 @@ Attend.Category = {
                     $('#step-' + id).find('.a_select').attr({'id': 'select-' + id});
                     // 联系人控件
                     var input = new TOP.ContactInput({id: 'review-input-'+id, target: $('#step-' + id).find('input.i_users'), valuePlace: $('#step-' + id).find('input.users'), group: false, contact: false, review: true,jq: jQuery});
-                    $('#review-input-'+id).css({'display': 'inline-block', 'width': '90px', 'height': '16px', 'zoom': 1, '_display': 'inline'});
+                    $('#review-input-'+id).css({'width': '90px'});
                     o.initSelectLink('#select-'+id, input, $('#step-' + id).find('input.users'), false, true);
                     if (parseInt($('select[name="type-'+id+'"] option:selected').val()) != 2) {
                         $('#step-' + id).find('p.null_users').hide();
@@ -461,6 +469,7 @@ Attend.Category = {
                     $('#step-' + id).find('input[name^="branch-"]').remove();
                     $('#step-' + id).find('.mail_input').remove();
                     $('#step-' + id).find('.step_box_item').css({'margin-right': '0px'}).removeAttr('id').children('a').hide();
+                    $('#step-' + id).find('.step_box_item select').unbind('change');
                     $('#step-' + id).find('.step_box_item select').attr({'name': 'type-' + id}).bind('change', function(){
                         var type = $('select[name="type-'+id+'"] option:selected').val();
                         if (parseInt(type) == 2) {
@@ -476,7 +485,7 @@ Attend.Category = {
                     $('#step-' + id).find('.a_select').attr({'id': 'select-' + id});
                     // 联系人控件
                     var input = new TOP.ContactInput({id: 'review-input-'+id, target: $('#step-' + id).find('input.i_users'), valuePlace: $('#step-' + id).find('input.users'), group: false, contact: false, review: true,jq: jQuery});
-                    $('#review-input-'+id).css({'display': 'inline-block', 'width': '90px', 'height': '16px', 'zoom': 1, '_display': 'inline'});
+                    $('#review-input-'+id).css({'width': '90px'});
                     o.initSelectLink('#select-'+id, input, $('#step-' + id).find('input.users'), false, true);
                     if (parseInt($('select[name="type-'+id+'"] option:selected').val()) != 2) {
                         $('#step-' + id).find('p.null_users').hide();
@@ -496,24 +505,29 @@ Attend.Category = {
         branch.find('input.users').attr({'name': 'users-' + id + '-' + key});
         branch.find('input.i_users').attr({'name': 'i-users-' + id + '-' + key});
         branch.find('.a_select').attr({'id': 'select-' + id + '-' + key});
+        branch.find('select').unbind('change');
         branch.find('select').attr({'name': 'type-' + id + '-' + key}).html('<option value="0" selected="selected">'+o._lang.upper_review+'</option><option value="1">'+o._lang.uppers_review+'</option><option value="2">'+o._lang.assign_reviewer+'</option>')
         .bind('change', function(){
             var stepIndex = $(this).closest('tr').attr('id').replace('step-', '');
             var branchKey = $(this).closest('div').attr('id').replace('branch-'+ stepIndex+'-', '');
             var t = $(this).val();
             if (parseInt(t) == 2) {
-                $(this).closest('div').find('p:last').show();
-                $(this).closest('div').find('p.null_users').hide();
+                //$(this).closest('div').find('p:last').show();
+                //$(this).closest('div').find('p.null_users').hide();
+                $('#branch-' + stepIndex + '-' + branchKey).find('p:last').show();
+                $('#branch-' + stepIndex + '-' + branchKey).find('p.null_users').hide();
             } else {
-                $(this).closest('div').find('p:last').hide();
-                $(this).closest('div').find('p.null_users').show();
+                //$(this).closest('div').find('p:last').hide();
+                //$(this).closest('div').find('p.null_users').show();
+                $('#branch-' + stepIndex + '-' + branchKey).find('p:last').hide();
+                $('#branch-' + stepIndex + '-' + branchKey).find('p.null_users').show();
             }
         });
         branch.find('p.null_users').show();
         branch.insertBefore('#step-' + id + ' .branch_last');
         // 联系人控件
         var input = new TOP.ContactInput({id: 'review-input-'+id + '-' + key, target: branch.find('input.i_users'), valuePlace: branch.find('input.users'), group: false, contact: false, review: true,jq: jQuery});
-        $('#review-input-'+id + '-' + key).css({'display': 'inline-block', 'width': '90px', 'height': '16px', 'zoom': 1, '_display': 'inline'});
+        $('#review-input-'+id + '-' + key).css({'width': '90px'});
         o.initSelectLink('#select-'+id + '-' + key, input, branch.find('input.users'), false, true);
 
         $('#branch-' + id + '-' + key).prev().css({'margin-right': '18px'});

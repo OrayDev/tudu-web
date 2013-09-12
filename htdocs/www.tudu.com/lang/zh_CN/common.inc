@@ -225,8 +225,7 @@ return array(
     'file_upload_failure' => '文件"%s"上传失败',
     'file_not_exists' => '文件不存在',
     'file_deny_access' => '你不能访问该文件',
-    'file_too_large' => '文件 "%s" 超过限制大小，请上传 "%s" 以下的文件',
-    'invalid_file_type' => '不支持上传的文件类型',
+
 
     'permission_denied_for_tudu' => '你没有权限对该图度执行当前操作',
 
@@ -327,5 +326,7 @@ return array(
     'tudu_flows' => '图度工作流',
     'higher_review' => '上级审批',
     'flow_chart' => '流程图',
-    'mailbox' => '邮箱'
+    'mailbox' => '邮箱',
+
+    'click_create_note' => '点击新建便签'
 );

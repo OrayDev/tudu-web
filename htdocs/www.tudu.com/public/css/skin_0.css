@@ -416,3 +416,10 @@ a{
 .cal-table td .on:hover{
     background-color:#4d5d2c;
 }
+/*=======图片上传tab样式=======*/
+.modal-dialog .tab-header li.active a{
+    color:#4C5C2D;
+}
+.modal-dialog .tab-header li a:hover{
+	color:#4C5C2D;
+}

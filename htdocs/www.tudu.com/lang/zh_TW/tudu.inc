@@ -236,6 +236,7 @@ return array(
     'user_tudu' => '發起圖度',
 
     'tudu_timeover' => '已超期',
+    'status_sending'    => '待發送',
     'status_needaccept' => '未接受',
     'status_waitaccept' => '待定',
     'status_accepted'   => '已接受',
@@ -301,6 +302,8 @@ return array(
 	'board_not_exists'       => '版塊不存在或已被刪除',
     'tudu_not_exists'        => '圖度不存在或已被刪除',
     'post_not_exists'        => '回復不存在或已被刪除',
+
+    'board_not_exists_or_deny'       => '板塊不存在或沒有權限發送到該板塊',
 
     // 許可權
     'perm_deny_view_tudu'   => '你沒有查看該圖度的許可權',
@@ -615,5 +618,27 @@ return array(
     'target_tudugroup_not_exists' => '靶心圖表度組不存在或已被刪除',
 
     'post_remind' => '回復提醒',
-    'vote_anonymous' => '創建人顯示投票參與人'
+    'vote_anonymous' => '創建人顯示投票參與人',
+
+    'remind_detail' => array(
+        'mode_once' => '僅一次',
+        'mode_define' => '自訂',
+        'mode_day' => '每天',
+        'mode_weekday' => '每個工作日',
+        'week_sun' => '周日',
+        'week_mon' => '週一',
+        'week_tue' => '週二',
+        'week_wed' => '週三',
+        'week_thu' => '週四',
+        'week_fri' => '週五',
+        'week_sat' => '週六'
+    ),
+    'timing_remind' => '定時提醒',
+    'open_timing_remind' => '開啟定時提醒功能',
+    'timing_remind_tips' => '任務進度未100%時提醒，只提醒執行人',
+    'remind_settings' => '提醒設置',
+    'remind_time' => '提醒時間',
+    'remind_notifyall' => '有更新時提醒抄送人、審批人',
+
+    'tudu_type' => '類型'
 );

@@ -1,4 +1,4 @@
-<link rel="shortcut icon" href="{{$smarty.const.PROTOCOL}}//{{if $user.orgid}}{{$user.orgid}}.tudu.com{{else}}{{$smarty.server.HTTP_HOST}}{{/if}}/favicon.ico" type="image/x-icon" />
+<link rel="shortcut icon" href="{{$smarty.const.PROTOCOL}}//{{if $user.orgid}}{{$user.orgid}}.tudu.im{{else}}{{$smarty.server.HTTP_HOST}}{{/if}}/favicon.ico" type="image/x-icon" />
 {{assign var="ua" value=$smarty.server.HTTP_USER_AGENT|strtolower}}
 {{if false !== strpos($ua, 'iphone') || false !== strpos($ua, 'ipad')}}
 <link rel="apple-touch-icon-precomposed" href="{{$options.sites.static}}/images/icon/mobile/ios52.png" />

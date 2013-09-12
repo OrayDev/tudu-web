@@ -6,7 +6,7 @@
 {{include file="^style.tpl"}}
 <link href="{{$options.sites.static}}/js/Jcrop/css/jquery.Jcrop.css" type="text/css" rel="stylesheet" />
 <script src="{{$options.sites.static}}/js/jquery-1.4.4.js" type="text/javascript"></script>
-<script src="{{$options.sites.static}}/js/frame.js?1030" type="text/javascript"></script>
+<script src="{{$options.sites.static}}/js/frame.js?1031" type="text/javascript"></script>
 </head>
 <body>
 	<div class="position">
@@ -387,8 +387,8 @@ function avatarWin() {
     if (!_$.ajaxUpload || !_$.Jcrop) {
         TOP.showMessage(TOP.TEXT.LOADING_AVATAR_LIBRARY);
         _$('#uploadform').find('button, input').attr('disabled', true);
-    	TOP.loadJs('{{$options.site.www}}/js/jquery.ajaxupload.js', function(){
-        	TOP.loadJs('{{$options.site.www}}/js/jquery.Jcrop.js', function(){
+    	TOP.loadJs('{{$options.site.tudu}}/js/jquery.ajaxupload.js', function(){
+        	TOP.loadJs('{{$options.site.tudu}}/js/jquery.Jcrop.js', function(){
         		TOP.showMessage(null);
             	_$('#uploadform').find('button, input').attr('disabled', false);
             }, function(){TOP.showMessage(TOP.TEXT.LOAD_JS_ERROR, 5000);TOP.avatarWin.close();});

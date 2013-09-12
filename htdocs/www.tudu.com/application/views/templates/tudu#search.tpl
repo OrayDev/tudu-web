@@ -63,6 +63,7 @@ var TOP = getTop();
   <tr>
     <td width="30" align="center" style="padding-left:0"><input name="checkall" type="checkbox" /></td>
     {{if in_array('star', $columns)}}<td width="20">&nbsp;</td>{{/if}}
+    {{if in_array('note', $columns)}}<td width="20">&nbsp;</td>{{/if}}
     <td class="title_line" align="center" width="40"><div style="padding-left:4px"><span class="mailtitle"></span></div></td>
 {{foreach from=$columns item=column}}
     {{if $column == 'sender'}}
@@ -72,6 +73,8 @@ var TOP = getTop();
     {{elseif $column == 'accepter_endtime'}}
     <td width="110" class="title_line"><div class="space"><a href="javascript:void(0);" onClick="submitSort('?{{$query}}', 4,{{$sort[1]}});return false;">{{$LANG.column_accepter}}{{if $sort[0]==4}}{{if $sort[1]==0}}↑{{else}}↓{{/if}}{{/if}}</a>/<a href="javascript:void(0);" onClick="submitSort('?{{$query}}', 2,{{$sort[1]}});return false;">{{$LANG.column_endtime}}{{if $sort[0]==2}}{{if $sort[1]==0}}↑{{else}}↓{{/if}}{{/if}}</a></div></td>
     {{elseif $column == 'reply'}}
+    <td width="90" class="title_line"><div class="space"><a href="javascript:void(0);" onClick="Tudu.List.sort('?{{$query}}', 6,{{$sort[1]}});return false;">{{$LANG.tudu_percent}}{{if $sort[0]==6}}{{if $sort[1]==0}}↑{{else}}↓{{/if}}{{/if}}</a></div></td>
+    {{elseif $column == 'replynum_viewnum'}}
     <td width="90" class="title_line"><div class="space">{{$LANG.column_reply}}</div></td>
     {{elseif $column == 'lastpost'}}
     <td width="100" class="title_line"><div class="space"><a href="javascript:void(0);" onClick="submitSort('?{{$query}}', 0,{{$sort[1]}});return false;">{{$LANG.lastpost}}{{if $sort[0]==0}}{{if $sort[1]==0}}↑{{else}}↓{{/if}}{{/if}}</a></div></td>
@@ -123,19 +126,11 @@ $(function(){
 
     new $.autocomplete({
         target: $('#inputfrom'),
-        data: {users: TOP.Cast.get('users')},
-        loadMethod: function() {
-            var _v = this,
-                keyword = $('#inputfrom').val();
-            TOP.Cast.load(function(){
-                TOP.Contact.load(function(){
-                    _v.data.users = TOP.Cast.get('users');
-                    _v._initMatchList(keyword);
-                })
-            });
-        },
+        data: {users: this.data},
+        url: '/frame/cast',
+        onLoaded: castLoaded,
         columns: {users: ['truename', 'username', 'pinyin']},
-        width: 155,
+        width: 200,
         arrowSupport: true,
         template: {
             users:'{truename} <span class="gray">&lt;{username}&gt;</span>'
@@ -147,19 +142,11 @@ $(function(){
 
     new $.autocomplete({
         target: $('#inputto'),
-        data: {users: TOP.Cast.get('users')},
-        loadMethod: function() {
-            var _v = this,
-                keyword = $('#inputto').val();
-            TOP.Cast.load(function(){
-                TOP.Contact.load(function(){
-                    _v.data.users = TOP.Cast.get('users');
-                    _v._initMatchList(keyword);
-                })
-            });
-        },
+        data: {users: this.data},
+        url: '/frame/cast',
+        onLoaded: castLoaded,
         columns: {users: ['truename', 'username', 'pinyin']},
-        width: 155,
+        width: 200,
         arrowSupport: true,
         template: {
             users:'{truename} <span class="gray">&lt;{username}&gt;</span>'
@@ -193,7 +180,15 @@ function heightlight(txt, coreseek) {
         $(this).html(subject);
     });
 }
+
+function castLoaded(ret) {
+    TOP.Cast.get('users', ret.data.users);
+    TOP.Cast.get('depts', ret.data.depts);
+    TOP.Cast.get('groups', ret.data.groups);
+    this.data = ret.data;
+}
 -->
 </script>
+
 </body>
 </html>

@@ -548,7 +548,7 @@ var Compose = {
 		    }
 		}
 		
-		var reg = /<img([^>]+)src="([^"]+)"([^>]+)_aid="([^"]+)"([^>]+)\/>/ig;
+		var reg = /<img([^>]+)src="([^"]+)"([^>]+)_aid="([^"]+)"([^>]*)\/>/ig;
 	    this._form.find(':hidden[name="file[]"]').remove();
 	    while ((result = reg.exec(src)) != null) {
 	    	this._form.append('<input type="hidden" name="file[]" value="'+result[4]+'" />');
@@ -813,6 +813,10 @@ var Modify = {
 	issynchro: false,
 	
 	isModify: false,
+	
+	isSaving: false,
+	
+	setTimeoutFunction: false,
 		
 	init: function(type, action, forbid, tools, back, accepter) {
 		var me = this;
@@ -903,27 +907,28 @@ var Modify = {
 
         ch = $(document.body).height();
         var editorHeight = Math.max($('#content').height() + (h - ch - 15), 200);
-        $('#content').css('height', editorHeight + 'px');
-		this.editor = new TOP.Editor(document.getElementById('content'), {
-			resizeType : 1,
-			width: '100%',
-			minHeight: 200,
-			themeType : 'tudu',
-			css: Modify.editorCss,
-			scope: window,
-			pasteType: 2,
-			disabled: (forbid.editor && action != 'forward'),
-			ctrl: {
-				13: function(){$('#action').val('send');Modify.send('send');}
+		this.editor = new TOP.UEditor('content', {initialFrameHeight: editorHeight}, window, jQuery, function(){
+			if (forbid.editor && action != 'forward') {
+				this.disable();
 			}
-		}, jQuery);
+			if (!this.hasContents() && typeof Modify.editorCss.fontfamily != 'undefined' && typeof Modify.editorCss.fontsize != 'undefined') {
+				this.setContent('<p style="font-family:'+Modify.editorCss.fontfamily+';font-size:'+Modify.editorCss.fontsize+'"></p>');
+			}
+			
+			this.commands['send'] = {
+                execCommand: function() {
+                    Modify.send('send');
+                }
+            };
+            this.addshortcutkey({
+                "send": "ctrl+13"
+            });
+		});
 
-	    me.chEditorInit();
+	    setTimeout(function() {me.chEditorInit();}, 1000);
 	    
 	    $('#map-btn').click(function(){
-			me.editor.getEditor().loadPlugin('googlemap', function() {
-				me.editor.getEditor().plugin.mapDialog();
-			});
+			me.editor.openGmapDialog();
 	    });
 
 		// 初始化任务内容
@@ -1090,6 +1095,53 @@ var Modify = {
 		    this.inited.cycle = true;
 		}
 		
+		if (!this.inited.remind && $('#block-remind:visible').size()) {
+			$('input[name="remind-hour"]').stepper({
+				step: 1,
+				max: 23,
+				min: 0
+			});
+			$('input[name="remind-min"]').stepper({
+				step: 1,
+				max: 59,
+				min: 0
+			});
+			$('input[name="remind-date"]').datepick({
+				minDate: new Date(),
+				showOtherMonths: true,
+				selectOtherMonths: true,
+				firstDay: 0,
+				showAnim: 'slideDown',
+				showSpeed: 'fast'
+			});
+			
+			$('input[name="open_remind"]').bind('click', function(){
+				$('select[name="remind-mode"]').attr('disabled', !this.checked);
+				$('input[name="remind-min"]').attr('disabled', !this.checked);
+				$('input[name="remind-hour"]').attr('disabled', !this.checked);
+				$('input[name="remind-date"]').attr('disabled', !this.checked);
+				$('input[name="remind-define[]"]').attr('disabled', !this.checked);
+			});
+			
+			$('select[name="remind-mode"]').bind('change', function(){
+				if (this.value == 'once') {
+					$('input[name="remind-date"]').attr('disabled', false).parent('div:eq(0)').show();
+				}
+				else {
+					$('input[name="remind-date"]').attr('disabled', true).parent('div:eq(0)').hide();
+				}
+				
+				if (this.value == 'define') {
+					$('#define_day').show()
+				}
+				else {
+					$('#define_day').hide()
+				}
+			});
+			
+			this.inited.remind = true;
+		}
+		
 		// 事件
 		$('#add-cc').bind('click', function(){
 			if ($(this).hasClass('disabled')) {
@@ -1140,6 +1192,9 @@ var Modify = {
 		});
 		$('#cycle').bind('click', function(){
 			me.toggleCycle(this.checked);
+		});
+		$('#remind').bind('click', function(){
+			me.toggleRemind(this.checked);
 		});
 		$('#open_pwd').bind('click', function(){
 			$('#password').attr('disabled', !this.checked);
@@ -2281,11 +2336,68 @@ var Modify = {
 			this.expand.cycle = true;
 		} else {
 			$('#block-cycle').hide();
-			if (!$('#bolck-cycle:visible').size() && !$('#block-privacy:visible').size()) {
+			if (!$('#block-remind:visible').size() && !$('#block-cycle:visible').size() && !$('#block-privacy:visible').size()) {
 				$('#extend-box').hide();
 			}
 			
 			this.expand.cycle = false;
+		}
+	},
+	
+	/**
+	 * 提醒设置
+	 */
+	toggleRemind: function(expand) {
+		if (expand) {
+			if (!this.inited.remind) {
+				$('input[name="remind-hour"]').stepper({step: 1, max:23, min: 0});
+				$('input[name="remind-min"]').stepper({step: 1, max:59, min: 0});
+				$('input[name="remind-date"]').datepick({
+					minDate: new Date(),
+					showOtherMonths: true,
+					selectOtherMonths: true,
+					firstDay: 0,
+					showAnim: 'slideDown',
+					showSpeed: 'fast'
+				});
+				
+				$('input[name="open_remind"]').bind('click', function(){
+					$('select[name="remind-mode"]').attr('disabled', !this.checked);
+					$('input[name="remind-min"]').attr('disabled', !this.checked);
+					$('input[name="remind-hour"]').attr('disabled', !this.checked);
+					$('input[name="remind-date"]').attr('disabled', !this.checked);
+					$('input[name="remind-define[]"]').attr('disabled', !this.checked);
+				});
+				
+				$('select[name="remind-mode"]').bind('change', function(){
+					if (this.value == 'once') {
+						$('input[name="remind-date"]').attr('disabled', false).parent('div:eq(0)').show();
+					} else {
+						$('input[name="remind-date"]').attr('disabled', true).parent('div:eq(0)').hide();
+					}
+					
+					if (this.value == 'define') {
+						$('#define_day').show()
+					} else {
+						$('#define_day').hide()
+					}
+				});
+				
+				this.inited.remind = true;
+			}
+			
+			if (!$('input[name="notifyall"]').is(':checked')) {
+				$('input[name="notifyall"]').attr('checked', true);
+			}
+			$('#extend-box, #block-remind').show();
+			this.expand.remind = true;
+		} else {
+			$('#block-remind').hide();
+			if (!$('#block-remind:visible').size() && !$('#block-cycle:visible').size() && !$('#block-privacy:visible').size()) {
+				$('#extend-box').hide();
+			}
+			$('input[name="notifyall"]').attr('checked', false);
+			this.expand.remind = false;
 		}
 	},
 	
@@ -2305,7 +2417,7 @@ var Modify = {
 			$('#block-privacy').hide();
 			$('#password').val('').hide();
 			$('#open_pwd').attr('disabled', true).attr('checked', false);
-			if (!$('#bolck-cycle:visible').size() && !$('#block-privacy:visible').size()) {
+			if (!$('#block-remind:visible').size() && !$('#block-cycle:visible').size() && !$('#block-privacy:visible').size()) {
 				$('#extend-box').hide();
 			}
 			
@@ -2559,11 +2671,50 @@ var Modify = {
 	    	}
 	    });
 		
+		//提醒设置
+		$('#ch-remind').click(function(){
+			var checked = this.checked;
+			$('#ch-block-remind').css('display', checked ? '' : 'none');
+			
+			if (!$('input[name="ch-notifyall"]').is(':checked')) {
+				$('input[name="ch-notifyall"]').attr('checked', true);
+			}
+			if (!checked) {
+				$('input[name="ch-notifyall"]').attr('checked', false);
+			}
+		});
+		$('input[name="ch-remind-min"]').stepper({step: 1, max:59, min: 0});
+        $('input[name="ch-remind-hour"]').stepper({step: 1, max:23, min: 0});
+        $('input[name="ch-remind-date"]').datepick({
+            minDate: new Date(),
+            showOtherMonths: true,
+            selectOtherMonths: true,
+            firstDay: 0,
+            showAnim: 'slideDown',
+            showSpeed: 'fast'
+        });
+        $('#ch-open_remind').bind('click', function(){
+            $('#ch-remind-mode').attr('disabled', !this.checked);
+            $('input[name="ch-remind-min"]').attr('disabled', !this.checked);
+            $('input[name="ch-remind-hour"]').attr('disabled', !this.checked);
+            $('input[name="ch-remind-date"]').attr('disabled', !this.checked);
+            $('input[name="ch-remind-define[]"]').attr('disabled', !this.checked);
+        });
+        $('#ch-remind-mode').bind('change', function(){
+            if (this.value == 'once') {
+                $('input[name="ch-remind-date"]').attr('disabled', false).parent('div:eq(0)').show();
+            } else {
+                $('input[name="ch-remind-date"]').attr('disabled', true).parent('div:eq(0)').hide();
+            }
+            if (this.value == 'define') {
+                $('#ch-define_day').show()
+            } else {
+                $('#ch-define_day').hide()
+            }
+        });
+		
 		$('#ch-map-btn').bind('click', function(){
-			//me.chEditor.showIframeModal('Google 地图','/googlemap/googlemap.html',function(v){me.chEditor.pasteHTML('<img src="'+v+'" />');},538,404);
-			me.chEditor.getEditor().loadPlugin('googlemap', function() {
-                me.chEditor.getEditor().plugin.mapDialog();
-            });
+			me.chEditor.openGmapDialog();
 	    });
 		
 		var fd = new FileDialog({id: 'ch-netdisk-dialog', list: $('#ch-attach-list td.bd_upload'), listCt: $('#ch-attach-list')});
@@ -2817,15 +2968,25 @@ var Modify = {
 	chEditorInit: function() {
 		var me = this;
 		if (me.chEditor === null) {
-			me.chEditor = new TOP.Editor(document.getElementById('ch-content'), {
-	            resizeType : 1,
-				width: '100%',
-	            minHeight: 200,
-	            themeType : 'default',
-				css: Modify.editorCss,
-	            scope: window
-	        }, jQuery);
-			me.chEditor.focus();
+			me.chEditor = new TOP.UEditor('ch-content', {
+				initialFrameHeight: '200',
+				toolbars:[["fontfamily","fontsize", "|","bold","italic","underline","strikethrough","forecolor","backcolor", "|","selectall","removeformat","justifyleft","justifycenter","justifyright","justifyjustify","insertorderedlist","insertunorderedlist","indent", "|","link","unlink","inserttable","source", "gmap"]]
+				}, window, jQuery, function(){
+				if (!this.hasContents() && typeof Modify.editorCss.fontfamily != 'undefined' && typeof Modify.editorCss.fontsize != 'undefined') {
+	                this.setContent('<p style="font-family:'+Modify.editorCss.fontfamily+';font-size:'+Modify.editorCss.fontsize+'"></p>');
+	            }
+				
+				this.commands['send'] = {
+	                execCommand: function() {
+	                    me.saveChild(me.currIndex);
+	                }
+	            };
+	            this.addshortcutkey({
+	                "send": "ctrl+13"
+	            });
+				
+				this.focus();
+	        });
 		}
 	},
 	
@@ -2911,6 +3072,15 @@ var Modify = {
 			}
 		});
 		
+		// 提醒设置
+		var define = new Array();
+		editForm.find('input[name="ch-remind-define[]"]:checked').each(function(){
+			define.push(this.value);
+		});
+		if (define.length) {
+			o.find('input[name="remind-define-'+chidx+'"]').val(define.join(','));
+		}
+		
 		var t = $('#ch-to').val(), arr, to = [];
 		t = t.split("\n");
 		for (var i = 0, c = t.length; i < c; i++) {
@@ -2963,7 +3133,7 @@ var Modify = {
 		// 处理HTML
 		if (me.chEditor !== null) {
 		    var src = me.chEditor.getSource();
-		    var reg = /<img([^>]+)src="([^"]+)"([^>]+)_aid="([^"]+)"([^>]+)\/>/ig;
+		    var reg = /<img([^>]+)src="([^"]+)"([^>]+)_aid="([^"]+)"([^>]*)\/>/ig;
 		    while ((result = reg.exec(src)) != null) {
 		    	o.append('<input type="hidden" name="file-'+chidx+'[]" value="'+result[4]+'" />');
 		    }
@@ -2988,6 +3158,8 @@ var Modify = {
 			$('#ch-needconfirm').attr('checked', true);
 		}
 		if ($('#notifyall').attr('checked') == true) {
+			$('#ch-block-remind').show();
+			$('#ch-remind').attr('checked', true);
 			$('#ch-notifyall').attr('checked', true);
 		}
 		if ($('#isauth').attr('checked') == true) {
@@ -3151,11 +3323,30 @@ var Modify = {
 								if (ret.data['password']) {
 									o.find('input[name="open_pwd-'+chidx+'"]').val('1');
 								}
+								if (ret.data['notifyall']) {
+									o.find('input[name="remind-'+chidx+'"]').val('1');
+								}
 								if (k == 'attachments') {
 									var attach = ret.data[k];
 									for (var i = 0, c = attach.length; i < c; i++) {
 										o.append('<input type="hidden" name="attach-'+chidx+'[]" value="'+attach[i].fileid+'" _fileid="'+attach[i].fileid+'" _filename="'+attach[i].filename+'" _filesize="'+attach[i].size+'" />');
 									}
+								}
+								if (k == 'tuduremind') {
+									var remind = ret.data[k];
+									o.find('input[name="remind-'+chidx+'"]').val('1');
+									if (remind.isvalid) {
+										o.find('input[name="open_remind-' + chidx + '"]').val('1');
+									} else {
+										o.find('input[name="open_remind-' + chidx + '"]').val('0');
+									}
+									o.find('input[name="remind-mode-'+chidx+'"]').val(remind.mode);
+									if (null !== remind.reminddate) {
+										o.find('input[name="remind-date-'+chidx+'"]').val(remind.reminddate);
+									}
+									o.find('input[name="remind-hour-'+chidx+'"]').val(remind.remindhour);
+									o.find('input[name="remind-min-'+chidx+'"]').val(remind.remindmin);
+									o.find('input[name="remind-define-'+chidx+'"]').val(remind.defineday.join(','));
 								}
 								if (k == 'accepters') {
 									if (ret.data['accepters'] && ret.data['ismodifypercent']) {
@@ -3251,6 +3442,8 @@ var Modify = {
 	 */
 	flowhtml: [],
 	
+	currentDate: '',
+	
 	/**
 	 * 设置参数
 	 */
@@ -3319,9 +3512,16 @@ var Modify = {
 			
 			target.find('input:hidden').each(function(){
 				var id = this.name.replace('-' + chidx, '');
-				if (id == 'priority' || id == 'privacy' || id == 'notifyall' || id == 'open_pwd' || id == 'isauth' || id == 'needconfirm' || id == 'acceptmode') {
+				if (id == 'priority' || id == 'privacy' || id == 'notifyall' || id == 'open_remind' || id == 'remind' || id == 'open_pwd' || id == 'isauth' || id == 'needconfirm' || id == 'acceptmode') {
 					if (this.value == 1 || this.value == 'true') {
 						$('#ch-' + id).attr('checked', true);
+						
+						if (id == 'notifyall' || id == 'open_remind' || id == 'remind') {
+							$('#ch-row-content').show();
+							me.chEditorInit();
+							me.chExpand.content = true;
+							$('#add-content').text(TOP.TEXT.DELETE_CONTENT);
+						}
 					}
 			    } else if (id == 'ch-to' || id == 'ch-to-text') {
 			    	$('#' + id).val(this.value);
@@ -3351,11 +3551,13 @@ var Modify = {
 			    	}
 			    } else if (id == 'content') {
 				    if (this.value) {
-				    	$('#ch-row-content').show();
-				    	me.chEditorInit();
-						me.chEditor.focus();
-				    	me.chExpand.content = true;
-				    	$('#add-content').text(TOP.TEXT.DELETE_CONTENT);
+						if (!me.chExpand.content) {
+							$('#ch-row-content').show();
+							me.chEditorInit();
+							me.chEditor.focus();
+							me.chExpand.content = true;
+							$('#add-content').text(TOP.TEXT.DELETE_CONTENT);
+						}
 				    	$('#ch-content').val(this.value);
 						me.chEditor.setSource(this.value);
 			    	}
@@ -3396,8 +3598,40 @@ var Modify = {
 							me.chBoardSelect.disabled();
 						}
 					}
+				} else if (id == 'remind-define') {
+					var define = this.value.split(',');
+					for (var d=0; d<define.length; d++) {
+						$('input[name="ch-' + id + '[]"][value="'+define[d]+'"]').attr('checked', true);
+					}
 				}
 			});
+			// 提醒设置
+			if ($('#ch-remind').attr('checked')) {
+				$('#ch-block-remind').show();
+				if ($('#ch-open_remind').attr('checked')) {
+					$('#ch-remind-mode').attr('disabled', false);
+					$('input[name="ch-remind-min"]').attr('disabled', false);
+					$('input[name="ch-remind-hour"]').attr('disabled', false);
+					$('input[name="ch-remind-date"]').attr('disabled', false);
+					$('input[name="ch-remind-define[]"]').attr('disabled', false);
+				} else {
+					if (!target.find('input[name="remind-hour-' + chidx + '"]').val()) {
+						$('input[name="ch-remind-hour"]').val(0);
+					}
+					if (!target.find('input[name="remind-min-' + chidx + '"]').val()) {
+						$('input[name="ch-remind-min"]').val(0);
+					}
+					if (!target.find('input[name="remind-date-' + chidx + '"]').val()) {
+						$('input[name="ch-remind-date"]').val(me.currentDate).parent('div:eq(0)').show();
+					}
+				}
+				if ($('#ch-remind-mode').val() == 'define') {
+					$('#ch-define_day').show();
+				}
+				if ($('#ch-remind-mode').val() != 'once') {
+					$('input[name="ch-remind-date"]').parent('div:eq(0)').hide();
+				}
+			}
 			
 			if ($('#ch-privacy').attr('checked')) {
 				$('#ch-block-private').show();
@@ -3549,8 +3783,8 @@ var Modify = {
 		var me = this,
 			o = $('#child-edit-form');
 		//$('#ch-class-td').hide();
-		$('#ch-block-private').hide();
-		$('#ch-open_pwd').attr('checked', false);
+		$('#ch-block-private, #ch-block-remind').hide();
+		$('#ch-open_pwd, #ch-open_remind').attr('checked', false);
 		$('#ch-bid').attr('disabled', false);
 		$('#ch-starttime').attr('disabled', false);
 		$('#ch-acceptmode').attr('disabled', false);
@@ -3593,6 +3827,12 @@ var Modify = {
 		$('label[for="ch-isauth"], label[for="ch-acceptmode"]').removeClass('gray');
 		
 		$('button[name="save-child"]').text(TOP.TEXT.ADD_DIVIDE);
+		
+		$('#ch-remind-mode').attr('disabled', true);
+        $('input[name="ch-remind-min"]').val(0).attr('disabled', true);
+        $('input[name="ch-remind-hour"]').val(0).attr('disabled', true);
+        $('input[name="ch-remind-date"]').val(me.currentDate).attr('disabled', true);
+        $('input[name="ch-remind-define[]"]').attr('disabled', true);
 
 		if (me.chEditor !== null) {
 			me.chEditor.setSource('');
@@ -3666,7 +3906,7 @@ var Modify = {
 			$('#block-cycle').hide();
 			me.expand.cycle = false;
 		}
-		if (!$('#bolck-cycle:visible').size() && !$('#block-privacy:visible').size()) {
+		if (!$('#bolck-cycle:visible').size() && !$('#block-privacy:visible').size() && !$('#block-remind:visible').size()) {
 			$('#extend-box').hide();
 		}
 		
@@ -4118,6 +4358,12 @@ var Modify = {
 		if (action == 'autosave') {
 			$('#action').val('save');
 			$('#issend').val('0');
+			
+			// 自动保存 无主题 不保存
+			var subject = $('#subject').val().replace(/\s+/, '');
+			if (!subject.length) {
+				return ;
+			}
 		}
 
 	    if (action == 'send') {
@@ -4163,7 +4409,7 @@ var Modify = {
 	        }
 
 	        if ($('#week:checked').size() && $('#mode-week-1:checked').size() && !$(':checkbox[name="week-1-weeks[]"]:checked').size()) {
-	            return TOP.showMessage(TOP.TEXT.INVALID_TASK_INTERVAL);
+				return TOP.showMessage(TOP.TEXT.INVALID_TASK_INTERVAL);
 	        }
 	    }
 	    
@@ -4186,7 +4432,7 @@ var Modify = {
     		    }
     	    }
     	    
-    	    var reg = /<img([^>]+)src="([^"]+)"([^>]+)_aid="([^"]+)"([^>]+)\/>/ig;
+    	    var reg = /<img([^>]+)src="([^"]+)"([^>]+)_aid="([^"]+)"([^>]*)\/>/ig;
     	    form.find(':hidden[name="file[]"]').remove();
     	    while ((result = reg.exec(src)) != null) {
     	    	form.append('<input type="hidden" name="file[]" value="'+result[4]+'" />');
@@ -4197,6 +4443,10 @@ var Modify = {
 	    }
 
 		$('#postcontent').val(src);
+		
+		if (action == 'autosave' && !$('#postcontent').val()) {
+			return ;
+		}
 
 		if ($('#attach-list div.upload_error').size()) {
 			if (!confirm(TOP.TEXT.COMPOSE_UPLOAD_FAILURE)) {
@@ -4208,8 +4458,29 @@ var Modify = {
 
 		if (action != 'autosave') {
 			TOP.showMessage(TOP.TEXT.POSTING_DATA, 0, 'success');
-	    	form.find(':input').attr('disabled', true);
 		}
+
+		// 正在执行保存，还没完成时跳过
+        if (action != 'autosave') {
+			if (null !== me.setTimeoutFunction) {
+				clearTimeout(me.setTimeoutFunction);
+			}
+			if (me.isSaving) {
+				me.setTimeoutFunction = setTimeout(function(){Modify.send(action, callback);}, 500);
+                return;
+            }
+        } else {
+            if (me.isSaving) {
+                return;
+            }
+        }
+		
+		if (action != 'autosave') {
+			form.find(':input').attr('disabled', true);
+		}
+		
+		me.isSaving = true;
+		me.setTimeoutFunction = false;
 
 	    $.ajax({
 	        type: 'POST',
@@ -4217,6 +4488,7 @@ var Modify = {
 	        data: data,
 	        url: form.attr('action'),
 	        success: function(ret) {
+				me.isSaving = false;
 	    		if (action != 'autosave') {
 	    			TOP.showMessage(ret.message, 5000, ret.success ? 'success' : null);
 	    		}
@@ -4274,6 +4546,7 @@ var Modify = {
 	            }
 	        },
 	        error: function(res) {
+				me.isSaving = false;
 	        	form.find(':input:not([_disabled])').attr('disabled', false);
 	        	if (action != 'autosave') {
 	        		TOP.showMessage(TOP.TEXT.PROCESSING_ERROR);
@@ -4622,13 +4895,12 @@ var Capturer = {
 		                    eval('ret=' + response + ';');
 		                } catch (e) {}
 		
-		                var fileid = ret.fileid ? ret.fileid : (ret.data ? ret.data.fileid : null);
-		                if (fileid) {
+		                if (ret.fileid) {
 		                	if (me.editor !== null) {
 		                		//Modify.appendTOEditor(ret.fileid)
-			                    var url = '/attachment/img?fid=' + fileid;
+			                    var url = '/attachment/img?fid=' + ret.fileid;
 			
-			                    html = '<img src="'+ url +'" _aid="'+fileid+'" /><br />';
+			                    html = '<img src="'+ url +'" _aid="'+ret.fileid+'" />';
 			                    me.editor.pasteHTML(html);
 		                    }
 		                } else {

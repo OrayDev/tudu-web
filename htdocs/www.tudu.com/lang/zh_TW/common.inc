@@ -223,8 +223,6 @@ return array(
     'file_upload_failure' => '檔"%s"上傳失敗',
     'file_not_exists' => '文件不存在',
     'file_deny_access' => '你不能訪問該檔',
-    'file_too_large' => '檔 "%s" 超過限制大小，請上傳 "%s" 以下的檔',
-    'invalid_file_type' => '不支持上传的文件类型',
 
     'permission_denied_for_tudu' => '你没有权限对该图度执行当前操作',
 
@@ -325,5 +323,7 @@ return array(
     'tudu_flows' => '圖度工作流',
     'higher_review' => '上級審批',
     'flow_chart' => '流程圖',
-    'mailbox' => '郵箱'
+    'mailbox' => '郵箱',
+
+    'click_create_note' => '點擊新建便簽'
 );

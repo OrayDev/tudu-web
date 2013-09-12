@@ -261,6 +261,7 @@ return array(
     'user_tudu' => 'Create tudu',//发起图度
 
     'tudu_timeover' => 'Expired',//已超期
+    'status_sending' => 'Sendding',
     'status_needaccept' => 'Not accepted',//未接受
     'status_waitaccept' => 'Incertitude',
     'status_accepted'   => 'Accepted',
@@ -307,7 +308,7 @@ return array(
     'post_not_exists' => 'Reply does not exist or has been deleted',//回复不存在或已被删除
     'user_has_divide' => 'Accepter "%s" had divided tudu, please delete the divides tudu as first',
 
-
+    'board_not_exists_or_deny'       => 'Forum does not exist or has been denied',
 
     // 权限
     'perm_deny_view_tudu' => 'You do not have permission to view the tudu',//你没有查看该图度的权限
@@ -618,5 +619,27 @@ return array(
     'target_tudugroup_not_exists' => 'Tudu Group choiced is not exists or be deleted',//目标图度组不存在或已被删除
 
     'post_remind' => 'Post notify',//回复提醒
-    'vote_anonymous' => 'Sender can view voter'//创建人显示投票参与人
+    'vote_anonymous' => 'Sender can view voter',//创建人显示投票参与人
+
+    'remind_detail' => array(
+        'mode_once' => 'Once',//仅一次
+        'mode_define' => 'Define',//自定义
+        'mode_day' => 'Everyday',
+        'mode_weekday' => 'Every weekday',//每个工作日
+        'week_sun' => 'Sun',//周日
+        'week_mon' => 'Mon',//周一
+        'week_tue' => 'Tue',//周二
+        'week_wed' => 'Wed',//周三
+        'week_thu' => 'Thu',//周四
+        'week_fri' => 'Fri',//周五
+        'week_sat' => 'Sat'//周六
+    ),
+    'timing_remind' => 'Timing remind',//定时提醒
+    'open_timing_remind' => 'Open timing remind',//开启定时提醒功能
+    'timing_remind_tips' => '任务进度未100%时提醒，只提醒执行人',
+    'remind_settings' => 'Remind Setting',//提醒设置
+    'remind_time' => 'Remind time',//提醒时间
+    'remind_notifyall' => '有更新时提醒抄送人、审批人',
+
+    'tudu_type' => 'Type'//类型
 );

@@ -379,5 +379,11 @@ return array(
     'HIDE_FLOOR' => '点击收缩',
     'FLOOR_IS_NULL' => '楼层已被删除',
 
-    'TUDU_GROUP_NOT_SYNCHRO' => '图度组不允许设置逐级执行任务，请先删除分工'
+    'TUDU_GROUP_NOT_SYNCHRO' => '图度组不允许设置逐级执行任务，请先删除分工',
+
+    'INVALID_NOTE_CONTENT' => '请输入便签内容',
+    'LOADDING_NOTE_CONTENT_TIPS' => '正在加载便签内容，请稍候...',
+    'CREATE_NOTE' => '新建便签',
+    'NOTE_CONTENT' => '便签内容',
+    'TIMING_REMIND' => '定时提醒'
 );

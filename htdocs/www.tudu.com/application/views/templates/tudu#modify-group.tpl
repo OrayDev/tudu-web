@@ -10,7 +10,7 @@
 <script src="{{$options.sites.static}}/js/all.js" type="text/javascript"></script>
 <script src="/static/js?f=lang&lang={{$user.option.language}}" type="text/javascript"></script>
 {{/if}}
-<script src="{{$options.sites.static}}/js/frame.js?1030" type="text/javascript"></script>
+<script src="{{$options.sites.static}}/js/frame.js?1031" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/jquery.datepick/jquery.datepick.js" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/jquery.datepick/jquery.datepick-zh-cn.js" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/xheditor-1.1.9/xheditor-zh-cn.min.js?1001" type="text/javascript"></script>

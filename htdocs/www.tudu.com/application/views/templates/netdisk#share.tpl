@@ -6,7 +6,7 @@
 {{include file="^style.tpl"}}
 <script src="{{$options.sites.static}}/js/jquery-1.4.4.js" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/jquery.extend.js?1009" type="text/javascript"></script>
-<script src="{{$options.sites.static}}/js/frame.js?1022" type="text/javascript"></script>
+<script src="{{$options.sites.static}}/js/frame.js?1031" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/netdisk.js?1001" type="text/javascript"></script>
 
 </head>
@@ -121,7 +121,7 @@
                     <td class="file_icon"><span class="fbicon fb_{{$file.filename|file_ext}}"></span></td>
                     <td class="file_name">
                     <p>{{$file.filename}}</p>
-                    <p class="file_opt"><a href="{{if $file.attachfileid}}{{$file.attachfileid|get_file_url:'attachment':'':$file.fromuniqueid}}{{elseif $file.fromfileid}}{{$file.fromfileid|get_file_url:'netdisk':'':$file.fromuniqueid}}{{else}}{{if $file.objectid}}{{$file.objectid|get_file_url:'netdisk':'':$file.ownerid}}{{else}}{{$file.fileid|get_file_url}}{{/if}}{{/if}}" target="_blank">{{$LANG.download}}</a><a href="javascript:void(0);" onclick="Netdisk.saveToNd('{{if $file.attachfileid}}{{$file.attachfileid}}{{elseif $file.fromfileid}}{{$file.fromfileid}}{{else}}{{if $file.objectid}}{{$file.objectid}}{{else}}{{$file.fileid}}{{/if}}{{/if}}', '{{if $file.fromuniqueid}}{{$file.fromuniqueid}}{{else}}{{if $file.ownerid}}{{$file.ownerid}}{{else}}{{$ownerid}}{{/if}}{{/if}}', '{{if $file.attachfileid}}1{{else}}0{{/if}}')">{{$LANG.attach_save_to_nd}}</a></p>
+                    <p class="file_opt"><a href="{{if $file.attachfileid}}{{$file.attachfileid|get_file_url:attachment}}{{elseif $file.fromfileid}}{{$file.fromfileid|get_file_url}}{{else}}{{if $file.objectid}}{{$file.objectid|get_file_url}}{{else}}{{$file.fileid|get_file_url}}{{/if}}{{/if}}" target="_blank">{{$LANG.download}}</a><a href="javascript:void(0);" onclick="Netdisk.saveToNd('{{if $file.attachfileid}}{{$file.attachfileid}}{{elseif $file.fromfileid}}{{$file.fromfileid}}{{else}}{{if $file.objectid}}{{$file.objectid}}{{else}}{{$file.fileid}}{{/if}}{{/if}}', '{{if $file.fromuniqueid}}{{$file.fromuniqueid}}{{else}}{{if $file.ownerid}}{{$file.ownerid}}{{else}}{{$ownerid}}{{/if}}{{/if}}', '{{if $file.attachfileid}}1{{else}}0{{/if}}')">{{$LANG.attach_save_to_nd}}</a></p>
                     </td>
                     </tr>
                 </table>

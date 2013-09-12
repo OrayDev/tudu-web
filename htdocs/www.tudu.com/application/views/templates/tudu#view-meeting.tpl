@@ -9,7 +9,7 @@
 {{if $newwin}}
 {{include file="^newwin.tpl"}}
 {{/if}}
-<script src="{{$options.sites.static}}/js/frame.js?1030" type="text/javascript"></script>
+<script src="{{$options.sites.static}}/js/frame.js?1031" type="text/javascript"></script>
 {{if !$newwin}}
 <script type="text/javascript">
 <!--
@@ -420,7 +420,7 @@ if (top == this) {
                 </td>
               </tr>
               <tr>
-                <td><textarea class="form_textarea" id="content" name="editor" disabled="disabled" _disabled="disabled" cols="" rows="" style="width:100%;height:180px">{{$unreply.content|escape:'html'}}</textarea><textarea id="postcontent" name="content" style="display:none;"></textarea></td>
+                <td><textarea id="content" name="editor" disabled="disabled" _disabled="disabled" cols="" rows="" style="width:100%;height:180px">{{$unreply.content|escape:'html'}}</textarea><textarea id="postcontent" name="content" style="display:none;"></textarea></td>
               </tr>
               <tr>
                 <td>
@@ -460,7 +460,7 @@ if (top == this) {
 <div style="display:none">
 <table id="label-tpl" cellspacing="0" cellpadding="0" class="flagbg"><tr class="falg_rounded_wrap"><td class="falg_rounded"></td><td colspan="2"></td><td class="falg_rounded"></td></tr><tr><td class="falg_line"></td><td class="tag_txt"></td><td class="tag_close"></td><td class="falg_line"></td></tr><tr class="falg_rounded_wrap"><td class="falg_rounded"></td><td colspan="2"></td><td class="falg_rounded"></td></tr></table>
 </div>
-<script src="{{$options.sites.static}}/js/tudu/view.js?1017" type="text/javascript"></script>
+<script src="{{$options.sites.static}}/js/tudu/view.js?1025" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/upload.js?1009" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/card.js?1001" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/plugins.js?1004" type="text/javascript"></script>
@@ -539,5 +539,6 @@ $(function(){
 });
 -->
 </script>
+
 </body>
 </html>

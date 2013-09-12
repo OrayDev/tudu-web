@@ -153,7 +153,7 @@ body.frameset{
 
 /*******icon******/
 .icon{
-    background-image:url(../images/icon/icon.gif?1005);
+    background-image:url(../images/icon/icon.gif?1006);
 	background-repeat:no-repeat;
     height:16px;
     width:16px;
@@ -174,7 +174,7 @@ body.frameset{
     background-position:0 -47px;
 }
 .icon_lock{ background-position:-168px -2px;}
-.icon_attention{ background-position:-47px -71px;}
+.icon_attention{ background-position:-47px -69px;}
 a:hover.icon_attention{ background-position:-24px -72px;}
 a.attention{ background-position:-2px -71px;}
 a:hover.attention{ background-position:-2px -71px;}
@@ -218,7 +218,7 @@ a.icon_min:hover{ background-position:-69px -173px;}
 .icon_photo{ background-position:-80px -99px;}
 .icon_screen{background-position:-28px -97px;}
 .icon_delete{ background-position:-196px -96px; cursor:pointer;}
-.icon_plus{ background:url(/images/skin_0/icon.gif?1005) no-repeat 3px 3px; }
+.icon_plus{ background:url(/images/skin_0/icon.gif?1006) no-repeat 3px 3px; }
 .icon_cross{ background-position:-1px -27px;}
 .icon_tick{ background-position:-1px -4px;}
 .icon_nd_attach {background-position: -92px -173px;}
@@ -725,7 +725,7 @@ a.icon_arr_plus:hover {
 .tree-elbow-minus{background-position:-34px -52px;}
 .tree-clear{line-height:0;height:0;font-size:0;clear:both;}
 
-.tree-elbow-plus,.tree-elbow-minus{background-image: url(../images/icon/icon.gif?1005);}
+.tree-elbow-plus,.tree-elbow-minus{background-image: url(../images/icon/icon.gif?1006);}
 .tree-selected a,.tree-selected a:hover,a.tree-node-anchor:hover{background-color:#547A27;color:#fff; text-decoration:none;}
 .tree-root.tree-node-loading .tree-node-anchor,.tree-node.tree-node-loading .tree-node-anchor{
     background-image:url(../images/icon/loading.gif) ;
@@ -839,7 +839,7 @@ button.btn{margin-right:3px}
     padding:2px 0 2px 0px;
 }
 td.title_line{
-    background: url(../images/icon/icon.gif?1005) -200px -10px repeat-y;
+    background: url(../images/icon/icon.gif?1006) -200px -10px repeat-y;
     background-color:#f2f4f6;
     margin:0;
     padding:0;
@@ -987,7 +987,7 @@ td.title_line{
     font-size:0;
     visibility:hidden;
 }
-.g_i_l,.g_i_c,.g_i_r,.mailtitle{ background:url(../images/icon/icon.gif?1005) no-repeat 1000px 1000px;}
+.g_i_l,.g_i_c,.g_i_r,.mailtitle{ background:url(../images/icon/icon.gif?1006) no-repeat 1000px 1000px;}
 .ipt{ background-position:-133px -25px;}
 .el{ background-position:-119px -27px;}
 .Rru{ background-position:-50px -24px;}
@@ -2988,31 +2988,41 @@ span.ficon, .ficon {
     margin-bottom:10px
 }
 .modal-dialog .tab-header {
-    border-bottom:#aaa solid 1px;
-    margin:5px 0;
+    margin:5px 0 0;
     padding:2px 0 0 0;
 }
 .modal-dialog .tab-header ul {
-    height:20px;
+    height:22px;
     padding:0;
-    margin:0 10px -1px 10px;
-    z-index;5
+    margin:0 10px 0 10px;
+    z-index:5;
+	position:relative;
 }
 .modal-dialog .tab-header ul li {
     display:inline-block;
     zoom:1;
-    display:inline;
     padding:0 3px;
-    height:21px;
-    line-height:21px;
+    height:20px;
+    line-height:20px;
     margin-right:2px;
-    border:#aaa 1px solid
+    border:#aaa 1px solid;
+	background-color:#fff;
+	*display:inline;
+	*zoom:1;
 }
 .modal-dialog .tab-header li.active {
     border-bottom:1px solid #fff;
 }
+.modal-dialog .tab-header li a{
+	color:#aaa;
+}
+.modal-dialog .tab-header li a:hover{
+	text-decoration:none;
+}
 .modal-dialog .dialog-body {
-    padding:5px;
+	border-top:#aaa solid 1px;
+    padding:15px 5px 5px ;
+	margin-top:-1px;
 }
 
 /* 主题分类列表链接 */
@@ -4171,12 +4181,36 @@ html>body .checkbox-checked.checkbox-disabled {
 .icon_newwin{
     background-position:-196px -171px;
 }
+
 .icon_edit_note {
 	background-position: -45px -264px;
 }
 .icon_tudu_note {
-	background-position: -65px -265px;
+	background-position: -67px -263px;
 }
+.icon_tudu_note_add {
+    background-position: -91px -263px;
+}
+.icon_sys_contact {
+	background-position: -119px -265px;
+}
+.icon_contact {
+	background-position: -140px -265px;
+}
+.icon_contact_big{
+    background:url(/images/icon/contact_icon.gif) no-repeat;
+    height:20px;
+    width:20px;
+    vertical-align:middle;
+    display:inline-block;
+}
+.icon_b_sys_contact {
+	background-position:-3px 0;
+}
+.icon_b_contact {
+	background-position:-22px 0;
+}
+
 
 .tudu_sysinfo_wrap {
 }
@@ -4207,7 +4241,8 @@ html>body .checkbox-checked.checkbox-disabled {
 .tudu_sysinfo_wrap {
     background-repeat:repeat-x;
     background-position: left bottom;
-    position:relative;
+	zoom:1;
+	display:block;
 }
 .tudu_sysinfo_content {
     background-repeat:repeat-x;
@@ -4234,9 +4269,9 @@ html>body .checkbox-checked.checkbox-disabled {
     height: 38px;
     width: 38px;
     vertical-align: middle;
-    position:absolute;
-    left: 10px;
-    top: 12px;
+	float:left;
+    margin-left: 10px;
+    margin-top: 12px;
 }
 
 .tudu_sys_pass, .tudu_sys_pass .tudu_sysinfo_corner, .tudu_sys_pass .tudu_sysinfo_border, .tudu_sys_pass .tudu_sysinfo_body {
@@ -4252,6 +4287,12 @@ html>body .checkbox-checked.checkbox-disabled {
 }
 .tudu_sys_pass .tudu_sysinfo_icon {
     background: url(/images/icon/tudu_flow_icon.gif?1002) no-repeat;
+}
+.tudu_sys_pass .tudu_remind_icon {
+	background: url(/images/icon/tudu_notify_icon.gif?1002) no-repeat;
+    left: 5px;
+    height: 48px;
+    width: 48px;
 }
 .tudu_sys_pass .tudu_sysinfo_body {
 	background-color: #ffffff;
@@ -4286,6 +4327,7 @@ html>body .checkbox-checked.checkbox-disabled {
 .tudu_review_mark .mark_body {
     background:url(/images/icon/review.gif)
 }
+
 .tudu_review_mark .mark_icon {
     height:65px;
     padding-left: 65px;
@@ -4707,6 +4749,8 @@ td.today{
 }
 .step_eliptic{
 	display:inline-block;
+	*display:inline;
+	zoom:1;
 	padding-right:40px;
 	background:url(../images/icon/step_box.gif) no-repeat right -50px;
 }
@@ -4717,7 +4761,9 @@ td.today{
 	height:45px;
 	line-height:45px;
 	padding-left:40px;
-	display:block;
+	display:inline-block;
+    *display:inline;
+    zoom:1;
 	background:url(../images/icon/step_box.gif) 0 0;
 }
 .step_box_wrap{
@@ -5045,4 +5091,18 @@ td.today{
 .cal-table td a{
     display: block;
     text-decoration:none;
+}
+/*======图度便签浮动提示层样式======*/
+.float_remind {
+    position:absolute;
+	width:300px;
+    z-index:10;
+}
+.float_remind .float_remind_body {
+    border:1px solid #99AC71;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    background:#ffffff;
+    padding:5px 10px;
+    line-height:20px;
 }

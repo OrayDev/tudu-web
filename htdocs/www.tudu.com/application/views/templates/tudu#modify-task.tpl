@@ -24,16 +24,17 @@ if (top == this) {
 -->
 </script>
 {{/if}}
-<script src="{{$options.sites.static}}/js/frame.js?1030" type="text/javascript"></script>
+<script src="{{$options.sites.static}}/js/frame.js?1031" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/jquery.datepick/jquery.datepick.js" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/jquery.datepick/jquery.datepick-zh-cn.js" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/upload.js?1009" type="text/javascript"></script>
-<script src="{{$options.sites.static}}/js/tudu2.js?1060" type="text/javascript"></script>
+<script src="{{$options.sites.static}}/js/tudu2.js?1066" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/plugins.js?1004" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/boardselector.js?1004" type="text/javascript"></script>
 </head>
 
 <body style="padding:0 5px 5px">
+{{assign var="langremind" value=$LANG.remind_detail}}
 <form action="/compose-tudu/send" id="theform" method="post" class="tab_panel">
 <input type="hidden" id="action" name="action" value="{{$action}}" />
 <input type="hidden" id="type" name="type" value="task" />
@@ -282,7 +283,7 @@ if (top == this) {
             <table cellspacing="0" cellpadding="0">
               <tr>
                 <td class="info_txt">{{$LANG.content}}</td>
-                <td class="info_forms info_input"><textarea class="form_textarea" id="content" cols="" rows="">{{$tudu.content|tudu_format_content|escape:'html'}}</textarea><textarea id="postcontent" name="content" style="display:none;"></textarea></td>
+                <td class="info_forms info_input"><textarea id="content" cols="" rows="" style="width:100%;height:180px">{{$tudu.content|tudu_format_content|escape:'html'}}</textarea><textarea id="postcontent" name="content" style="display:none;"></textarea></td>
               </tr>
             </table>
         </div>
@@ -297,7 +298,6 @@ if (top == this) {
 	                <div class="setting_box option_box">
 	                    <label for="urgent" title="{{$LANG.task_priority_tips}}"{{if ($isforward && !$access.modify) || $isdivide || $isreview}} class="gray"{{/if}}><input name="priority" type="checkbox" value="1" id="urgent"{{if $tudu.priority}} checked="checked"{{/if}}{{if ($isforward && !$access.modify) || $isdivide || $isreview}} disabled="disabled" _disabled="true"{{/if}} />{{$LANG.urgent}}</label>
                         <label for="secrecy" title="{{$LANG.task_secrecy_tips}}"{{if ($isforward && !$access.modify) || $isdivide || $isreview}} class="gray"{{/if}}><input name="privacy" type="checkbox" value="1" id="secrecy"{{if $tudu.privacy}} checked="checked"{{/if}}{{if ($isforward && !$access.modify) || $isdivide || $isreview}} disabled="disabled" _disabled="true"{{/if}} />{{$LANG.private}}</label>
-						<label for="notifyall" title="{{$LANG.notify_tips}}"{{if ($isforward && !$access.modify) || $isdivide || $isreview}} class="gray"{{/if}}><input name="notifyall" type="checkbox" value="1" id="notifyall"{{if $tudu.notifyall}} checked="checked"{{/if}}{{if ($isforward && !$access.modify) || $isdivide || $isreview}} disabled="disabled" _disabled="true"{{/if}} />{{$LANG.remind_all}}</label>
 						<label for="cycle" title="{{$LANG.task_cycle_tips}}"{{if $isforward || $isdivide || $isreview}} class="gray"{{/if}}><input name="cycle" type="checkbox" value="1" id="cycle"{{if $cycle}} checked="checked"{{/if}}{{if $isforward || $isdivide || $isreview}} disabled="disabled" _disabled="true"{{/if}} />{{$LANG.repeat_cycle}}</label>
 						<label for="isauth" title="{{$LANG.auth_tips}}"{{if ($isforward && !$access.modify) || $isdivide || $isreview}} class="gray"{{/if}}><input type="checkbox" name="isauth" value="1" id="isauth"{{if $tudu.isauth}} checked="checked"{{/if}}{{if ($isforward && !$access.modify) || $isdivide}} disabled="disabled" _disabled="true"{{/if}} />{{$LANG.foreign_auth}}</label>
 						<label for="needconfirm" title="{{$LANG.tudu_need_confirm_tips}}"{{if ($isforward && !$access.modify) || $isdivide || $isreview}} class="gray"{{/if}}><input type="checkbox" name="needconfirm" value="1" id="needconfirm"{{if $tudu.needconfirm || (!$tudu.tuduid && $board && $board.needconfirm)}} checked="checked"{{/if}}{{if ($isforward && !$access.modify) || $isdivide || $isreview}} disabled="disabled" _disabled="true"{{/if}} />{{$LANG.tudu_need_confirm}}</label>
@@ -310,7 +310,7 @@ if (top == this) {
 			 </table>
 	     </div>
 
-		 <div class="info_box" id="extend-box"{{if ($isforward && !$access.modify) || $isdivide || $isreview || $isapply ||(!$tudu.privacy && !$cycle)}} style="display:none"{{/if}}>
+		 <div class="info_box" id="extend-box"{{if ($isforward && !$access.modify) || $isdivide || $isreview || $isapply ||(!$tudu.privacy && !$cycle && !$tuduremind && !$tudu.notifyall)}} style="display:none"{{/if}}>
 		 	<table cellspacing="0" cellpadding="0">
               <tr>
                 <td class="info_txt"></td>
@@ -553,7 +553,7 @@ if (top == this) {
                             <table cellspacing="0" cellpadding="0">
                               <tr>
                                 <td class="info_txt">{{$LANG.content}}</td>
-                                <td class="info_forms info_input"><textarea class="form_textarea" id="ch-content" name="ch-content" cols="" rows=""></textarea></td>
+                                <td class="info_forms info_input"><textarea id="ch-content" name="ch-content" cols="" rows="" style="width:100%;height:180px"></textarea></td>
                               </tr>
                             </table>
                     	    <table cellspacing="0" cellpadding="0">
@@ -561,7 +561,7 @@ if (top == this) {
                                 <td class="info_txt"></td>
                                 <td class="info_forms">
                                     <div class="setting_box">
-                                        <input type="checkbox" value="1" id="ch-priority" name="ch-priority"{{if $tudu.priority}} checked="checked"{{/if}} /><label for="ch-priority" title="{{$LANG.task_priority_tips}}">{{$LANG.urgent}}</label>&nbsp;&nbsp;<input type="checkbox" value="1" id="ch-privacy" name="ch-privacy"{{if $tudu.privacy}} checked="checked"{{/if}} /><label for="ch-privacy" title="{{$LANG.task_secrecy_tips}}">{{$LANG.private}}</label>&nbsp;&nbsp;<label for="ch-notifyall" title="{{$LANG.notify_tips}}"><input type="checkbox" value="1" id="ch-notifyall" name="ch-notifyall" /></input>{{$LANG.remind_all}}</label><!-- &nbsp;&nbsp;<input name="" type="checkbox" value="" id="text"><label for="text">{{$LANG.pure_text}}</label>-->&nbsp;&nbsp;<label for="ch-isauth" title="{{$LANG.auth_tips}}"><input type="checkbox" name="ch-isauth" value="1" id="ch-isauth"{{if $tudu.isauth}} checked="checked"{{/if}} />{{$LANG.foreign_auth}}</label>&nbsp;&nbsp;<label for="ch-needconfirm" title="{{$LANG.tudu_need_confirm_tips}}"><input type="checkbox" name="ch-needconfirm" value="1" id="ch-needconfirm"{{if $tudu.needconfirm}} checked="checked"{{/if}} />{{$LANG.tudu_need_confirm}}</label>&nbsp;&nbsp;<input type="checkbox" id="ch-acceptmode" name="ch-acceptmode" value="1" /><label for="ch-acceptmode" title="{{$LANG.tudu_claim_tips}}">{{$LANG.tudu_claim_mode}}</label>
+                                        <input type="checkbox" value="1" id="ch-priority" name="ch-priority"{{if $tudu.priority}} checked="checked"{{/if}} /><label for="ch-priority" title="{{$LANG.task_priority_tips}}">{{$LANG.urgent}}</label>&nbsp;&nbsp;<input type="checkbox" value="1" id="ch-privacy" name="ch-privacy"{{if $tudu.privacy}} checked="checked"{{/if}} /><label for="ch-privacy" title="{{$LANG.task_secrecy_tips}}">{{$LANG.private}}</label>&nbsp;&nbsp;<label for="ch-remind" title="{{$LANG.notify_tips}}"><input type="checkbox" value="1" id="ch-remind" name="ch-remind" /></input>{{$LANG.remind_settings}}</label><!-- &nbsp;&nbsp;<input name="" type="checkbox" value="" id="text"><label for="text">{{$LANG.pure_text}}</label>-->&nbsp;&nbsp;<label for="ch-isauth" title="{{$LANG.auth_tips}}"><input type="checkbox" name="ch-isauth" value="1" id="ch-isauth"{{if $tudu.isauth}} checked="checked"{{/if}} />{{$LANG.foreign_auth}}</label>&nbsp;&nbsp;<label for="ch-needconfirm" title="{{$LANG.tudu_need_confirm_tips}}"><input type="checkbox" name="ch-needconfirm" value="1" id="ch-needconfirm"{{if $tudu.needconfirm}} checked="checked"{{/if}} />{{$LANG.tudu_need_confirm}}</label>&nbsp;&nbsp;<input type="checkbox" id="ch-acceptmode" name="ch-acceptmode" value="1" /><label for="ch-acceptmode" title="{{$LANG.tudu_claim_tips}}">{{$LANG.tudu_claim_mode}}</label>
                                     </div>
     	                            <div class="cycle_wrap" id="ch-block-private" style="display:none">
     	                            	<div class="content_box3">
@@ -572,6 +572,47 @@ if (top == this) {
     	                            		<div id="show_password" style="height:28px; line-height:28px;"><input name="ch-password" type="text" id="ch-password" class="input_text" style="width:178px;" maxlength="16" disabled="disabled" onkeyup="this.value=this.value.replace(/[^\x01-\xff]+/,'')" /></div>
     	                            	</div>
     	                            </div>
+    	                            {{*提醒设置*}}
+                                    <div class="cycle_wrap" id="ch-block-remind" style="display:none">
+                                        <div class="content_box3">
+                                            <strong>{{$LANG.remind_settings}}</strong>
+                                            <div class="line_bold"></div>
+                                            <div style="line-height:28px;">
+                                                <p><label><input id="ch-notifyall" name="ch-notifyall" type="checkbox" value="1" />{{$LANG.remind_notifyall}}</label></p>
+                                                <p><label><input id="ch-open_remind" name="ch-open_remind" type="checkbox" value="1" />{{$LANG.open_timing_remind}}</label><span class="gray">（{{$LANG.timing_remind_tips}}）</span></p>
+                                                <table cellspacing="0" cellpadding="0" style="line-height:28px;">
+                                                  <tr>
+                                                    <td width="75" align="right">{{$LANG.remind_time}}{{$LANG.cln}}</td>
+                                                    <td><select id="ch-remind-mode" name="ch-remind-mode" style="width:100px" disabled="disabled">
+                                                            <option value="once">{{$langremind.mode_once}}</option>
+                                                            <option value="weekday">{{$langremind.mode_weekday}}</option>
+                                                            <option value="day">{{$langremind.mode_day}}</option>
+                                                            <option value="define">{{$langremind.mode_define}}</option>
+                                                        </select>
+                                                    </td>
+                                                  </tr>
+                                                  <tr>
+                                                    <td>&nbsp;</td>
+                                                    <td>
+                                                        <div id="ch-define_day" class="option_box" style="display:none;">
+                                                            <label><input name="ch-remind-define[]" type="checkbox" value="mon" disabled="disabled" />{{$langremind.week_mon}}</label>
+                                                            <label><input name="ch-remind-define[]" type="checkbox" value="tue" disabled="disabled" />{{$langremind.week_tue}}</label>
+                                                            <label><input name="ch-remind-define[]" type="checkbox" value="wed" disabled="disabled" />{{$langremind.week_wed}}</label>
+                                                            <label><input name="ch-remind-define[]" type="checkbox" value="thu" disabled="disabled" />{{$langremind.week_thu}}</label>
+                                                            <label><input name="ch-remind-define[]" type="checkbox" value="fri" disabled="disabled" />{{$langremind.week_fri}}</label>
+                                                            <label><input name="ch-remind-define[]" type="checkbox" value="sat" disabled="disabled" />{{$langremind.week_sat}}</label>
+                                                            <label><input name="ch-remind-define[]" type="checkbox" value="sun" disabled="disabled" />{{$langremind.week_sun}}</label>
+                                                        </div>
+                                                        <div>
+                                                            <div style="float:left;"><input type="text" id="ch-remind-date" name="ch-remind-date" value="{{$smarty.now|date_format:'%Y-%m-%d'}}" style="width:120px;" readonly="readonly" autocomplete="off" disabled="disabled" />&nbsp;</div>
+                                                            <div style="float:left;"><input type="text" id="ch-remind-hour" name="ch-remind-hour" value="0" style="width:40px;" autocomplete="off" disabled="disabled" />:<input type="text" id="ch-remind-min" name="ch-remind-min" value="0" style="width:40px;" autocomplete="off" disabled="disabled" /></div>
+                                                        </div>
+                                                    </td>
+                                                  </tr>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </td>
                               </tr>
                             </table>
@@ -662,6 +703,13 @@ if (top == this) {
 <input type="hidden" name="privacy" />
 <input type="hidden" name="needconfirm" />
 <input type="hidden" name="notifyall" />
+<input type="hidden" name="remind" />
+<input type="hidden" name="open_remind" />
+<input type="hidden" name="remind-mode" />
+<input type="hidden" name="remind-date" />
+<input type="hidden" name="remind-hour" />
+<input type="hidden" name="remind-min" />
+<input type="hidden" name="remind-define" />
 <input type="hidden" name="acceptmode" />
 <input type="hidden" name="password" />
 <input type="hidden" name="open_pwd" />
@@ -726,6 +774,8 @@ var forbid = {
 	editor: {{if $isdivide || ($board && $board.protect && $tudu && !$tudu.isdraft && !$isreview && !$isforward)}}true{{else}}false{{/if}}
 };
 Modify.issynchro = {{if $issynchro}}true{{else}}false{{/if}};
+
+Modify.currentDate = '{{math|date_format:'%Y-%m-%d' equation="86400*365+x" x=$smarty.now}}';
 
 Modify.isModify  = {{if $tudu.tuduid && !$isforward && !$isreview && !$isapply && !$isdivide}}true{{else}}false{{/if}};
 {{if $user.option.settings.fontfamily}}
@@ -820,5 +870,6 @@ claimUsers.push({tuduid: '{{$item.tuduid}}', email: '{{$item.email}}', truename:
 Modify.claimUsers = claimUsers;
 {{/if}}
 </script>
+
 </body>
 </html>

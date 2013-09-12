@@ -94,6 +94,7 @@ class Model_Tudu_Send_Common extends Model_Abstract implements Model_Tudu_Send_I
 
         $daoTudu->markAllUnread($tudu->tuduId);
         $daoTudu->markRead($tudu->tuduId, $this->_user->uniqueId, true);
+        $daoTudu->updateTudu($tudu->tuduId, array('sendstatus' => 2));
 
         $httpsqs = $this->_getHttpsqs();
         if ($httpsqs) {
@@ -139,12 +140,14 @@ class Model_Tudu_Send_Common extends Model_Abstract implements Model_Tudu_Send_I
                 }
             }
 
-            $httpsqs->put(implode(' ', array(
-                'tudu',
-                $sqsAction,
-                '',
-                http_build_query($sqsParam)
-            )), 'tudu');
+            if ($sqsAction != 'reply') {
+                $httpsqs->put(implode(' ', array(
+                    'tudu',
+                    $sqsAction,
+                    '',
+                    http_build_query($sqsParam)
+                )), 'tudu');
+            }
         }
     }
 
@@ -216,6 +219,10 @@ class Model_Tudu_Send_Common extends Model_Abstract implements Model_Tudu_Send_I
 
             if (false !== $labels) {
                 if (is_string($labels) && !empty($recipient)) {
+                    if ($tudu->operation == 'forward') {
+                        unset($params['percent'], $params['tudustatus']);
+                    }
+
                     $daoTudu->updateTuduUser($tudu->tuduId, $unId, $params);
                 }
 
@@ -242,6 +249,19 @@ class Model_Tudu_Send_Common extends Model_Abstract implements Model_Tudu_Send_I
                     }
                 }
 
+                // 类型标签
+                if ($tudu->type == 'notice' && !in_array('^n', $labels)) {
+                    $daoTudu->addLabel($tudu->tuduId, $unId, '^n');
+                }
+
+                if ($tudu->type == 'discuss' && !in_array('^d', $labels)) {
+                    $daoTudu->addLabel($tudu->tuduId, $unId, '^d');
+                }
+
+                if ($tudu->type == 'meeting' && !in_array('^m', $labels)) {
+                    $daoTudu->addLabel($tudu->tuduId, $unId, '^m');
+                }
+
                 // 我执行
                 if (!empty($recipient['role']) && $recipient['role'] == 'to' && $tudu->type == 'task') {
                     if (!in_array('^a', $labels)) {
@@ -255,14 +275,12 @@ class Model_Tudu_Send_Common extends Model_Abstract implements Model_Tudu_Send_I
                     }
                 }
 
-                // 已发送
-                if ($tudu->uniqueId == $recipient['uniqueid'] && !in_array('^f', $labels)) {
-                    $daoTudu->addLabel($tudu->tuduId, $unId, '^f');
-                }
-
                 // 审批
-                if (!empty($recipient['isreview']) && !in_array('^e', $labels)) {
-                    $daoTudu->addLabel($tudu->tuduId, $unId, '^e');
+                if (!empty($recipient['isreview']) && !in_array('^e', $labels))
+                {
+                    if ($tudu->operation != 'review' || $recipient['uniqueid'] != $tudu->uniqueId) {
+                        $daoTudu->addLabel($tudu->tuduId, $unId, '^e');
+                    }
                 }
 
                 if (isset($this->_typeLabels[$tudu->type])) {
@@ -339,6 +357,7 @@ class Model_Tudu_Send_Common extends Model_Abstract implements Model_Tudu_Send_I
             // 接收人
         } elseif ($tudu->to) {
             $arrayTo = $tudu->to;
+
             foreach ($arrayTo as $key => $item) {
 
                 if (isset($item['groupid']) && $tudu->type == 'meeting') {
@@ -391,11 +410,8 @@ class Model_Tudu_Send_Common extends Model_Abstract implements Model_Tudu_Send_I
                     $user['accepterinfo'] = $userName . ' ' . $user['truename'];
                     $user['issender']     = $userName == $tudu->sender;
 
-                    if (isset($item['percent'])) {
-                        $user['percent'] = (int) $item['percent'];
-                    }
-
                     $percent            = isset($item['percent']) ? (int) $item['percent'] : 0;
+                    $user['percent']    = $percent;
                     $user['tudustatus'] = $percent >= 100 ? 2 : ($percent == 0 ? 0 : 1);
 
                     $recipients[$user['uniqueid']] = $user;
@@ -412,7 +428,7 @@ class Model_Tudu_Send_Common extends Model_Abstract implements Model_Tudu_Send_I
             foreach ($tudu->cc as $key => $item) {
                 if (isset($item['groupid'])) {
 
-                    if (empty($item['groupid']) || !is_string($item['groupid'])) {
+                    if (is_int($item['groupid']) || empty($item['groupid'])) {
                         continue ;
                     }
 
@@ -447,7 +463,7 @@ class Model_Tudu_Send_Common extends Model_Abstract implements Model_Tudu_Send_I
             foreach ($tudu->bcc as $key => $item) {
                 if (isset($item['groupid'])) {
 
-                    if (empty($item['groupid']) || !is_string($item['groupid'])) {
+                    if (is_int($item['groupid']) || empty($item['groupid'])) {
                         continue ;
                     }
 

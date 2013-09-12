@@ -5,7 +5,7 @@
 <title>{{$LANG.tudu}}</title>
 {{include file="^style.tpl"}}
 <script src="{{$options.sites.static}}/js/jquery-1.4.2.js" type="text/javascript"></script>
-<script src="{{$options.sites.static}}/js/frame.js?1030" type="text/javascript"></script>
+<script src="{{$options.sites.static}}/js/frame.js?1031" type="text/javascript"></script>
 </head>
 
 <body class="home">
@@ -129,7 +129,7 @@
                     </td>
                     <td>
                         <div class="infor_div">
-                            &nbsp;
+                            <span class="icon_big i_b_talk" style="background-image:url('{{$options.sites.static}}/images/icon/talk.gif');background-position:2px 0"></span><a href="http://www.tudu.com/download/tudutalk.html" id="talk-tips" onclick="window.open('http://www.tudu.com/download/tudutalk.html');return false;"><strong class="f14">{{$LANG.tudu_talk}} {{$im.version}}{{if $user.option.language != 'en_US'}}&nbsp;&nbsp;发大文件，享受工作快感！{{/if}}</strong></a>
                         </div>
                          <div class="line_part3"></div>
                     </td>
@@ -151,7 +151,7 @@
         </div>
         <div class="panel">
         	<p style="padding:2px 0;"><a href="http://www.tudu.com/" target="_blank">{{$LANG.tudu_web}}</a>&nbsp;|&nbsp;<a href="http://www.tudu.com/help/index.html" target="_blank">{{$LANG.tudu_help}}</a>&nbsp;|&nbsp;<a href="mailto:800@tudu.com" target="_blank">{{$LANG.give_feedback}}</a>&nbsp;|&nbsp;<a href="http://weibo.com/tudu1" target="_blank">{{$LANG.tudu_weibo}}</a></p>
-        	<p style="padding:2px 0;" class="gray">{{$LANG.tudu_version}}{{$LANG.cln}}{{$smarty.const.TUDU_VERSION}}&nbsp;|&nbsp;Copyright © 2013 Tudu. All Rights Reserved.</p>
+        	<p style="padding:2px 0;" class="gray">{{$LANG.tudu_version}}{{$LANG.cln}}{{$version}}&nbsp;|&nbsp;Copyright © 2013 Tudu. All Rights Reserved.</p>
         </div>
     </div>
 </div>
@@ -236,6 +236,8 @@ $(function(){
             }
         }, null, encodeURIComponent(local), true);
     });
+
+    loadImStatus();
 });
 
 //加载天气
@@ -327,11 +329,26 @@ function showWeather(data) {
     $('#weather-message').text('').hide();
 }
 
+function loadImStatus() {
+    $.ajax({
+        type: 'GET',
+        dataType: 'json',
+        url: '/frame/im-status?email={{$user.username}}',
+        success: function(ret) {
+            if (!ret.data) {
+                TOP.Tips.show('tudu-015');
+            }
+        },
+        error: function() {}
+    });
+}
+
 // 考勤
 if (undefined != TOP._APPLIST.attend) {
     $('#widget-panel').load('/app/attend/widget');
 }
 </script>
+
 
 </html>
 

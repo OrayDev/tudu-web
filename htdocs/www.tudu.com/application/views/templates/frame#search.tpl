@@ -2,9 +2,9 @@
 <table width="100%" border="0" cellpadding="2" cellspacing="4">
     <tr>
         <th align="right" width="70">{{$LANG.title_keyword}}</th>
-        <td><input type="text" name="keyword" id="w_keyword" class="input_text" style="width:150px;" /></td>
+        <td><input type="text" name="keyword" id="w_keyword" class="input_text" style="width:155px;" /></td>
         <th align="right" width="70">{{$LANG.title_sender}}</th>
-        <td><input type="text" class="input_text" style="width:150px;" name="from" id="inputfrom" /></td>
+        <td><input type="text" class="input_text" style="width:155px;" name="from" id="inputfrom" /></td>
     </tr>
     <tr>
         <th align="right" width="70">{{$LANG.status}}{{$LANG.cln}}</th>
@@ -17,7 +17,7 @@
         <option value="4">{{$LANG.tudu_status_4}}</option>
         </select></td>
         <th align="right" width="70">{{$LANG.title_receiver}}</th>
-        <td><input type="text" class="input_text" style="width:150px;" name="to" id="inputto" /></td>
+        <td><input type="text" class="input_text" style="width:155px;" name="to" id="inputto" /></td>
     </tr>
     <tr>
         <th align="right" width="70">{{$LANG.title_board}}</th>
@@ -58,19 +58,15 @@
     <tr>
         <th align="right" width="70">{{$LANG.starttime}}{{$LANG.cln}}</th>
         <td>
-        <select name="createtime[start]" style="width:160px">
-        <option value="">{{$LANG.unassigned}}</option>
-        <option value="{{math equation="x-(y * 86400)" x=$smarty.now y=30}}">{{$LANG.around_month}}</option>
-        <option value="{{math equation="x-(y * 86400)" x=$smarty.now y=7}}">{{$LANG.around_week}}</option>
-        </select>
+        <input name="createtime[start]" type="text" class="input_text" readonly="readonly" value="" style="width:155px;" />
         </td>
         <th align="right" width="70">{{$LANG.endtime}}{{$LANG.cln}}</th>
         <td>
-        <select name="endtime[start]" style="width:160px">
-        <option value="">{{$LANG.unassigned}}</option>
-        <option value="{{math equation="x-(y * 86400)" x=$smarty.now y=30}}">{{$LANG.around_month}}</option>
-        <option value="{{math equation="x-(y * 86400)" x=$smarty.now y=7}}">{{$LANG.around_week}}</option>
-        </select></td>
+        <input name="endtime[start]" type="text" class="input_text" readonly="readonly" value="" style="width:155px;" />
+        </td>
     </tr>
 </table>
 </div>
+<style type="text/css">
+#datepick-div{z-index:8002;}
+</style>

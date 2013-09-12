@@ -5,7 +5,7 @@
 <title>{{$LANG.netdisk}}</title>
 {{include file="^style.tpl"}}
 <script src="{{$options.sites.static}}/js/jquery-1.4.4.js" type="text/javascript"></script>
-<script src="{{$options.sites.static}}/js/frame.js?1030" type="text/javascript"></script>
+<script src="{{$options.sites.static}}/js/frame.js?1031" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/netdisk.js?1001" type="text/javascript"></script>
 <script type="text/javascript">
 <!--
@@ -109,7 +109,7 @@ if (top == this) {
                     <td class="file_icon">{{if $item.isshare}}<span class="fbicon fb_folder_share"></span>{{else if}}<span class="fbicon fb_folder"></span>{{/if}}</td>
                     <td class="file_name">
                     <p><a href="/netdisk/?folderid={{$item.folderid}}">{{if $item.issystem && isset($LANG.sys_folder[$item.foldername])}}{{$LANG.sys_folder[$item.foldername]}}{{else}}{{$item.foldername}}{{/if}}</a></p>
-                    <p class="file_opt"><a href="javascript:void(0);" onclick="Netdisk.rename('folder', '{{$item.folderid}}')">{{$LANG.rename}}</a>{{if !$item.issystem}}<a href="javascript:void(0);" onclick="Netdisk.deleteFolder('{{$item.folderid}}')">{{$LANG.delete}}</a>{{/if}}{{if !$item.isshare}}<a href="javascript:void(0);" onclick="Netdisk.shareFolder('{{$item.folderid}}', 1)">{{$LANG.config_share}}</a>{{else if}}<a href="javascript:void(0);" onclick="Netdisk.shareMember('{{$item.folderid}}', 'folder')">{{$LANG.edit_share_member}}</a><a href="javascript:void(0);" onclick="Netdisk.shareFolder('{{$item.folderid}}', 0)">{{$LANG.cancel_share}}</a>{{/if}}</p>
+                    <p class="file_opt"><a href="javascript:void(0);" onclick="Netdisk.rename('folder', '{{$item.folderid}}')">{{$LANG.rename}}</a><a href="javascript:void(0);" onclick="Netdisk.deleteFolder('{{$item.folderid}}')">{{$LANG.delete}}</a>{{if !$item.isshare}}<a href="javascript:void(0);" onclick="Netdisk.shareFolder('{{$item.folderid}}', 1)">{{$LANG.config_share}}</a>{{else if}}<a href="javascript:void(0);" onclick="Netdisk.shareMember('{{$item.folderid}}', 'folder')">{{$LANG.edit_share_member}}</a><a href="javascript:void(0);" onclick="Netdisk.shareFolder('{{$item.folderid}}', 0)">{{$LANG.cancel_share}}</a>{{/if}}</p>
                     </td>
                     </tr>
                 </table>
@@ -134,7 +134,7 @@ if (top == this) {
                     <td class="file_icon"><span class="fbicon fb_{{$file.filename|file_ext}}"></span></td>
                     <td class="file_name">
                     <p>{{$file.filename}}</p>
-                    <p class="file_opt"><a href="{{if $file.isfromattach}}{{$file.attachfileid|get_file_url:'attachment':'':$file.fromuniqueid}}{{elseif $file.fromfileid}}{{$file.fromfileid|get_file_url:'netdisk':'':$file.fromuniqueid}}{{else}}{{$file.fileid|get_file_url}}{{/if}}" target="_blank">{{$LANG.download}}</a><a href="javascript:void(0);" onclick="Netdisk.rename('file', '{{$file.fileid}}')">{{$LANG.rename}}</a><a href="javascript:void(0);" onclick="Netdisk.deleteFile('{{$file.fileid}}')">{{$LANG.delete}}</a>{{if !$file.isshare}}<a href="javascript:void(0);" onclick="Netdisk.shareFile('{{$file.fileid}}', 1)">{{$LANG.config_share}}</a>{{else if}}<a href="javascript:void(0);" onclick="Netdisk.shareMember('{{$file.fileid}}', 'file')">{{$LANG.edit_share_member}}</a><a href="javascript:void(0);" onclick="Netdisk.shareFile('{{$file.fileid}}', 0)">{{$LANG.cancel_share}}</a>{{/if}}</p>
+                    <p class="file_opt"><a href="{{if $file.isfromattach}}{{$file.attachfileid|get_file_url:'attachment'}}{{elseif $file.fromfileid}}{{$file.fromfileid|get_file_url}}{{else}}{{$file.fileid|get_file_url}}{{/if}}" target="_blank">{{$LANG.download}}</a><a href="javascript:void(0);" onclick="Netdisk.rename('file', '{{$file.fileid}}')">{{$LANG.rename}}</a><a href="javascript:void(0);" onclick="Netdisk.deleteFile('{{$file.fileid}}')">{{$LANG.delete}}</a>{{if !$file.isshare}}<a href="javascript:void(0);" onclick="Netdisk.shareFile('{{$file.fileid}}', 1)">{{$LANG.config_share}}</a>{{else if}}<a href="javascript:void(0);" onclick="Netdisk.shareMember('{{$file.fileid}}', 'file')">{{$LANG.edit_share_member}}</a><a href="javascript:void(0);" onclick="Netdisk.shareFile('{{$file.fileid}}', 0)">{{$LANG.cancel_share}}</a>{{/if}}</p>
                     </td>
                     </tr>
                 </table>

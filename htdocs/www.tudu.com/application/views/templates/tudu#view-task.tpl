@@ -9,7 +9,7 @@
 {{if $newwin}}
 {{include file="^newwin.tpl"}}
 {{/if}}
-<script src="{{$options.sites.static}}/js/frame.js?1030" type="text/javascript"></script>
+<script src="{{$options.sites.static}}/js/frame.js?1031" type="text/javascript"></script>
 
 {{if !$newwin}}
 
@@ -61,11 +61,17 @@ if (top == this) {
                 {{if $tudu.status == 0 || $tudu.status == 3 || $tudu.status == 4}}
                 <span class="gray">[{{$LANG[$status]}}]</span>
                 {{/if}}
-                {{if $tudu.privacy || $tudu.priority}}
+                {{if $tudu.privacy || $tudu.priority || ($tudu.special & 8) == 8}}
                 {{strip}}
-                <span class="gray" style="font-weight:normal;font-size:12px;"><strong class="red">!</strong>[{{if $tudu.priority && $tudu.privacy}}<span class="red">{{$LANG.urgent}}</span>+<span class="red">{{$LANG.private}}</span>
+                <span class="gray" style="font-weight:normal;font-size:12px;">
+                <strong class="red">!</strong>[
+                {{if $tudu.priority && $tudu.privacy && ($tudu.special & 8) == 8}}<span class="red">{{$LANG.urgent}}</span>+<span class="red">{{$LANG.private}}</span>+<span class="red">定时提醒</span>
+                {{elseif $tudu.priority && $tudu.privacy}}<span class="red">{{$LANG.urgent}}</span>+<span class="red">{{$LANG.private}}</span>
+                {{elseif $tudu.priority && ($tudu.special & 8) == 8}}<span class="red">{{$LANG.urgent}}</span>+<span class="red">定时提醒</span>
+                {{elseif $tudu.privacy && ($tudu.special & 8) == 8}}<span class="red">{{$LANG.private}}</span>+<span class="red">定时提醒</span>
                 {{elseif $tudu.priority}}<span class="red">{{$LANG.urgent}}</span>
-                {{elseif $tudu.privacy}}<span class="red">{{$LANG.private}}</span>{{/if}}]</span>
+                {{elseif $tudu.privacy}}<span class="red">{{$LANG.private}}</span>
+                {{elseif ($tudu.special & 8) == 8}}<span class="red">定时提醒</span>{{/if}}]</span>
                 {{/strip}}
                 {{/if}}
                 {{if $tudu.classname}}[{{$tudu.classname}}]{{/if}}
@@ -514,7 +520,7 @@ if (top == this) {
                 </td>
               </tr>
               <tr>
-                <td><textarea class="form_textarea" id="content" name="editor" disabled="disabled" _disabled="disabled" cols="" rows="" style="width:100%;height:180px">{{$unreply.content}}</textarea><textarea id="postcontent" name="content" style="display:none;"></textarea></td>
+                <td><textarea id="content" name="editor" disabled="disabled" _disabled="disabled" cols="" rows="" style="width:100%;height:180px">{{$unreply.content}}</textarea><textarea id="postcontent" name="content" style="display:none;"></textarea></td>
               </tr>
               {{if $access.progress}}
               <tr>
@@ -560,7 +566,7 @@ if (top == this) {
 <table id="label-tpl" cellspacing="0" cellpadding="0" class="flagbg"><tr class="falg_rounded_wrap"><td class="falg_rounded"></td><td colspan="2"></td><td class="falg_rounded"></td></tr><tr><td class="falg_line"></td><td class="tag_txt"></td><td class="tag_close"></td><td class="falg_line"></td></tr><tr class="falg_rounded_wrap"><td class="falg_rounded"></td><td colspan="2"></td><td class="falg_rounded"></td></tr></table>
 </div>
 
-<script src="{{$options.sites.static}}/js/tudu/view.js?1018" type="text/javascript"></script>
+<script src="{{$options.sites.static}}/js/tudu/view.js?1025" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/card.js?1001" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/upload.js?1009" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/plugins.js?1004" type="text/javascript"></script>
@@ -584,8 +590,8 @@ $(function(){
 
     {{if $user.option.fontfamily || $user.option.fontsize}}
     var editorCss = {
-        'font-family':'{{$user.option.fontfamily|default:'SimSun'}}',
-        'font-size':'{{$user.option.fontsize|default:'12px'}}'
+        'fontfamily':'{{$user.option.fontfamily|default:'SimSun'}}',
+        'fontsize':'{{$user.option.fontsize|default:'12px'}}'
     };
     Tudu.SetEditorCss(editorCss);
     {{/if}}
@@ -659,5 +665,6 @@ $(function(){
 });
 -->
 </script>
+
 </body>
 </html>

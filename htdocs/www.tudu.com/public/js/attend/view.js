@@ -359,6 +359,16 @@ Tudu.chat = function(email) {
 		});
 	});
 };
+/**
+ * 编辑器默认字体大小
+ */
+Tudu.editorCss = {};
+Tudu.SetEditorCss = function(css){
+    Tudu.editorCss = css;
+};
+Tudu.GetEditorCss = function(){
+    return Tudu.editorCss;
+};
 
 Tudu.View = {
 	
@@ -1304,16 +1314,19 @@ Tudu.Reply = {
 		// 调整输入框位置
 		$('div.post-content>li').css({'margin-left': '25px'});
 		
-		this._editor = new TOP.Editor(document.getElementById('content'), {
-			resizeType : 1,
-			width: '100%',
-			minHeight: 200,
-			themeType : 'tudu',
-			scope: window,
-			ctrl: {
-				13: function(){Tudu.Reply.send('reply');}
-			}
-		}, jQuery);
+		this._editor = new TOP.UEditor('content', {initialFrameHeight: '150'}, window, jQuery, function(){
+            if (!this.hasContents() && typeof Tudu.GetEditorCss().fontfamily != 'undefined' && typeof Tudu.GetEditorCss().fontsize != 'undefined') {
+                this.setContent('<p style="font-family:'+Tudu.GetEditorCss().fontfamily+';font-size:'+Tudu.GetEditorCss().fontsize+'"></p>');
+            }
+			this.commands['send'] = {
+                execCommand: function() {
+                    Tudu.Reply.send('reply');
+                }
+            };
+            this.addshortcutkey({
+                "send": "ctrl+13"
+            });
+        });
 		
 		// 初始化附件上传
 		if (typeof params.upload == 'object') {
@@ -2045,7 +2058,7 @@ Tudu.ReviewWin = {
 		'</table>',
 		'<table cellspacing="2" cellpadding="0" width="535">',
 		'<tr>',
-		'<td><textarea class="form_textarea" name="content" id="review-content" cols="" rows="" style="width:450px;height:120px"></textarea></td>',
+		'<td><textarea name="content" id="review-content" cols="" rows="" style="width:520px;height:150px"></textarea></td>',
 		'</tr>',
 		'</table>',
 		'</div>',
@@ -2083,6 +2096,7 @@ Tudu.ReviewWin = {
 		Win.append(this._tpl, {
 		    id: 'review-win',
             width: 580,
+			draggable: true,
 		    onShow: function(){
 	    	   if (null != editor) {
 	        	   editor.focus();
@@ -2284,17 +2298,14 @@ Tudu.ReviewWin = {
 		Win.show();
 	
 		// 编辑器，需要目标textarea可见时方可初始化
-		editor = new TOP.Editor(TOP.document.getElementById('review-content'), {
-            resizeType : 0,
-            width: '100%',
-            minHeight: 150,
-            themeType : 'tudu',
-            statusbar: false,
-            scope: TOP,
-			ctrl: {13: function(){Win.find('button[name="confirm"]:eq(0)').click();}}
-        }, TOP.getJQ());
-		
-		editor.focus();
+        editor = new TOP.UEditor('review-content', {
+			initialFrameHeight: '120', zIndex: 9000
+		}, TOP, TOP.getJQ(), function(){
+			if (!this.hasContents() && typeof Tudu.GetEditorCss().fontfamily != 'undefined' && typeof Tudu.GetEditorCss().fontsize != 'undefined') {
+				this.setContent('<p style="font-family:' + Tudu.GetEditorCss().fontfamily + ';font-size:' + Tudu.GetEditorCss().fontsize + '"></p>');
+			}
+			this.focus();
+		});
 	}
 };
 

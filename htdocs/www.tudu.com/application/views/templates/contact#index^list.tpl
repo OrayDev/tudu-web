@@ -1,12 +1,12 @@
 <td valign="top" width="190">
   <div class="c_right">
     <div class="contacts_box">
-      <div class="contacts_title"><a href="/contact">{{$LANG.addrbook}}</a></div>
+      <div class="contacts_title"><a href="/contact"><span class="icon_contact_big icon_b_sys_contact"></span>{{$LANG.addrbook}}</a></div>
       <div class="contacts_main">
         <div id="dept-tree-ct">
         </div>
       </div>
-      <div class="contacts_title"><a href="/contact/group-modify" style="float:right"><font style="font-size:12px;font-weight:normal">{{$LANG.create_group}}</font></a><a href="/contact/?type=contact">{{$LANG.personal_addrbook}}</a></div>
+      <div class="contacts_title"><a href="/contact/group-modify" style="float:right"><font style="font-size:12px;font-weight:normal">{{$LANG.create_group}}</font></a><a href="/contact/?type=contact"><span class="icon_contact_big icon_b_contact"></span>{{$LANG.personal_addrbook}}</a></div>
       <div style="line-height:20px;">
         <ul class="contact_group_list">
         <li{{if array_key_exists('groupid', $params) && !$params.groupid}} class="selected"{{/if}}><a href="/contact/?type=contact&groupid=0"><span class="tag_icon" style="background-color:#ffffff;margin:6px 3px 0 0"></span>{{$LANG.group_ungroup}}</a></li>

@@ -17,6 +17,7 @@
 <script type="text/javascript">
 <!--
 var _ACCEPTER_TPL  = '<table id="accepter-{uniqueid}" class="accepter_table" cellspacing="0"><tbody><tr><td><a _email="{accepterinfo}" _url="/contact/view?email={accepterinfo}&back={{$currUrl}}" href="/tudu/view?tid={{$tudu.tuduid}}&unid={uniqueid}&back={{$currUrl}}">{truename}</a></td><td width="80">{statustext}</td></tr></tbody></table>';
+var _ACCEPTER_TPL_PENDDING  = '<table id="accepter-{uniqueid}" class="accepter_table" cellspacing="0"><tbody><tr><td><a _email="{accepterinfo}" _url="javascript:void(0)" href="javascript:void(0)">{truename}</a></td><td width="80">发送中</td></tr></tbody></table>';
 var _ACCEPTERS  = null;
 
 $('#toggle-accepter span, #toggle-accepter h3').click(function(){
@@ -64,17 +65,14 @@ function sortStatus(records, col, type) {
 	var accept = [], reject = [], wait = [], unread = [];
 	for (var i = 0, l = records.length; i < l; i++) {
 		if (records[i].tudustatus < 2) {
-    		if (records[i].isread == 0 || null === records[i].isread) {
+		    if (records[i].accepttime !== null) {
+		        accept.push(records[i]);
+		    } else if (records[i].isread == 0 || null === records[i].isread) {
     			unread.push(records[i]);
     		} else {
-    			if (records[i].accepttime !== null) {
-    				accept.push(records[i]);
-    			} else {
-    				wait.push(records[i]);
-    			}
+    			wait.push(records[i]);
     		}
-		}
-		if (records[i].tudustatus == 3) {
+		} else if (records[i].tudustatus == 3) {
 			reject.push(records[i]);
 		}
 	}
@@ -126,7 +124,7 @@ function sortAccepter(records, col, type) {
 function fillAccepterList(records) {
 	var list = $('#accepter-list').empty();
 	for (var i = 0, l = records.length; i < l; i++) {
-		var html = _ACCEPTER_TPL;
+		var html = records[i].pendding ? _ACCEPTER_TPL_PENDDING : _ACCEPTER_TPL;
 
 		if (records[i].tudustatus < 2) {
 			if (records[i].isread == 0 && !records[i].accepttime) {

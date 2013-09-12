@@ -5,7 +5,7 @@
 *
 * @copyright  Copyright (c) 2009-2010 Shanghai Best Oray Information S&T CO., Ltd.
 * @link       http://www.oray.com/
-* @version    $Id: ComposeController.php 2504 2012-12-14 02:04:51Z cutecube $
+* @version    $Id: ComposeTuduController.php 2919 2013-08-02 10:21:37Z cutecube $
 */
 
 /**
@@ -88,6 +88,21 @@ class ComposeTuduController extends TuduX_Controller_Base
             'operation' => $action
         ));
 
+        // 发送对象
+        $config   = $this->bootstrap->getOption('httpsqs');
+        $tuduconf = $this->bootstrap->getOption('tudu');
+
+        $sendType  = isset($tuduconf['send']) ? ucfirst($tuduconf['send']['class']) : 'Common';
+        $sendClass = 'Model_Tudu_Send_' . $sendType;
+
+        if (!empty($tuduconf['send']['params'])) {
+            $params = $tuduconf['send']['params'];
+        } elseif ($sendType == 'Common') {
+            $params = array('httpsqs' => $config);
+        }
+
+        $modelSend = new $sendClass($params);
+
         $className = 'Model_Tudu_Compose_' . ucfirst($action);
         $model = new $className();
 
@@ -97,19 +112,19 @@ class ComposeTuduController extends TuduX_Controller_Base
         }
 
         // 周期任务
-        if (in_array($action, array(self::ACTION_SAVE, self::ACTION_SEND)) && ($tudu->type == 'task' || $tudu->type == 'notice')) {
+        if (in_array($action, array(self::ACTION_SAVE, self::ACTION_SEND)) && ($tudu->type == 'task' || $tudu->type == 'meeting')) {
             if ($tudu->cycle) {
                 $tudu->setExtension(new Model_Tudu_Extension_Cycle($this->_getCycleParams($post)));
             }
         }
 
         // 处理投票
-        if ($tudu->type == 'discuss') {
+        if ($tudu->type == 'discuss' && !empty($post['vote'])) {
             $this->_prepareVoteParams($tudu, $post);
         }
 
         // 图度组支持
-        if (($tudu->type == 'task' && !empty($post['chidx'])) || $action == self::ACTION_DIVIDE) {
+        if (($tudu->type == 'task' && !empty($post['chidx'])) || ($action == self::ACTION_DIVIDE && !empty($post['chidx']))) {
             $group = new Model_Tudu_Extension_Group();
 
             foreach ($post['chidx'] as $suffix) {
@@ -127,11 +142,12 @@ class ComposeTuduController extends TuduX_Controller_Base
                 $group->appendChild($child);
             }
 
+            Model_Tudu_Extension_Handler_Group::setSendModel($modelSend);
             $tudu->setExtension($group);
         }
 
         // 处理会议
-        if ($tudu->type == 'meeting') {
+        if ($tudu->type == 'meeting' && $action != self::ACTION_INVITE) {
             $meeting = new Model_Tudu_Extension_Meeting(array(
                 'orgid' => $this->_user->orgId,
                 'notifytime' => $this->_request->getPost('notifytime'),
@@ -147,18 +163,36 @@ class ComposeTuduController extends TuduX_Controller_Base
 
         try {
 
-            $model->execute('compose', &$params);
+            $model->execute('compose', $params);
 
             // 保存后添加发送操作
             if ($action != self::ACTION_SAVE) {
-                $config   = $this->bootstrap->getOption('httpsqs');
-                $tuduconf = $this->bootstrap->getOption('tudu');
+                $modelSend->send($tudu);
+            }
 
-                $sendType  = isset($tuduconf['send']) ? ucfirst($tuduconf['send']['class']) : 'Common';
-                $sendClass = 'Model_Tudu_Send_' . $sendType;
+            // 考勤流程
+            if ($action == self::ACTION_REVIEW && $tudu->fromTudu->appId == 'attend') {
 
-                $modelSend = new $sendClass(array('httpsqs' => $config));
-                $modelSend->send(&$tudu);
+                $flow = $tudu->getExtension('Model_Tudu_Extension_Flow');
+
+                if ($flow->currentStepId == '^end' || $flow->currentStepId == '^break') {
+                    $tudu->stepId = $flow->currentStepId;
+                    $mtudu = new Tudu_Model_Tudu_Entity_Tudu($tudu->getAttributes());
+
+                    Tudu_Dao_Manager::setDbs(array(
+                        Tudu_Dao_Manager::DB_APP => $this->multidb->getDb('app')
+                    ));
+
+                    $daoApply = Tudu_Dao_Manager::getDao('Dao_App_Attend_Apply', Tudu_Dao_Manager::DB_APP);
+                    $apply    = $daoApply->getApply(array('tuduid' => $tudu->tuduId));
+
+                    if (null !== $apply) {
+                        $mapply = new Tudu_Model_App_Attend_Tudu_Apply($apply->toArray());
+
+                        $model = new Tudu_Model_App_Attend_Tudu_Extension_Apply();
+                        $model->onReview($mtudu, $mapply);
+                    }
+                }
             }
 
         // 捕获流程异常返回错误信息
@@ -171,7 +205,7 @@ class ComposeTuduController extends TuduX_Controller_Base
                     $error = $this->lang['tudu_not_exists'];
                     break;
                 case Model_Tudu_Exception::BOARD_NOTEXISTS:
-                    $error = $this->lang['board_not_exists'];
+                    $error = $this->lang['board_not_exists_or_deny'];
                     break;
                 case Model_Tudu_Exception::FLOW_USER_NOT_EXISTS:
                     $error = $this->lang['missing_flow_steps_receiver'];
@@ -200,11 +234,6 @@ class ComposeTuduController extends TuduX_Controller_Base
         $returnData = array(
             'tuduid' => $tudu->tuduId
         );
-
-        // 投票的返回值
-        if (null !== ($vote = $tudu->getExtension('Model_Tudu_Extension_Vote'))) {
-            //$votes = $vote->getVotes();
-        }
 
         // 返回图度组
         if (null !== ($group = $tudu->getExtension('Model_Tudu_Extension_Group'))) {
@@ -235,13 +264,13 @@ class ComposeTuduController extends TuduX_Controller_Base
             'starttime' => array('type' => 'date'),
             'endtime' => array('type' => 'date'),
 
-            'priority' => array('type' => 'boolean'),
-            'privacy' => array('type' => 'boolean'),
-            'notifyall' => array('type' => 'boolean'),
-            'cycle' => array('type' => 'boolean'),
-            'isauth' => array('type' => 'boolean'),
-            'istop' => array('type' => 'boolean'),
-            'needconfirm' => array('type' => 'boolean'),
+            'priority' => array('type' => 'boolean', 'default' => 0),
+            'privacy' => array('type' => 'boolean', 'default' => 0),
+            'notifyall' => array('type' => 'boolean', 'default' => 0),
+            'cycle' => array('type' => 'boolean', 'default' => 0),
+            'isauth' => array('type' => 'boolean', 'default' => 0),
+            'istop' => array('type' => 'boolean', 'default' => 0),
+            'needconfirm' => array('type' => 'boolean', 'default' => 0),
             'appid' => array('type' => 'string'),
 
             'acceptmode' => array('type' => 'boolean'),
@@ -261,20 +290,30 @@ class ComposeTuduController extends TuduX_Controller_Base
             'bcc' => array('type' => 'receiver'),
             'reviewer' => array('type' => 'receiver'),
 
-            'agree' => array('type' => 'boolean')
+            'agree' => array('type' => 'boolean'),
+            'ismodified' => array('type' => 'boolean')
         );
 
         $attributes = array();
+        $type       = !empty($params['type']) ? $params['type'] : 'task';
 
         foreach ($keys as $k => $item) {
             if ($k == 'to' && !empty($suffix)) {
                 $val = $params['ch-' . $k . $suffix];
             } else{
-                if (!isset($params[$k . $suffix])) {
+                if (!isset($params[$k . $suffix]) && !isset($item['default'])) {
+                    if ($item['type'] == 'boolean') {
+                        $col = isset($item['column']) ? $item['column'] : $k;
+                        $attributes[$col] = !empty($params[$k . $suffix]);
+                    }
                     continue ;
                 }
 
-                $val = $params[$k . $suffix];
+                $val = isset($params[$k . $suffix]) ? $params[$k . $suffix] : $item['default'];
+            }
+
+            if ($k == 'cycle' && !$val) {
+                $attributes['cycleid'] = null;
             }
 
             // 有依赖关系字段
@@ -289,7 +328,11 @@ class ComposeTuduController extends TuduX_Controller_Base
                     $attributes[$col] = is_numeric($val) ? (int) $val : strtotime($val);
                     break;
                 case 'boolean':
-                    $attributes[$col] = (boolean) $val;
+                    if ($col == 'notifyall' && $type == 'task') {
+                        $attributes[$col] = (boolean) !empty($params['remind' . $suffix]) && !empty($params['notifyall' . $suffix]);
+                    } else {
+                        $attributes[$col] = (boolean) $val;
+                    }
                     break;
                 case 'html':
                     $t = strip_tags($val, 'img');
@@ -297,16 +340,19 @@ class ComposeTuduController extends TuduX_Controller_Base
                     break;
                 case 'receiver':
                     if (!empty($val)) {
-                        $attributes[$col] = $this->_formatReceiver($val, in_array($col, array('to', 'reviewer')));
+                        $isFlow = $type != 'meeting' ? in_array($col, array('to', 'reviewer')) : false;
+                        $attributes[$col] = $this->_formatReceiver($val, $isFlow, $col == 'to');
 
                         // 填充执行人进度
                         if ($col == 'to' && !empty($params['toidx' . $suffix]) && !empty($attributes['to'])) {
                             $idx = $params['toidx' . $suffix];
                             foreach ($idx as $i) {
                                 $csfx = $suffix . '-' . $i;
+
                                 if (isset($params['to' . $csfx]) && isset($params['to-percent' . $csfx])) {
                                     foreach ($attributes[$col][0] as $k => $item) {
-                                        if ($item['username'] . ' ' . $item['truename'] == $params['to' . $csfx]) {
+                                        if ($item['username'] . ' ' . $item['truename'] == trim($params['to' . $csfx])) {
+
                                             $attributes[$col][0][$k]['percent'] = (int) $params['to-percent' . $csfx];
                                             break ;
                                         }
@@ -321,6 +367,10 @@ class ComposeTuduController extends TuduX_Controller_Base
                     $attributes[$col] = trim($val);
                     break;
             }
+        }
+
+        if (isset($params['isclose' . $suffix])) {
+            $attributes['isdone'] = (int) $params['isclose' . $suffix];
         }
 
         if (isset($attributes['type']) && $attributes['type'] == 'notice') {
@@ -344,6 +394,7 @@ class ComposeTuduController extends TuduX_Controller_Base
         }
 
         if (!empty($params['nd-attach' . $suffix])) {
+
             $attachments = array_diff($attachments, $params['nd-attach' . $suffix]);
 
             $daoNdFile     = Tudu_Dao_Manager::getDao('Dao_Td_Netdisk_File', Tudu_Dao_Manager::DB_TS);
@@ -442,6 +493,14 @@ class ComposeTuduController extends TuduX_Controller_Base
             }
         }
 
+        if (Dao_Td_Tudu_Cycle::END_TYPE_COUNT == $params['endtype']) {
+            $ret['endcount'] = !empty($params['endcount' . $suffix]) ? $params['endcount' . $suffix] : 1;
+        }
+
+        if (Dao_Td_Tudu_Cycle::END_TYPE_DATE == $params['endtype']) {
+            $ret['enddate'] = !empty($params['enddate' . $suffix]) ? $params['enddate' . $suffix] : strtotime(date('Y-m-d'));
+        }
+
         if (empty($ret['cycleid'])) {
             $ret['cycleid'] = Dao_Td_Tudu_Cycle::getCycleId();
         }
@@ -464,6 +523,81 @@ class ComposeTuduController extends TuduX_Controller_Base
         }
 
         return $ret;
+    }
+
+    /**
+     *
+     * @param array  $params
+     * @param string $suffix
+     */
+    private function _getRemindParams(Model_Tudu_Tudu &$tudu, array $params, $suffix = '')
+    {
+        if (!empty($params['remind' . $suffix]) && !empty($params['open_remind' . $suffix])) {
+            $ret = array(
+                'mode'    => $params['remind-mode' . $suffix],
+                'isvalid' => 1
+            );
+            $remindTime = $params['remind-hour' . $suffix] * 3600 + $params['remind-min' . $suffix] * 60;
+
+            if ($ret['mode'] == Dao_Td_Tudu_Remind::MODE_ONCE) {
+                $date = !empty($params['remind-date' . $suffix]) ? strtotime($params['remind-date' . $suffix]) : strtotime(date('Y-m-d'));
+                $remindTime = $date + $remindTime;
+            } elseif ($ret['mode'] == Dao_Td_Tudu_Remind::MODE_DEFINE) {
+                $ret['defineday'] = is_array($params['remind-define' . $suffix]) ? implode(',', $params['remind-define' . $suffix]) : $params['remind-define' . $suffix];
+            }
+
+            $ret['remindtime'] = $remindTime;
+            // 处理首次通知时间
+            $notifyTime = null;
+            switch ($ret['mode']) {
+                // 仅一次
+                case Dao_Td_Tudu_Remind::MODE_ONCE:
+                    $notifyTime = $remindTime;
+                    break;
+                // 每天
+                case Dao_Td_Tudu_Remind::MODE_DAY:
+                    $notifyTime = strtotime(date('Y-m-d')) + $remindTime;
+                    if ($notifyTime <= time()) {
+                        $notifyTime = $notifyTime + 86400;
+                    }
+                    break;
+                // 每个工作日
+                case Dao_Td_Tudu_Remind::MODE_WEEKDAY:
+                    $notifyTime = strtotime(date('Y-m-d')) + $remindTime;
+                    if ($notifyTime <= time()) {
+                        $notifyTime = $notifyTime + 86400;
+                        if (date('w', $notifyTime) == 6) {
+                            $notifyTime = $notifyTime + 86400 * 2;
+                        } elseif (date('w', $notifyTime) == 0) {
+                            $notifyTime = $notifyTime + 86400;
+                        }
+                    } else {
+                        if (date('w', $notifyTime) == 6) {
+                            $notifyTime = $notifyTime + 86400 * 2;
+                        } elseif (date('w', $notifyTime) == 0) {
+                            $notifyTime = $notifyTime + 86400;
+                        }
+                    }
+                    break;
+                // 自定义
+                case Dao_Td_Tudu_Remind::MODE_DEFINE:
+                    $defineDay = explode(',', $ret['defineday']);
+                    $weekdays = array();
+                    foreach ($defineDay as $item) {
+                        $weekdays[] = strtotime($item);
+                    }
+                    sort($weekdays, SORT_NUMERIC);
+                    $notifyTime = $weekdays[0] + $remindTime;
+                    if ($notifyTime <= time()) {
+                        $notifyTime = $weekdays[1] + $remindTime;
+                    }
+            }
+            $ret['notifytime'] = $notifyTime;
+        } else {
+            $ret = array('isvalid' => 0);
+        }
+
+        $tudu->setExtension(new Model_Tudu_Extension_Remind($ret));
     }
 
     /**
@@ -527,7 +661,7 @@ class ComposeTuduController extends TuduX_Controller_Base
                 }
             }
 
-            $tudu->addExtension($vote);
+            $tudu->setExtension($vote);
         }
     }
 
@@ -535,7 +669,7 @@ class ComposeTuduController extends TuduX_Controller_Base
      *
      * @param string $receiver
      */
-    protected function _formatReceiver($receiver, $isFlow = false, $isPercent = false)
+    protected function _formatReceiver($receiver, $isFlow = false, $expandGroup = false)
     {
         $arr = explode("\n", $receiver);
 
@@ -595,29 +729,50 @@ class ComposeTuduController extends TuduX_Controller_Base
 
                 $groupName = isset($pair[1]) ? $pair[1] : null;
 
-                if (null === $groupName) {
-                    if (0 === strpos($pair[0], 'XG')) {
-                        $daoGroup = Tudu_Dao_Manager::getDao('Dao_Td_Contact_Group', Tudu_Dao_Manager::DB_MD);
-                        $group = $daoGroup->getGroup(array('uniqueid' => $this->_user->uniqueId, 'groupid' => $pair[0]));
+                if (!$expandGroup) {
 
-                        if (null === $group) {
-                            continue ;
+                    if (null === $groupName) {
+                        if (0 === strpos($pair[0], 'XG')) {
+                            $daoGroup = Tudu_Dao_Manager::getDao('Dao_Td_Contact_Group', Tudu_Dao_Manager::DB_MD);
+                            $group = $daoGroup->getGroup(array('uniqueid' => $this->_user->uniqueId, 'groupid' => $pair[0]));
+
+                            if (null === $group) {
+                                continue ;
+                            }
+
+                            $groupName = $group->groupName;
+                        } else {
+                            $daoGroup = Tudu_Dao_Manager::getDao('Dao_Md_User_Group', Tudu_Dao_Manager::DB_MD);
+                            $group = $daoGroup->getGroup(array('orgid' => $this->_user->orgId, 'groupid' => $pair[0]));
+
+                            if (null === $group) {
+                                continue ;
+                            }
+
+                            $groupName = $group->groupName;
                         }
+                    }
 
-                        $groupName = $group->groupName;
+                    $ret[$pair[0]] = array('groupid' => $pair[0], 'truename' => $groupName);
+
+                } else {
+
+                    $addressbook = Tudu_Addressbook::getInstance();
+
+                    $groupId = $pair[0];
+                    if (0 === strpos($groupId, 'XG')) {
+                        $receivers = $addressbook->getGroupContacts($this->_user->orgId, $this->_user->uniqueId, $groupId);
                     } else {
-                        $daoGroup = Tudu_Dao_Manager::getDao('Dao_Md_User_Group', Tudu_Dao_Manager::DB_MD);
-                        $group = $daoGroup->getGroup(array('orgid' => $this->_user->orgId, 'groupid' => $pair[0]));
+                        $receivers = $addressbook->getGroupUsers($this->_user->orgId, $groupId);
+                    }
 
-                        if (null === $group) {
-                            continue ;
-                        }
-
-                        $groupName = $group->groupName;
+                    foreach ($receivers as $receiver) {
+                        $receiver['username'] = $receiver['email'];
+                        $ret[$receiver['email']] = $receiver;
                     }
                 }
 
-                $ret[$pair[0]] = array('groupid' => $pair[0], 'truename' => $groupName);
+
             }
         }
 

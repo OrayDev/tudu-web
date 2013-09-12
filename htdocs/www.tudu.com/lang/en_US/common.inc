@@ -223,8 +223,6 @@ return array(
     'file_upload_null' => 'File had not been selected', //'没有选择上传的文件',
     'file_not_exists' => 'File exists', //文件不存在
     'file_deny_access' => 'You can\'t access the file', //你不能访问该文件
-    'file_too_large' => 'File "%s" size exceeds the limit, please upload a file less than "%s"',//文件 "%s" 超过限制大小，请上传 "%s" 以下的文件
-    'invalid_file_type' => 'Invalid file type',//不支持上传的文件类型
 
     'permission_denied_for_tudu' => 'You are permission is denied to current operation',
 
@@ -325,5 +323,7 @@ return array(
     'tudu_flows' => 'Tudu Flows',//图度工作流
     'higher_review' => 'Higher review',//上級審批
     'flow_chart' => 'Chart',//流程图
-    'mailbox' => 'Mailbox'//邮箱
+    'mailbox' => 'Mailbox',//邮箱
+
+    'click_create_note' => 'Clicking this to create note'//点击新建便签
 );

@@ -9,9 +9,9 @@
 {{if $newwin}}
 {{include file="^newwin.tpl"}}
 {{/if}}
-<script src="{{$options.sites.static}}/js/frame.js?1030" type="text/javascript"></script>
+<script src="{{$options.sites.static}}/js/frame.js?1031" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/upload.js?1009" type="text/javascript"></script>
-<script src="{{$options.sites.static}}/js/compose.js?1038" type="text/javascript"></script>
+<script src="{{$options.sites.static}}/js/compose.js?1043" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/plugins.js?1004" type="text/javascript"></script>
 {{if !$newwin}}
 <script type="text/javascript">
@@ -86,7 +86,7 @@ if (top == this) {
             <table cellspacing="0" cellpadding="0">
               <tr>
                 <td class="info_txt">{{$LANG.content}}</td>
-                <td class="info_forms info_input"><textarea style="height:300px;" class="form_textarea" id="content" cols="" rows="">{{$post.content|tudu_format_content|escape:'html'}}</textarea><textarea id="postcontent" name="content" style="display:none;"></textarea></td>
+                <td class="info_forms info_input"><textarea id="content" cols="" rows="" style="width:100%;height:180px">{{$post.content|tudu_format_content|escape:'html'}}</textarea><textarea id="postcontent" name="content" style="display:none;"></textarea></td>
               </tr>
             </table>
         </div>
@@ -143,7 +143,20 @@ var editorCss = {};
 {{/if}}
 
 $('#content').css('height', editorHeight + 'px');
-_EDITOR = initEditor('content', editorCss, {{if $board && $board.protect && $tudu && !$tudu.isdraft}}true{{else}}false{{/if}});
+_EDITOR = initEditor('content', editorCss, function() {
+    {{if $board && $board.protect && $tudu && !$tudu.isdraft}}
+    this.disable();
+    {{else}}
+    this.commands['send'] = {
+        execCommand: function() {
+            postSubmit('#theform');
+        }
+    };
+    this.addshortcutkey({
+        "send": "ctrl+13"
+    });
+    {{/if}} 
+});
 
 initPicInsert('#insert-pic'{{if $access.upload}}, {
     postParams: {'cookies': '{{$cookies}}'},
@@ -349,4 +362,5 @@ $(function(){
 });
 
 </script>
+
 </html>

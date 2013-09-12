@@ -137,7 +137,7 @@ if (top == this) {
         <table cellspacing="0" cellpadding="0">
           <tr>
             <td class="info_txt">{{$LANG.content}}</td>
-            <td class="info_forms info_input"><textarea style="height:200px;width:100%;" class="form_textarea" id="content" cols="" rows="">{{$flow.content|tudu_format_content|escape:'html'}}</textarea><textarea id="postcontent" name="content" style="display:none;"></textarea></td>
+            <td class="info_forms info_input"><textarea id="content" cols="" rows="" style="width:100%;height:180px">{{$flow.content|tudu_format_content|escape:'html'}}</textarea><textarea id="postcontent" name="content" style="display:none;"></textarea></td>
           </tr>
         </table>
       </div>
@@ -216,7 +216,7 @@ if (top == this) {
                     <td><span class="gray">－</span></td>
                 </tr>
                 {{foreach key=key item=step from=$flow.steps}}
-                <tr id="step-{{$key}}" _stepid="{{$step.id}}" _key="{{$key}}">
+                <tr id="step-{{$key}}" _stepid="{{$step.stepid}}" _key="{{$key}}">
                     <td>
                         <input name="member[]" value="{{$key}}" type="hidden" />
                         <input name="id-{{$key}}" value="{{$step.id}}" type="hidden" />
@@ -323,6 +323,6 @@ $(function(){
 });
 -->
 </script>
-{{include file="^analytics.tpl"}}
+
 </body>
 </html>

@@ -29,6 +29,16 @@ class Model_Tudu_Send_Ansync implements Model_Tudu_Send_Interface
 
     /**
      *
+     * @var array
+     */
+    protected $_options = array(
+        'host' => '127.0.0.1',
+        'port' => 16661,
+        'timeout' => 30
+    );
+
+    /**
+     *
      * @var Tudu_User
      */
     protected $_user = null;
@@ -43,9 +53,13 @@ class Model_Tudu_Send_Ansync implements Model_Tudu_Send_Interface
      *
      * Constructor
      */
-    public function __construct()
+    public function __construct(array $options = null)
     {
         $this->_user = Tudu_User::getInstance();
+
+        if (!empty($options)) {
+            $this->_options = array_merge($this->_options, $options);
+        }
     }
 
     /**
@@ -58,20 +72,47 @@ class Model_Tudu_Send_Ansync implements Model_Tudu_Send_Interface
 
         $object = array(
             'tuduid'   => $tudu->tuduId,
-            'uniqueid' => $this->_user->unqiueId,
+            'tsid'     => $this->_user->tsId,
+            'uniqueid' => $this->_user->uniqueId,
             'orgid'    => $this->_user->orgId,
+            'from'     => $this->_user->userName,
             'type'     => $tudu->type,
-            'action'   => 'send',
+            'host'     => $_SERVER['HTTP_HOST'],
+            'action'   => $tudu->operation,
+            'iscreate' => !$tudu->fromTudu || $tudu->fromTudu->isDraft,
+            'isflow'   => !!$tudu->flowId,
+            'parentid' => $tudu->fromTudu ? $tudu->fromTudu->parentId : $tudu->parentId,
             'operator' => array(
+                'uniqueid' => $this->_user->uniqueId,
                 'username' => $this->_user->userName,
                 'truename' => $this->_user->trueName
             )
         );
 
+        if ($tudu->operation == 'review') {
+            $sqsAction = 'review';
+            $object['stepid'] = $tudu->fromTudu->stepId;
+            $object['agree']  = $tudu->agree;
+
+            if ($tudu->flowId) {
+                $flow = $tudu->getExtension('Model_Tudu_Extension_Flow');
+
+                if ($flow) {
+                    $object['flow']['nstepid']     = $flow->currentStepId;
+                    $object['flow']['flowid']      = $tudu->flowId;
+                    $object['flow']['stepstatus']  = $flow->currentStepId != $tudu->fromTudu->stepId ? 1 : 0;
+                }
+            }
+
+            if ($tudu->type == 'notice' && $tudu->stepId == '^end') {
+                $sqsAction = 'create';
+            }
+        }
+
         $receiver = array();
 
         if ($tudu->reviewer) {
-            $reviewers = $tudu->reviewer[0];
+            $reviewers = $tudu->reviewer;
 
             foreach ($reviewers as $reviewer) {
                 $item = array(
@@ -87,15 +128,26 @@ class Model_Tudu_Send_Ansync implements Model_Tudu_Send_Interface
             }
 
         } elseif ($tudu->to) {
-            $to = $tudu->to[0];
+            $to = $tudu->to;
+
             foreach ($to as $u) {
-                $item = array(
-                    'username' => $u['username'],
-                    'truename' => $u['truename'],
-                    'role'     => 'to',
-                    'percent'  => isset($u['percent']) ? $u['percent'] : 0,
-                    'status'   => isset($u['status']) ? $u['status'] : (empty($u['percent']) || $u['percent'] < 0 ? 0 : ($u['percent'] >= 100 ? 2 : 1))
-                );
+                if (!Oray_Function::isEmail($u['username'])) {
+                    $item = array(
+                        'username' => $u['username'],
+                        'truename' => $u['truename'],
+                        'role'     => 'to',
+                        'percent'  => isset($u['percent']) ? $u['percent'] : 0,
+                        'status'   => isset($u['status']) ? $u['status'] : (empty($u['percent']) || $u['percent'] < 0 ? 0 : ($u['percent'] >= 100 ? 2 : 1))
+                    );
+                } else {
+                    $item = array(
+                        'email'    => $u['username'],
+                        'truename' => $u['truename'],
+                        'role'     => 'to',
+                        'percent'  => isset($u['percent']) ? $u['percent'] : 0,
+                        'status'   => isset($u['status']) ? $u['status'] : (empty($u['percent']) || $u['percent'] < 0 ? 0 : ($u['percent'] >= 100 ? 2 : 1))
+                    );
+                }
 
                 $receiver['to'][] = $item;
             }
@@ -104,20 +156,32 @@ class Model_Tudu_Send_Ansync implements Model_Tudu_Send_Interface
         if ($tudu->cc && ($tudu->type != 'notice' || !$tudu->reviewer)) {
             $cc = $tudu->cc;
             foreach ($cc as $u) {
-                $receiver['cc'][] = array(
-                    'username' => $u['username'],
-                    'truename' => $u['truename']
-                );
+                if (!empty($u['groupid'])) {
+                    $receiver['cc'][] = array(
+                        'groupid' => $u['groupid']
+                    );
+                } else {
+                    $receiver['cc'][] = array(
+                        'username' => $u['username'],
+                        'truename' => $u['truename']
+                    );
+                }
             }
         }
 
         if ($tudu->bcc) {
             $bcc = $tudu->bcc;
             foreach ($bcc as $u) {
-                $receiver['bcc'][] = array(
-                    'username' => $u['username'],
-                    'truename' => $u['truename']
-                );
+                if ($u['groupid']) {
+                    $receiver['bcc'][] = array(
+                        'groupid' => $u['groupid']
+                    );
+                } else {
+                    $receiver['bcc'][] = array(
+                        'username' => $u['username'],
+                        'truename' => $u['truename']
+                    );
+                }
             }
         }
 
@@ -125,9 +189,9 @@ class Model_Tudu_Send_Ansync implements Model_Tudu_Send_Interface
 
         $error = null;
         do {
-            $connection = $this->getConnection();
+            $connection = $this->_getConnection();
 
-            $bytes = @fwrite(json_encode($object), $connection);
+            $bytes = @fwrite($connection, json_encode(array('type' => 'queue', 'data' => $object)));
 
             if (!$bytes) {
                 $error = 'Data transfer error, posting tudu data to deliver service failed.';
@@ -145,8 +209,11 @@ class Model_Tudu_Send_Ansync implements Model_Tudu_Send_Interface
 
         if ($error) {
             require_once 'Model/Tudu/Exception.php';
-            throw new Model_Tudu_Exception($error);
+            throw new Model_Tudu_Exception('连接发送服务器失败，请稍候重试');
         }
+
+        // 标记发送
+        Tudu_Dao_Manager::getDao('Dao_Td_Tudu_Tudu', Tudu_Dao_Manager::DB_TS)->sendTudu($tudu->tuduId);
 
         return $response['code'] == self::CODE_SUCCESS;
     }
@@ -157,7 +224,13 @@ class Model_Tudu_Send_Ansync implements Model_Tudu_Send_Interface
     protected function _getConnection()
     {
         if (null === $this->_connection) {
-            $this->_connection = fsockopen();
+            $errno = $errstr = null;
+            $this->_connection = fsockopen($this->_options['host'], $this->_options['port'], $errno, $errstr, $this->_options['timeout']);
+
+            if ($errno) {
+                require_once 'Model/Tudu/Exception.php';
+                throw new Model_Tudu_Exception("Server connect error[{$errno}] with message: {$errstr}");
+            }
         }
 
         return $this->_connection;
@@ -170,6 +243,7 @@ class Model_Tudu_Send_Ansync implements Model_Tudu_Send_Interface
     {
         if ($this->_connection) {
             fclose($this->_connection);
+            $this->_connection = null;
         }
     }
 

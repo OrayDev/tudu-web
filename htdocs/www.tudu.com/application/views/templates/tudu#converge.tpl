@@ -11,7 +11,7 @@
 <!--
 var LH = 'm=tudu/converge&search={{$label.labelalias}}&page={{$pageinfo.currpage}}';
 if (top == this) {
-	location = '/frame#' + LH;
+    location = '/frame#' + LH;
 }
 -->
 </script>
@@ -24,6 +24,7 @@ if (top == this) {
   <tr>
     <td width="30" align="center" style="padding-left:0"><input name="checkall" type="checkbox" /></td>
     {{if in_array('star', $columns)}}<td width="20">&nbsp;</td>{{/if}}
+    {{if in_array('note', $columns)}}<td width="20">&nbsp;</td>{{/if}}
     <td class="title_line" align="center" width="40"><div style="padding-left:4px"><span class="mailtitle"></span></div></td>
 {{foreach from=$columns item=column}}
     {{if $column == 'sender'}}
@@ -92,17 +93,27 @@ setTimeout(function(){
     TOP.Label.refreshMenu().focusLabel('{{$label.labelalias}}');
 }, 100);
 
+{{if $user.option.fontfamily || $user.option.fontsize}}
+var editorCss = {
+    'fontfamily':'{{$user.option.fontfamily|default:'SimSun'}}',
+    'fontsize':'{{$user.option.fontsize|default:'12px'}}'
+};
+{{else}}
+var editorCss = {};
+{{/if}}
+Tudu.setEditorCss(editorCss);
+
 Tudu.List.setLabels(TOP.Label.getLabels()).setSortType('{{$sort[0]}}');
 Tudu.List.init('{{$label.labelalias}}');
 
 new FixToolbar({
-	src: '#toolbar',
-	target: '#float-toolbar'
+    src: '#toolbar',
+    target: '#float-toolbar'
 });
 
 var _OFFSET = 1;
 $('a[name="show_outdate"]').bind('click', function(){
-	var a = $(this);
+    var a = $(this);
 
     a.attr('_offset', ++_OFFSET);
 
@@ -118,34 +129,67 @@ $('a[name="show_outdate"]').bind('click', function(){
 });
 
 function loadTudu(target, params) {
-	var url = '/tudu/list',
-	    query = [];
 
-	query.push('back={{$smarty.server.REQUEST_URI|urlencode}}');
-	if (params) {
+    var url = '/tudu/list',
+        query = [];
+
+    query.push('back={{$smarty.server.REQUEST_URI|urlencode}}');
+    if (params) {
+
         for(var k in params) {
             query.push(k + '=' + encodeURIComponent(params[k]));
         }
         url += '?' + query.join('&');
-	}
+    }
 
-	$.get(url, function(html){
-	    var ct = $('<div class="grid_list_group_ct"></div>');
+    $.get(url, function(html){
+        var ct = $('<div class="grid_list_group_ct"></div>');
 
-	    ct.html(html);
+        ct.html(html);
 
-		$(target).before(ct);
+        $(target).before(ct);
 
-		// 列表鼠标效果，标签等
-		ct.find('table.grid_list_2 a').click(function(e){
+        // 列表鼠标效果，标签等
+        ct.find('table.grid_list_2 a').click(function(e){
             TOP.stopEventBuddle(e);
         });
 
         ct.find("table.grid_list_2")
-        .mouseover(function(){
+        .mouseover(function(e){
+            var se = e.srcElement ? e.srcElement : e.target,
+                ose = $(se),
+                tb  = ose.parents('table.grid_list_2:eq(0)');
+
+            TOP.stopEventBuddle(e);
+
+            // 显示内容
+            if (se.tagName.toLowerCase() == 'a' && ose.attr('_email')) {
+                Tudu.List._vcard.show(se, 500);
+            }
+
+            // 显示便签内容
+            if (ose.hasClass('icon_tudu_note')) {
+                var tuduId = tb.attr('id').replace('tudu-', '');
+                Tudu.List._vnote.show(se, tuduId);
+            }
             $(this).addClass("over")
         })
-        .mouseout(function(){
+        .mouseout(function(e){
+            var se = e.srcElement ? e.srcElement : e.target,
+                ose = $(se),
+                tb  = ose.parents('table.grid_list_2:eq(0)');
+
+            TOP.stopEventBuddle(e);
+
+            // 显示内容
+            if (se.tagName.toLowerCase() == 'a' && ose.attr('_email')) {
+                Tudu.List._vcard.hide();
+            }
+
+            // 显示便签内容
+            if (ose.hasClass('icon_tudu_note')) {
+                Tudu.List._vnote.hide();
+            }
             $(this).removeClass("over")
         })
         .each(function(){
@@ -164,6 +208,16 @@ function loadTudu(target, params) {
                 var func = isstar ? 'unstar' : 'star';
                 return Tudu.star(tuduId, func);
             });
+            o.find('a.icon_tudu_note_add').bind('click', function(){
+                return Tudu.List._vnote.create(tuduId, function(ret) {
+                    se.removeClass('icon_tudu_note_add').addClass('icon_tudu_note');
+                    se.removeAttr('title');
+                    se.attr('href', '/note');
+                    if (ret.data) {
+                        se.attr('_note', ret.data.content);
+                    }
+                });
+            });
 
             var labels = o.attr('_labels');
 
@@ -173,17 +227,31 @@ function loadTudu(target, params) {
 
             labels = labels.split('|');
 
+            var lc = 0;
             for (var i = 0, c = labels.length; i < c; i++) {
                 if (!labels[i] || labels[i].indexOf('^') != -1) {
                     continue;
                 }
 
-                Label.append($(this), labels[i]);
+                // 加上更多
+                if (lc >= 3) {
+                    Tudu.List.appendLabelMore($(this));
+                    break;
+                }
+
+                if (undefined !== Tudu.List._labels[labels[i]]) {
+                    var lb = Tudu.List.appendLabel($(this), labels[i]);
+                    lc ++;
+                }
+            }
+            if (!o.find('.list_label_more').size()) {
+                o.find('div.label_div').append('<a href="javascript:void(0);" onclick="Tudu.List.expandLabels(\''+o.attr('id')+'\', this)" onclick="" class="list_label_indent"></a>');
             }
         });
-	});
+    });
 }
 -->
 </script>
+
 </body>
 </html>

@@ -387,6 +387,224 @@ Tudu.ignore = function(tuduId, type) {
 };
 
 /**
+ * 图度列表便签调用封装
+ */
+Tudu.execNote = function(){
+	this.init();
+};
+Tudu.execNote.prototype = {
+	/**
+	 * 新建便签窗口模板
+	 */
+	tpl: '<div class="pop pop_linkman"><form id="nodeform" method="post" action="/note/create"><input name="tid" value="" type="hidden" /><input name="format" value="1" type="hidden" /><div class="pop_header"><strong>'+TOP.TEXT.CREATE_NOTE+'</strong><a class="icon icon_close close"></a></div><div class="pop_body"><table cellspacing="0" cellpadding="0" border="0"><tr><td valign="top">'+TOP.TEXT.NOTE_CONTENT+'：</td><td><textarea name="content" style="height:90px; width:330px;"></textarea></td></table></div><div class="pop_footer"><button type="submit" name="confirm" class="btn">'+TOP.TEXT.CONFIRM+'</button><button type="button" class="btn close">'+TOP.TEXT.CANCEL+'</button></div></form></div>',
+	
+	/**
+	 * 显示便签的模板
+	 */
+	tips: '<div class="float_remind"><div class="float_remind_body">'+TOP.TEXT.LOADDING_NOTE_CONTENT_TIPS+'</div></div>',
+	
+	/**
+	 * 实例
+	 */
+	ele: null,
+	isShow: null,
+	timer: null,
+	
+	/**
+	 *  初始化
+	 */
+	init: function(){},
+	
+	/**
+	 * 显示的位置
+	 *
+	 * @param {Object} obj
+	 */
+	getPos: function(obj){
+		var p = this.getAbsolutePosition(obj), left = p.x, top = p.y;
+		
+		var width = this.ele.width(), bodyWidth = $(window).width(), bodyHeight = $(window).height(), oH = $(obj).outerHeight(), mH = this.ele.height(), sTop = document.body.scrollTop ? document.body.scrollTop : document.documentElement.scrollTop, pos = {
+			left: left ? left : 0,
+			top: top ? top + oH : 0
+		};
+		
+		if (top + oH + mH - sTop > bodyHeight) {
+			pos.top = pos.top - mH - oH;
+		}
+		pos.left = pos.left + 15;
+		return pos;
+	},
+	
+	/**
+	 * 显示便签内容
+	 *
+	 * @param {Object} obj
+	 * @param {Object} tuduId
+	 */
+	show: function(obj, tuduId) {
+		var o = this;
+		if (!tuduId.length) {
+			return ;
+		}
+		
+		if (null === this.ele) {
+			this.ele = $(this.tips);
+			this.ele.appendTo(document.body).hide();
+		}
+		
+		var content = $(obj).attr('_note');
+		if (content) {
+			o.setContent(content);
+			var pos = o.getPos(obj);
+			this.ele.css({
+				left: pos.left + 'px',
+				top: pos.top + 'px'
+			});
+			this.ele.show();
+			this.isShow = true;
+		} else {
+			o.timer = setTimeout(function(){
+				o.ele.find('.float_remind_body').html(TOP.TEXT.LOADDING_NOTE_CONTENT_TIPS);
+				var pos = o.getPos(obj);
+				o.ele.css({
+					left: pos.left + 'px',
+					top: pos.top + 'px'
+				});
+				o.ele.show();
+				o.isShow = true;
+				clearTimeout(this.timer);
+				
+				o.getNote(tuduId, function(ret){
+					if (ret.data) {
+						$(obj).attr('_note', ret.data.content);
+						o.setContent(ret.data.content);
+					}
+				});
+			}, 300);
+		}
+	},
+	
+	/**
+	 * 隐藏
+	 */
+	hide: function() {
+		if (this.timer) {
+			clearTimeout(this.timer);
+			this.timer = null;
+		}
+		if (this.isShow) {
+			this.ele.find('.float_remind_body').empty();
+			this.ele.hide();
+		}
+		this.isShow = false;
+	},
+	
+	/**
+	 * 初始便签内容到tips
+	 */
+	setContent: function(content){
+		this.ele.find('.float_remind_body').html(content);
+	},
+	
+	/**
+	 * 获取对象的绝对位置
+	 *
+	 * @param {Object} o
+	 */
+    getAbsolutePosition: function(o){
+		var p = {
+			x: o.offsetLeft,
+			y: o.offsetTop
+		};
+		while (o = o.offsetParent) {
+			p.x += o.offsetLeft;
+			p.y += o.offsetTop;
+		}
+		
+		return p;
+	},
+	
+	/**
+     * 获取图度便签数据
+     *
+     * @param {Object} tuduId
+     * @param {Function} callback
+     */
+    getNote: function(tuduId, callback){
+		var _o = this;
+		$.ajax({
+			type: 'GET',
+			dataType: 'json',
+			url: '/note/get-note?limit=200&tid=' + tuduId,
+			success: function(ret){
+				var panel = _o.panel;
+				if (ret.success && ret.data) {
+					if (typeof callback == 'function') {
+						callback.call(this, ret);
+					}
+				}
+			},
+			error: function(res){}
+		});
+	},
+	
+	/**
+	 * 新建便签
+	 *
+	 * @param {Object} tuduId
+	 */
+	create: function(tuduId, callback){
+		var Win = TOP.Frame.TempWindow;
+		
+		Win.append(this.tpl, {
+			width: 450,
+			draggable: true,
+			onClose: function(){
+				Win.destroy();
+			}
+		});
+		
+		var form = Win.find('#nodeform');
+		form.find('input[name="tid"]').val(tuduId);
+		form.submit(function(){
+			return false;
+		});
+		form.submit(function(){
+			var content = form.find('textarea[name="content"]').val();
+			if (!content.length) {
+				return TOP.showMessage(TOP.TEXT.INVALID_NOTE_CONTENT);
+			}
+			
+			var data = form.serializeArray();
+			form.find('textarea').attr('disabled', true);
+			
+			$.ajax({
+				type: 'POST',
+				dataType: 'json',
+				data: data,
+				url: form.attr('action'),
+				success: function(ret){
+					TOP.showMessage(ret.message, 5000, ret.success ? 'success' : null);
+					form.find('textarea').attr('disabled', false);
+					if (ret.success) {
+						Win.close();
+						if (typeof callback == 'function') {
+							callback.call(this, ret);
+						}
+					}
+				},
+				error: function(res){
+					TOP.showMessage(TOP.TEXT.PROCESSING_ERROR, 5000);
+					form.find('textarea').attr('disabled', false);
+				}
+			});
+		});
+		
+		Win.show();
+	}
+};
+
+/**
  * 图度列表相关功能
  */
 Tudu.List = {
@@ -407,6 +625,11 @@ Tudu.List = {
 	_vcard: null,
 	
 	/**
+	 * 便签
+	 */
+	_vnote: null,
+	
+	/**
 	 * 模板
 	 */
 	_tpls: {
@@ -419,6 +642,7 @@ Tudu.List = {
 	init: function(labelalias) {
 		var _this = this;
 		this._vcard  = new Card();
+		this._vnote  = new Tudu.execNote();
 		this._labels = TOP.Label.getCustomerLabels('labelid');
 		
 		// 复选框全选
@@ -466,6 +690,15 @@ Tudu.List = {
 				} else if (se.closest('table.flagbg').size()) {
 					var alias = se.closest('table.flagbg').attr('_alias')
 					location = '/tudu/?search=cat&cat=' + encodeURIComponent(alias);
+				} else if (se.is('a.icon_tudu_note_add')) {
+					return _this._vnote.create(tuduId, function(ret) {
+						se.removeClass('icon_tudu_note_add').addClass('icon_tudu_note');
+						se.removeAttr('title');
+						se.attr('href', '/note');
+						if (ret.data) {
+							se.attr('_note', ret.data.content);
+						}
+					});
 				}
 			});
 		});
@@ -484,6 +717,12 @@ Tudu.List = {
 				_this._vcard.show(se, 500);
 			}
 			
+			// 显示便签内容
+			if (ose.hasClass('icon_tudu_note')) {
+				var tuduId = tb.attr('id').replace('tudu-', '');
+				_this._vnote.show(se, tuduId);
+			}
+			
 			tb.addClass('over');
 		})
 		.bind('mouseout', function(e){
@@ -496,6 +735,11 @@ Tudu.List = {
 			// 显示内容
 			if (se.tagName.toLowerCase() == 'a' && ose.attr('_email')) {
 				_this._vcard.hide();
+			}
+			
+			// 显示便签内容
+			if (ose.hasClass('icon_tudu_note')) {
+				_this._vnote.hide();
 			}
 			
 			tb.removeClass('over');
@@ -654,7 +898,7 @@ Tudu.List = {
 			    }
 
 				Tudu.ReplyWin.show({
-					action: '/compose/send',
+					action: '/compose-tudu/send',
 					title: TOP.TEXT.FORWARD,
 					progress: false,
 					forward: true,
@@ -769,7 +1013,7 @@ Tudu.List = {
 	 */
 	sort: function(url, type, asc) {
 		if (type != this._sortType) {
-			asc = 0;
+			asc = (type == 6) ? 1 : 0;
 		}
 		location = '/tudu/' + url + '&sorttype=' + type + '&sortasc=' + asc;
 	},
@@ -1080,6 +1324,15 @@ Tudu.List = {
 	}
 };
 
+Tudu._editorCss = {};
+Tudu.setEditorCss = function(css) {
+    Tudu._editorCss = css;
+};
+    
+Tudu.getEditorCss = function() {
+    return Tudu._editorCss;
+};
+
 
 /**
  * 审批窗口
@@ -1105,7 +1358,7 @@ Tudu.ReviewWin = {
 		'</table>',
 		'<table cellspacing="2" cellpadding="0" width="455">',
 		'<tr>',
-		'<td><textarea class="form_textarea" name="content" id="review-content" cols="" rows="" style="width:450px;height:120px"></textarea></td>',
+		'<td><textarea name="content" id="review-content" cols="" rows="" style="width:520px;height:150px"></textarea></td>',
 		'</tr>',
 		'</table>',
 		'</div>',
@@ -1143,6 +1396,7 @@ Tudu.ReviewWin = {
 		Win.append(this._tpl, {
 		    id: 'review-win',
 			width: 580,
+			draggable: true,
 		    onShow: function(){
 	    	   if (null != editor) {
 	        	   editor.focus();
@@ -1340,13 +1594,11 @@ Tudu.ReviewWin = {
 		Win.show();
 	
 		// 编辑器，需要目标textarea可见时方可初始化
-		editor = new TOP.Editor(TOP.document.getElementById('review-content'), {
-            resizeType : 0,
-            width: '100%',
-            minHeight: 150,
-            themeType : 'tudu',
-            scope: TOP
-        }, TOP.getJQ());
+		editor = new TOP.UEditor('review-content', {initialFrameHeight: 150, zIndex: 9000}, TOP, TOP.getJQ(), function(){
+			if (!this.hasContents() && typeof Tudu.getEditorCss().fontfamily != 'undefined' && typeof Tudu.getEditorCss().fontsize != 'undefined') {
+				this.setContent('<p style="font-family:' + Tudu.getEditorCss().fontfamily + ';font-size:' + Tudu.getEditorCss().fontsize + '"></p>');
+			}
+		});
 		
 		editor.focus();
 	}
@@ -1385,7 +1637,7 @@ Tudu.ReplyWin = {
 		'</table>',
 		'<table cellspacing="2" cellpadding="0" width="455">',
 		'<tr>',
-		'<td><textarea class="form_textarea" name="content" id="replycontent" cols="" rows="" style="width:450px;height:100px"></textarea></td>',
+		'<td><textarea name="content" id="replycontent" cols="" rows="" style="width:520px;height:150px"></textarea></td>',
 		'</tr>',
 		'</table>',
 		'</div>',
@@ -1421,6 +1673,8 @@ Tudu.ReplyWin = {
 		
 		Win.append(this._tpl, {
 		    id: 'reply-win',
+			width: 580,
+			draggable: true,
 		    onShow: function(){
 	    	   if(params.progress) {
 	    		   Win.find('#percent').stepper({step: 25, max:100, format: 'percent'});
@@ -1607,14 +1861,11 @@ Tudu.ReplyWin = {
 		Win.show();
 
 		// 编辑器，需要目标textarea可见时方可初始化
-		editor = new TOP.Editor(TOP.document.getElementById('replycontent'), {
-            resizeType : 0,
-            width: '100%',
-            minHeight: 150,
-            themeType : 'tudu',
-		    statusbar: false,
-            scope: TOP
-        }, TOP.getJQ());
+		editor = new TOP.UEditor('replycontent', {initialFrameHeight: 150, zIndex: 9000}, TOP, TOP.getJQ(), function(){
+            if (!this.hasContents() && typeof Tudu.getEditorCss().fontfamily != 'undefined' && typeof Tudu.getEditorCss().fontsize != 'undefined') {
+                this.setContent('<p style="font-family:' + Tudu.getEditorCss().fontfamily + ';font-size:' + Tudu.getEditorCss().fontsize + '"></p>');
+            }
+        });
 
 		editor.focus();
 

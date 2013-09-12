@@ -9,7 +9,7 @@
 {{if $newwin}}
 {{include file="^newwin.tpl"}}
 {{/if}}
-<script src="{{$options.sites.static}}/js/frame.js?1030" type="text/javascript"></script>
+<script src="{{$options.sites.static}}/js/frame.js?1031" type="text/javascript"></script>
 {{if !$newwin}}
 <script type="text/javascript">
 <!--
@@ -426,7 +426,7 @@ if (top == this) {
                 </td>
               </tr>
               <tr>
-                <td><textarea class="form_textarea" id="content" name="editor" disabled="disabled" _disabled="disabled" cols="" rows="" style="width:100%;height:180px">{{$unreply.content}}</textarea><textarea id="postcontent" name="content" style="display:none;"></textarea></td>
+                <td><textarea id="content" name="editor" disabled="disabled" _disabled="disabled" cols="" rows="" style="width:100%;height:180px">{{$unreply.content}}</textarea><textarea id="postcontent" name="content" style="display:none;"></textarea></td>
               </tr>
               <tr>
                 <td><button class="btn b" style="width:90px;" type="submit">{{$LANG.reply}}</button>&nbsp;&nbsp;<span class="compose_msg"></span></td>
@@ -461,7 +461,7 @@ if (top == this) {
 </div>
 </div>
 
-<script src="{{$options.sites.static}}/js/tudu/view.js?1017" type="text/javascript"></script>
+<script src="{{$options.sites.static}}/js/tudu/view.js?1025" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/upload.js?1009" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/card.js?1001" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/plugins.js?1004" type="text/javascript"></script>
@@ -544,5 +544,6 @@ $(function(){
 });
 -->
 </script>
+
 </body>
 </html>

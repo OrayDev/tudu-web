@@ -28,13 +28,13 @@ if (top == this) {
 <script src="{{$options.sites.static}}/js/jquery.datepick/jquery.datepick.js" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/jquery.datepick/jquery.datepick-zh-cn.js" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/upload.js?1009" type="text/javascript"></script>
-<script src="{{$options.sites.static}}/js/compose.js?1039" type="text/javascript"></script>
+<script src="{{$options.sites.static}}/js/compose.js?1044" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/plugins.js?1001" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/boardselector.js?1003" type="text/javascript"></script>
 
 </head>
 <body style="padding:0 5px 5px">
-<form action="/compose/send" id="theform" method="post" class="tab_panel">
+<form action="/compose-tudu/send" id="theform" method="post" class="tab_panel">
 <input type="hidden" id="action" name="action" value="{{$action}}" />
 <input type="hidden" id="type" name="type" value="meeting" />
 <input type="hidden" id="issend" name="issend" value="1" />
@@ -189,7 +189,7 @@ if (top == this) {
                     <table cellspacing="0" cellpadding="0">
                       <tr>
                         <td class="info_txt">{{$LANG.content}}</td>
-                        <td class="info_forms info_input"><textarea class="form_textarea" id="content" cols="" rows="">{{if !$isInvite}}{{$tudu.content|tudu_format_content|escape:'html'}}{{/if}}</textarea><textarea id="postcontent" name="content" style="display:none;"></textarea></td>
+                        <td class="info_forms info_input"><textarea id="content" cols="" rows="" style="width:100%;height:180px">{{if !$isInvite}}{{$tudu.content|tudu_format_content|escape:'html'}}{{/if}}</textarea><textarea id="postcontent" name="content" style="display:none;"></textarea></td>
                       </tr>
                     </table>
                 </div>
@@ -400,19 +400,24 @@ $(function(){
 
     var editorHeight = Math.max($('#content').height() + (h - ch - 15), 200);
 
-    var editorCss = {};
-    {{if $user.option.fontfamily || $user.option.fontsize}}
-    editorCss = {
-        'font-family':'{{$user.option.fontfamily|default:'SimSun'}}',
-        'font-size':'{{$user.option.fontsize|default:'12px'}}'
-    };
-    {{/if}}
-
-    $('#content').css('height', editorHeight + 'px');
-    _EDITOR = initEditor('content', editorCss, {{if $board && $board.protect && $tudu && !$tudu.isdraft}}true{{else}}false{{/if}});
-    {{if $board.protect}}
-    setTimeout(function(){_EDITOR.disabled();}, 500);
-    {{/if}}
+    var editorDisabled = {{if $board && $board.protect && $tudu && !$tudu.isdraft}}true{{else}}false{{/if}};
+    _EDITOR = initEditor('content', {initialFrameHeight: editorHeight}, function(){
+        if (editorDisabled) this.disable();
+        if (!this.hasContents()) {
+        {{if $user.option.settings.fontfamily}}
+        this.setContent('<p style="font-family:{{$user.option.settings.fontfamily}};font-size:{{$user.option.settings.fontsize|default:'12px'}}"></p>');
+        {{/if}}
+        }
+        
+        this.commands['send'] = {
+            execCommand: function() {
+                composeSubmit('#theform');
+            }
+        };
+        this.addshortcutkey({
+            "send": "ctrl+13"
+        });
+    });
 
     initPicInsert('#insert-pic'{{if $access.upload}}, {
         postParams: {'cookies': '{{$cookies}}'},
@@ -631,7 +636,7 @@ $(function(){
     if (!TOP.Browser.isIE && !TOP.Browser.isFF) {
 		$('#screencp-btn').remove();
 	} else {
-		var capturer = Capturer.setUploadUrl('{{$options.sites.file|default:$options.sites.www}}{{$upload.cgi.upload}}{{if !$options.sites.file}}&cookies={{$cookies}}{{/if}}');
+		var capturer = Capturer.setUploadUrl('{{$options.sites.file}}{{$upload.cgi.upload}}');
         Capturer.setEditor(_EDITOR);
         $('#link-capture').bind('click', function(){
             if (!Capturer.getCapturer()) {
@@ -720,4 +725,5 @@ $(function(){
 	}
 });
 </script>
+
 </html>

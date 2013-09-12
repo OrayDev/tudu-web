@@ -6,7 +6,7 @@
 {{include file="^style.tpl"}}
 <script src="{{$options.sites.static}}/js/jquery-1.4.4.js" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/jquery.extend.js?1009" type="text/javascript"></script>
-<script src="{{$options.sites.static}}/js/frame.js?1030" type="text/javascript"></script>
+<script src="{{$options.sites.static}}/js/frame.js?1031" type="text/javascript"></script>
 <script type="text/javascript">
 <!--
 var LH = '{{if $label.issystem}}m=tudu&search={{$label.labelalias}}&page={{$pageinfo.currpage}}{{else}}m=tudu&search=cat&cat={{$label.labelalias}}&page={{$pageinfo.currpage}}{{/if}}';
@@ -23,6 +23,7 @@ if (top == this) {
   <tr>
     <td width="30" align="center" style="padding-left:0"><input name="checkall" type="checkbox" /></td>
     {{if in_array('star', $columns)}}<td width="20">&nbsp;</td>{{/if}}
+    {{if in_array('note', $columns)}}<td width="20">&nbsp;</td>{{/if}}
     <td class="title_line" align="center" width="40"><div style="padding-left:4px"><span class="mailtitle"></span></div></td>
 {{foreach from=$columns item=column}}
     {{if $column == 'sender'}}
@@ -88,7 +89,7 @@ if (top == this) {
 <div style="display:none">
 <table id="label-tpl" cellspacing="0" cellpadding="0" class="flagbg"><tr class="falg_rounded_wrap"><td class="falg_rounded"></td><td colspan="2"></td><td class="falg_rounded"></td></tr><tr><td class="falg_line"></td><td class="tag_txt"></td><td class="tag_close"></td><td class="falg_line"></td></tr><tr class="falg_rounded_wrap"><td class="falg_rounded"></td><td colspan="2"></td><td class="falg_rounded"></td></tr></table>
 </div>
-<script src="{{$options.sites.static}}/js/tudu/list.js?1010" type="text/javascript"></script>
+<script src="{{$options.sites.static}}/js/tudu/list.js?1015" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/card.js?1001" type="text/javascript"></script>
 <script type="text/javascript">
 <!--
@@ -111,5 +112,6 @@ new FixToolbar({
 });
 -->
 </script>
+
 </body>
 </html>

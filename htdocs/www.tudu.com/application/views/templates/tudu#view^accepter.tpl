@@ -19,6 +19,7 @@
 <script type="text/javascript">
 <!--
 var _ACCEPTER_TPL  = '<table id="accepter-{uniqueid}" _percent="{percent}" class="accepter_table" cellspacing="0"><tbody><tr><td width="30%"><a _email="{accepterinfo}" _url="/contact/view?email={accepterinfo}&back={{$currUrl}}" href="/tudu/view?tid={{$tudu.tuduid}}&unid={uniqueid}&back={{$currUrl}}">{truename}</a></td><td width="40%"><div class="rate_box"><div style="width:{percent}%;" class="rate_bar"><em>{percent}%</em></div></div></td><td>{elapsedtime}</td><td width="80">{statustext}</td></tr></tbody></table>';
+var _ACCEPTER_TPL_PENDDING  = '<table id="accepter-{uniqueid}" _percent="{percent}" class="accepter_table" cellspacing="0"><tbody><tr><td width="30%"><a _email="{accepterinfo}" _url="javascript:void(0)" href="javascript:void(0)">{truename}</a></td><td width="40%">-</td><td>-</td><td width="80">{statustext}</td></tr></tbody></table>';
 var _ACCEPTERS  = null;
 
 $('#toggle-accepter span, #toggle-accepter h3').click(function(){
@@ -116,7 +117,7 @@ function sortAccepter(records, col, type) {
 function fillAccepterList(records) {
 	var list = $('#accepter-list').empty();
 	for (var i = 0, l = records.length; i < l; i++) {
-		var html = _ACCEPTER_TPL;
+		var html = records[i].pendding ? _ACCEPTER_TPL_PENDDING : _ACCEPTER_TPL;
 		for (var k in records[i]) {
 			var reg = new RegExp('{'+k+'}', 'g'),
 				val = records[i][k];

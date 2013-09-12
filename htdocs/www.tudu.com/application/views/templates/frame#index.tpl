@@ -21,13 +21,13 @@ html{overflow:hidden;height:100%}
 
 </head>
 <body class="frameset">
-<div class="container-top">
+<div class="container-top" id="container-top">
     <div class="logo" style="padding-top:4px"><a href="#"><img src="/logo?oid={{$user.orgid}}" border="0" /></a></div>
     <div class="search">
         <form action="/tudu/" target="main" method="get">
             <input type="hidden" name="search" value="query" />
             <input type="hidden" name="cat" value="all" />
-            <p id="quick-tools">{{if $user.isadmin}}<a href="//{{$smarty.server.HTTP_HOST}}/admin/login/?sid={{$sid}}" target="_blank" id="admin-link">{{$LANG.admin}}</a>&nbsp;|&nbsp;{{/if}}<a href="javascript:void(0)" id="lock-screen">{{$LANG.lock_screen}}</a>&nbsp;|&nbsp;<a href="javascript:void(0)" id="adv_search">{{$LANG.advsearch}}</a>&nbsp;|&nbsp;<a href="http://www.tudu.com/help/index.html" target="_blank">{{$LANG.help}}</a>&nbsp;-&nbsp;<a href="http://www.tudu.com/down/tudu_manual.pdf" target="_blank">{{$LANG.tudu_help_book}}</a>&nbsp;|&nbsp;<a href="{{$options.sites.www}}/login/logout">{{$LANG.logout}}</a></p>
+            <p id="quick-tools">{{if $user.isadmin}}<a href="http://{{$smarty.server.HTTP_HOST}}/admin/login/?sid={{$sid}}" target="_blank" id="admin-link">{{$LANG.admin}}</a>&nbsp;|&nbsp;{{/if}}<a href="javascript:void(0)" id="lock-screen">{{$LANG.lock_screen}}</a>&nbsp;|&nbsp;<a href="javascript:void(0)" id="adv_search">{{$LANG.advsearch}}</a>&nbsp;|&nbsp;<a href="http://www.tudu.im/help/index.html" target="_blank">{{$LANG.help}}</a>&nbsp;-&nbsp;<a href="http://www.tudu.im/down/tudu_manual.pdf" target="_blank">{{$LANG.tudu_help_book}}</a>&nbsp;|&nbsp;{{if $user.isadmin || $user.isowner}}<a href="http://www.tudu.im/suggest/" target="_blank">{{$LANG.suggest}}</a>&nbsp;|&nbsp;{{/if}}<a href="{{$options.sites.www}}/login/logout">{{$LANG.logout}}</a></p>
             <div class="search_input">
                 <select style="width:95px;" name="coreseek" id="coreseek">
                     <option value="0">标题账号搜索</option>
@@ -48,7 +48,7 @@ html{overflow:hidden;height:100%}
     <div class="fb-top"><div class="fb-top-left"></div></div>
 </div>
 
-<div class="container-main">
+<div class="container-main" id="container-main">
     <!-- content-left   -->
     <div class="content-left">
 		<div class="sb-top">
@@ -155,17 +155,59 @@ html{overflow:hidden;height:100%}
 		<iframe height="100%" frameborder="0" scrolling="auto" allowtransparency="true" class="iframe-main" marginheight="0" marginwidth="0" name="main" id="mainframe" src="{{$options.sites.static}}/images/icon/spacer.gif"></iframe>
 		{{/if}}
 	</div>
-
 </div>
 
+
 <div id="win-ct">
+    <div id="castwin" class="pop_wrap" style="width:470px;display:none;position:absolute">
+       <div class="pop pop_linkman">
+          <div class="pop_header"><strong>{{$LANG.select_contact}}</strong><a href="javascript:void(0);" class="icon icon_close close"></a></div>
+             <div class="pop_body">
+                <div>
+                    <div class="p_body_left">
+                        <p><strong>{{$LANG.contact}}</strong></p>
+                        <div class="pop_body_inner">
+                            <div class="input_box"><input style="width:185px;" class="input_text" name="" id="contact_search" type="text" title="{{$LANG.search_user}}"><a class="icon icon_search_2"></a></div>
+                            <div class="list_box" id="contact_box">
+                            {{if 0}}
+                                <div class="groupopen"><div>快捷通讯录</div></div>
+                                <div id="q_contact"></div>
+                            {{/if}}
+                            <div id="user_select">
+                                <div class="groupopen"><div>{{$LANG.dept_cast}}</div></div>
+                                <div id="contactbox"></div>
+                            </div>
+                            <div id="group_select">
+                                <div class="groupopen"><div>{{$LANG.group}}</div></div>
+                                <div id="group_box"></div>
+                            </div>
+                            </div>
+                            <div class="list_box" id="contact_search_result" style="display:none;">
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p_body_centre"></div>
+                    <div class="p_body_right">
+                        <p><strong id="mtitle"></strong></p>
+                        <div class="pop_body_inner">
+                            <div class="list_box" id="target-user">
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clear"></div>
+               </div>
+             </div>
+          <div class="pop_footer"><button type="button" name="confirm" class="btn">{{$LANG.confirm}}</button><button type="button" class="btn close">{{$LANG.cancel}}</button></div>
+       </div>
+    </div>
     <div id="searchwin" class="pop_wrap" style="width:530px;display:none;position:absolute">
        <form id="advsearch_form" action="/tudu/" target="main" method="get">
        <input type="hidden" name="search" value="adv" />
        <div class="pop pop_linkman">
           <div class="pop_header"><strong>{{$LANG.tudu_adv_search}}</strong><a href="javascript:void(0);" class="icon icon_close close"></a></div>
              <div class="pop_body" style="padding:10px 0;height:150px">
-
              </div>
           <div class="pop_footer"><button type="submit" class="btn">{{$LANG.find}}</button><button type="button" class="btn close">{{$LANG.cancel}}</button></div>
        </div>
@@ -176,7 +218,7 @@ html{overflow:hidden;height:100%}
 <script src="{{$options.sites.static}}/js/jquery.extend.js?1010" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/jquery.Jcrop.js" type="text/javascript"></script>
 <script src="/static/js?f=lang&lang={{$user.option.language}}&ver=1018" type="text/javascript"></script>
-<script src="{{$options.sites.static}}/js/all.js?2059" type="text/javascript"></script>
+<script src="{{$options.sites.static}}/js/all.js?2067" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/talk.js?1001" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/tips.js?1009" type="text/javascript"></script>
 <script src="{{$options.sites.static}}/js/upload2.js?1001" type="text/javascript"></script>
@@ -191,7 +233,6 @@ var _FILECGI = {
 	download: '{{$options.sites.file}}{{$upload.cgi.download}}',
 	swfupload: '/images/swfupload.swf'
 };
-var _ORGID = '{{$org.orgid}}';
 var _ORGNAME = '{{$org.orgname}}';
 var _SYS_LABEL_NAME = {
     inbox: '{{$LANG.label_inbox}}',
@@ -222,6 +263,13 @@ function onResize() {
     var height = document.body.offsetHeight - h;
     var height_2 = document.body.offsetHeight - 73;
     var height_3 = document.body.offsetHeight - 70;
+    
+    var cm = $('#container-main');
+    cm.css({'height': '100%'});
+    var mh = cm.height() - $('#container-top').height();
+    cm.css('height', mh + 'px');
+    cm.find('div.fb-left-split').css('height', mh + 'px');
+    
     m.height(Math.max(height, 10));
     $(".content-left").height(height_2);
     $('#mainframe').height(height_3);
@@ -311,11 +359,14 @@ keyhint('#searchinput', 'gray');
 
 })();
 
-var _MAIL_INTERVAL = null;
+var _MAIL_INTERVAL = null, _REMIND_INTERVAL = null;
 
 setTimeout(function(){
 	checkMailboxs();
 }, 3000);
+setTimeout(function(){
+	checkTuduRemind();
+}, 4000);
 
 function parseUrl(h) {
     var frame = $('#mainframe'),
@@ -344,6 +395,9 @@ function parseUrl(h) {
                 continue;
             }
 
+            if ((/[\u4E00-\u9FA5]/).test(a[1])) {
+                a[1] = encodeURIComponent(a[1])
+            }
             qs.push(a[0] + '=' + a[1]);
         }
 
@@ -436,6 +490,64 @@ function checkMailboxs() {
     }
 }
 
+// 图度定时提醒
+function checkTuduRemind() {
+	$.ajax({
+		type: 'GET',
+		dataType: 'json',
+		url: '/tudu/get.remind',
+		success: function(ret){
+			if (ret.success && ret.data) {
+				if (_REMIND_INTERVAL) {
+					clearInterval(_REMIND_INTERVAL);
+					_REMIND_INTERVAL = null;
+				}
+				
+				var reminds = ret.data;
+				var currTime = Date.parse(new Date());
+				for (var r = 0, rl = reminds.length; r < rl; r++) {
+					var timer = reminds[r].notifytime * 1000 - currTime;
+					var content = reminds[r].remindhtml;
+					initRemindWin(content, timer);
+				}
+			}
+		},
+		error: function(){}
+	});
+
+	// 20分钟
+	if (!_REMIND_INTERVAL) {
+		_REMIND_INTERVAL = setInterval(checkTuduRemind, 60000 * 20);
+	}
+}
+
+var _REMIND_WIN = new Array();
+function initRemindWin(content, timer) {
+	var random = new Date().getTime();
+	_REMIND_WIN[random] = Messager.window({
+        id: 'remind-' + random,
+        title: TEXT.TIMING_REMIND,
+        showTimer: true,
+        anims: {type: 'fade', speed: 800},
+        body: '<div style="padding-right:15px;height:95px;word-break:break-all;word-wrap:break-word;line-henght:22px;">'+content+'<br />现在时间：<span class="timer"></span></div>',
+        footer: '<button type="button" name="confirm" class="btn close">'+TEXT.CONFIRM+'</button>',
+        init: function(){},
+        onClose: function() {}
+    });
+
+	if (timer > 0) {
+		setTimeout(function(){_REMIND_WIN[random].show();}, timer);
+	} else {
+		_REMIND_WIN[random].show();
+	}
+}
+
+// 下载地址
+var TALK_URL = '{{$im.downloadurl}}';
+if ((/\.NET CLR [2-9]/).test(ua)) {
+    TALK_URL = '{{$im.installurl}}';
+}
+
 {{if $checklog}}
 $(function(){
 	$.ajax({
@@ -471,7 +583,7 @@ $.ajax({
                 list.append('<li><span id="f_attend_td"><a href="'+apps[i].url+'" target="main" id="attend" onClick="Label.focusLabel(\''+apps[i].appid+'\')">'+apps[i].appname+'</a></span></li>');
             }
             if (undefined != _APPLIST.attend) {
-                $.getScript('{{$options.sites.static}}/js/attend/attend.js?1005', function() {
+                $.getScript('{{$options.sites.static}}/js/attend/attend.js?1006', function() {
                     Attend.Messager.getCheckinTips();
                 });
                 

@@ -379,5 +379,11 @@ return array(
     'HIDE_FLOOR' => 'Hide floor',//点击收缩
     'FLOOR_IS_NULL' => 'The post is not exists!',//楼层已被删除
 
-    'TUDU_GROUP_NOT_SYNCHRO' => 'Tudu group can not create synchro task!'//图度组不允许设置逐级执行任务，请先删除分工
+    'TUDU_GROUP_NOT_SYNCHRO' => 'Tudu group can not create synchro task!',//图度组不允许设置逐级执行任务，请先删除分工
+
+    'INVALID_NOTE_CONTENT' => 'Please input note content',//请输入便签内容
+    'LOADDING_NOTE_CONTENT_TIPS' => 'Loadding, please wait...',//正在加载便签内容，请稍候...
+    'CREATE_NOTE' => 'Create note',//新建便签
+    'NOTE_CONTENT' => 'Content',//便签内容
+    'TIMING_REMIND' => 'Timing remind'//定时提醒
 );

@@ -3,7 +3,8 @@
 <table cellspacing="0" class="grid_thead">
   <tr>
     <td width="30" align="center" style="padding-left:0"><input name="checkall" type="checkbox" /></td>
-    {{if in_array('star', $columns)}}<td width="20">&nbsp;</td>{{/if}}
+    {{if in_array('star', $columns)}}<td width="18">&nbsp;</td>{{/if}}
+    {{if in_array('note', $columns)}}<td width="20">&nbsp;</td>{{/if}}
     <td class="title_line" align="center" width="40"><div style="padding-left:4px"><span class="mailtitle"></span></div></td>
 {{foreach from=$columns item=column}}
     {{if $column == 'sender'}}
@@ -40,10 +41,14 @@
   <tr>
     <td class="g_cb"><input name="tid[]" type="checkbox" value="{{$tudu.tuduid}}"{{if $key == 'await' || $key == 'doing' || $key == 'waitconfirm'}} ignore="false"{{/if}} ></td>
     {{if in_array('star', $columns)}}
-    <td width="20"><a href="javascript:void(0);" class="icon icon_attention{{if in_array('^t', $tudu.labels)}} attention{{/if}}" title="{{if in_array('^t', $tudu.labels)}}{{$LANG.cancel_starred}}{{else}}{{$LANG.mark_starred}}{{/if}}"></a></td>
+    <td width="18"><a href="javascript:void(0);" class="icon icon_attention{{if in_array('^t', $tudu.labels)}} attention{{/if}}" title="{{if in_array('^t', $tudu.labels)}}{{$LANG.cancel_starred}}{{else}}{{$LANG.mark_starred}}{{/if}}"></a></td>
+    {{/if}}
+    {{* 便签 *}}
+    {{if in_array('note', $columns)}}
+    <td width="20">{{if $tudu.mark}}<a class="icon icon_tudu_note" href="/note"></a>{{else}}<a class="icon icon_tudu_note_add" title="{{$LANG.click_create_note}}" href="javascript:void(0)"></a>{{/if}}</td>
     {{/if}}
     <td class="g_i">
-      <div class="g_i_l{{if $tudu.priority > 0}} ipt{{/if}}"></div>
+      <div class="g_i_l{{if $tudu.priority > 0 || ($tudu.special & 8) == 8}} ipt{{/if}}"></div>
       <a href="/tudu/view?tid={{$tudu.tuduid}}&newwin=1&back={{$currUrl}}" target="_blank" class="g_i_c Rr{{if $tudu.istudugroup}}g{{/if}}{{if !$tudu.isread}}u{{/if}}{{if $tudu.special == 1}}_c{{/if}}" title="{{$LANG.new_win_tips}}"></a>
       <div class="g_i_r{{if $tudu.attachnum > 0}} el{{/if}}"></div>
     </td>
@@ -81,7 +86,6 @@
             {{* 列表分页 *}}
             {{tudu_list_pagenav recordcount=$tudu.replynum+1 pagesize=20 url='/tudu/view' query='tid='|cat:$tudu.tuduid|cat:'&back='|cat:$currUrl}}
             {{* 便签 *}}
-            {{if $tudu.mark}}<span class="icon icon_tudu_note" title="{{$LANG.note}}"></span>{{/if}}
             {{*主题后面的待接受跟确认提示*}}
             {{if !in_array('^e', $tudu.labels)}}
             {{if $tudu.status >= 2 && !$tudu.isdone && $tudu.sender == $user.username}}
@@ -91,7 +95,7 @@
                 <span class="tips_label_bl"><span class="tips_label_br"><span class="tips_label_bc"></span></span></span>
             </span>
             {{/if}}
-            {{if in_array($user.username, $tudu.accepter, true) && ($tudu.selftudustatus < 2 && !$tudu.selfaccepttime) && $tudu.status < 2}}
+            {{if in_array($user.username, $tudu.accepter, true) && ($tudu.selftudustatus < 2 && !$tudu.selfaccepttime && $tudu.status < 2)}}
             <span class="tips_label tips_receive" style="margin-left:5px">
                 <span class="tips_label_tl"><span class="tips_label_tr"><span class="tips_label_tc"></span></span></span>
                 <span class="tips_label_body" style="text-align:center">{{$LANG.need_accept}}</span>
@@ -155,7 +159,9 @@
 {{else}}
   <tr>
     <td class="g_cb"><input name="tid[]" type="checkbox" value="{{$tudu.tuduid}}"{{if $key == 'meeting'}} ignore="false"{{/if}} ></td>
-    <td width="20"><a href="javascript:void(0);" class="icon icon_attention{{if in_array('^t', $tudu.labels)}} attention{{/if}}" title="{{if in_array('^t', $tudu.labels)}}{{$LANG.cancel_starred}}{{else}}{{$LANG.mark_starred}}{{/if}}"></a></td>
+    <td width="18"><a href="javascript:void(0);" class="icon icon_attention{{if in_array('^t', $tudu.labels)}} attention{{/if}}" title="{{if in_array('^t', $tudu.labels)}}{{$LANG.cancel_starred}}{{else}}{{$LANG.mark_starred}}{{/if}}"></a></td>
+    {{* 便签 *}}
+    <td width="20">{{if $tudu.mark}}<a class="icon icon_tudu_note" href="/note"></a>{{else}}<a class="icon icon_tudu_note_add" title="{{$LANG.click_create_note}}" href="javascript:void(0)"></a>{{/if}}</td>
     <td class="g_i">
       <div class="g_i_l{{if $tudu.priority > 0}} ipt{{/if}}"></div>
       <a href="/tudu/view?tid={{$tudu.tuduid}}&newwin=1&back={{$currUrl}}" target="_blank" class="g_i_c R{{if $tudu.type == 'discuss'}}d{{elseif $tudu.type == 'notice'}}n{{elseif $tudu.type == 'meeting'}}m{{else}}r{{/if}}{{if !$tudu.isread}}u{{/if}}" title="{{$LANG.new_win_tips}}"></a>
@@ -180,9 +186,7 @@
                 {{tudu_list_pagenav recordcount=$tudu.replynum+1 pagesize=20 url='/tudu/view' query='tid='|cat:$tudu.tuduid|cat:'&back='|cat:$currUrl}}
                 {{if $tudu.special == 2}}<span class="icon icon_vote"></span>{{/if}}
                 {{* 便签 *}}
-                {{if $tudu.mark}}<span class="icon icon_tudu_note" title="{{$LANG.note}}"></span>{{/if}}
-
-                {{if $tudu.type == 'meeting' && in_array($user.username, $tudu.accepter, true) && ($tudu.selftudustatus < 2 && !$tudu.selfaccepttime) && $tudu.status < 2}}
+                {{if $tudu.type == 'meeting' && in_array($user.username, $tudu.accepter, true) && ($tudu.selftudustatus < 2 && !$tudu.selfaccepttime && $tudu.status < 2)}}
                 <span class="tips_label tips_receive" style="margin-left:5px">
                     <span class="tips_label_tl"><span class="tips_label_tr"><span class="tips_label_tc"></span></span></span>
                     <span class="tips_label_body" style="text-align:center">{{$LANG.need_accept}}</span>
@@ -242,10 +246,14 @@
   <tr>
     <td class="g_cb"><input name="tid[]" type="checkbox" value="{{$tudu.tuduid}}"></td>
     {{if in_array('star', $columns)}}
-    <td width="20"><a href="javascript:void(0);" class="icon icon_attention{{if in_array('^t', $tudu.labels)}} attention{{/if}}" title="{{if in_array('^t', $tudu.labels)}}{{$LANG.cancel_starred}}{{else}}{{$LANG.mark_starred}}{{/if}}" title="{{if in_array('^t', $tudu.labels)}}{{$LANG.cancel_starred}}{{else}}{{$LANG.mark_starred}}{{/if}}"></a></td>
+    <td width="18"><a href="javascript:void(0);" class="icon icon_attention{{if in_array('^t', $tudu.labels)}} attention{{/if}}" title="{{if in_array('^t', $tudu.labels)}}{{$LANG.cancel_starred}}{{else}}{{$LANG.mark_starred}}{{/if}}" title="{{if in_array('^t', $tudu.labels)}}{{$LANG.cancel_starred}}{{else}}{{$LANG.mark_starred}}{{/if}}"></a></td>
+    {{/if}}
+    {{* 便签 *}}
+    {{if in_array('note', $columns)}}
+    <td width="20">{{if $tudu.mark}}<a class="icon icon_tudu_note" href="/note"></a>{{else}}<a class="icon icon_tudu_note_add" title="{{$LANG.click_create_note}}" href="javascript:void(0)"></a>{{/if}}</td>
     {{/if}}
     <td class="g_i">
-      <div class="g_i_l{{if $tudu.priority > 0}} ipt{{/if}}"></div>
+      <div class="g_i_l{{if $tudu.priority > 0 || ($tudu.special & 8) == 8}} ipt{{/if}}"></div>
       {{if $label.labelalias == 'drafts'}}
       <a href="/tudu/view?tid={{$tudu.tuduid}}&newwin=1&back={{$currUrl}}" target="_blank" class="g_i_c Rr{{if !$tudu.isdraft || $tudu.istudugroup}}g{{/if}}u{{if $tudu.special == 1}}_c{{/if}}" title="{{$LANG.new_win_tips}}"></a>
       {{else}}
@@ -285,8 +293,6 @@
             <a href="/tudu/view?tid={{$tudu.tuduid}}&back={{$currUrl}}"{{if $tudu.isdone}} class="gray"{{/if}} title="{{$tudu.subject|escape:'html'}}">{{if $tudu.displaydate}}[{{$tudu.starttime|date_time_format:'%Y%m%d'}}]{{/if}}{{$tudu.subject|escape:'html'|default:$LANG.null_subject}}</a>
             {{* 列表分页 *}}
             {{tudu_list_pagenav recordcount=$tudu.replynum+1 pagesize=20 url='/tudu/view' query='tid='|cat:$tudu.tuduid|cat:'&back='|cat:$currUrl}}
-            {{* 便签 *}}
-            {{if $tudu.mark}}<span class="icon icon_tudu_note" title="{{$LANG.note}}"></span>{{/if}}
             {{*主题后面的待接受跟确认提示*}}
             {{if !in_array('^e', $tudu.labels)}}
             {{if $tudu.status >= 2 && !$tudu.isdone && $tudu.sender == $user.username}}
@@ -296,7 +302,7 @@
                 <span class="tips_label_bl"><span class="tips_label_br"><span class="tips_label_bc"></span></span></span>
             </span>
             {{/if}}
-            {{if in_array($user.username, $tudu.accepter, true) && ($tudu.selftudustatus < 2 && !$tudu.selfaccepttime) && $tudu.status < 2}}
+            {{if in_array($user.username, $tudu.accepter, true) && ($tudu.selftudustatus < 2 && !$tudu.selfaccepttime && $tudu.status < 2)}}
             <span class="tips_label tips_receive" style="margin-left:5px">
                 <span class="tips_label_tl"><span class="tips_label_tr"><span class="tips_label_tc"></span></span></span>
                 <span class="tips_label_body" style="text-align:center">{{$LANG.need_accept}}</span>
@@ -367,7 +373,11 @@
   <tr>
     <td class="g_cb"><input name="tid[]" type="checkbox" value="{{$tudu.tuduid}}"></td>
     {{if in_array('star', $columns)}}
-    <td width="20"><a href="javascript:void(0);" class="icon icon_attention{{if in_array('^t', $tudu.labels)}} attention{{/if}}" title="{{if in_array('^t', $tudu.labels)}}{{$LANG.cancel_starred}}{{else}}{{$LANG.mark_starred}}{{/if}}"></a></td>
+    <td width="18"><a href="javascript:void(0);" class="icon icon_attention{{if in_array('^t', $tudu.labels)}} attention{{/if}}" title="{{if in_array('^t', $tudu.labels)}}{{$LANG.cancel_starred}}{{else}}{{$LANG.mark_starred}}{{/if}}"></a></td>
+    {{/if}}
+    {{* 便签 *}}
+    {{if in_array('note', $columns)}}
+    <td width="20">{{if $tudu.mark}}<a class="icon icon_tudu_note" href="/note"></a>{{else}}<a class="icon icon_tudu_note_add" title="{{$LANG.click_create_note}}" href="javascript:void(0)"></a>{{/if}}</td>
     {{/if}}
     <td class="g_i">
       <div class="g_i_l{{if $tudu.priority > 0}} ipt{{/if}}"></div>
@@ -394,9 +404,7 @@
                 {{* 列表分页 *}}
                 {{tudu_list_pagenav recordcount=$tudu.replynum+1 pagesize=20 url='/tudu/view' query='tid='|cat:$tudu.tuduid|cat:'&back='|cat:$currUrl}}
                 {{if $tudu.special == 2}}<span class="icon icon_vote"></span>{{/if}}
-                {{* 便签 *}}
-                {{if $tudu.mark}}<span class="icon icon_tudu_note" title="{{$LANG.note}}"></span>{{/if}}
-                {{if $tudu.type == 'meeting' && in_array($user.username, $tudu.accepter, true) && ($tudu.selftudustatus < 2 && !$tudu.selfaccepttime)}}
+                {{if $tudu.type == 'meeting' && in_array($user.username, $tudu.accepter, true) && ($tudu.selftudustatus < 2 && !$tudu.selfaccepttime && $tudu.status < 2)}}
                 <span class="tips_label tips_receive" style="margin-left:5px">
                     <span class="tips_label_tl"><span class="tips_label_tr"><span class="tips_label_tc"></span></span></span>
                     <span class="tips_label_body" style="text-align:center">{{$LANG.need_accept}}</span>

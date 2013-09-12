@@ -23,6 +23,7 @@ return array(
         'from' => 'sender',//发起人
         'to' => 'recipient',//执行人
         'cc' => 'cc',//抄送人
+        'type' => 'type',//类型
         'subject' => 'subject',//标题
         'then' => 'then',//则
         'label' => 'add label',//添加标签

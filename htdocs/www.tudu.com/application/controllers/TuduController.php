@@ -3,7 +3,7 @@
  * Tudu Controller
  *
  * @author Hiro
- * @version $Id: TuduController.php 2809 2013-04-07 09:57:05Z cutecube $
+ * @version $Id: TuduController.php 2920 2013-08-08 08:33:45Z cutecube $
  */
 
 class TuduController extends TuduX_Controller_Base
@@ -233,6 +233,11 @@ class TuduController extends TuduX_Controller_Base
 
             if (!empty($query['createtime'])
                 && (!is_array($query['createtime']) || !empty($query['createtime']['start']) || !empty($query['createtime']['end']))) {
+
+                if (strpos($query['createtime']['start'], '-') !== false){
+                    $query['createtime']['start'] = strtotime($query['createtime']['start']);
+                }
+
                 $condition['createtime'] = $query['createtime'];
 
                 $params['createtime'] = $condition['createtime'];
@@ -240,12 +245,18 @@ class TuduController extends TuduX_Controller_Base
 
             if (!empty($query['endtime'])
                && (!is_array($query['endtime']) || !empty($query['endtime']['start']) || !empty($query['endtime']['end']))) {
+
+                if (strpos($query['endtime']['start'], '-') !== false){
+                    $query['endtime']['start'] = strtotime($query['endtime']['start']);
+                }
+
                 $condition['endtime'] = $query['endtime'];
 
                 $params['endtime'] = $condition['endtime'];
             }
 
             $isReCount = true;
+
         // 全文搜索
         } elseif ($isSearch && $coreseek) {
             $sortType = (int) $this->_request->getQuery('sorttype');
@@ -311,7 +322,7 @@ class TuduController extends TuduX_Controller_Base
                 $tudus = $daoTudu->getTuduPage($condition, '', null, null)->toArray();
             }
 
-            $this->view->columns  = array('sender', 'subject' ,'accepter_endtime', 'reply', 'lastpost', 'star');
+            $this->view->columns  = array('sender', 'subject' ,'accepter_endtime', 'reply', 'lastpost', 'star', 'note');
             $this->view->labels   = $labels;
             $this->view->tudus    = $tudus;
             $this->view->label    = $label;
@@ -459,22 +470,23 @@ class TuduController extends TuduX_Controller_Base
         switch ($label['labelalias']) {
             case 'notice':
             case 'discuss':
-                $columns = array('sender', 'subject', 'replynum_viewnum', 'lastpost' , 'star');
+
+                $columns = array('sender', 'subject', 'replynum_viewnum', 'lastpost' , 'star', 'note');
                 break;
             case 'meeting':
-                $columns = array('sender', 'subject', 'starttime', 'replynum_viewnum', 'lastpost' , 'star');
+                $columns = array('sender', 'subject', 'starttime', 'replynum_viewnum', 'lastpost' , 'star', 'note');
                 break;
             case 'drafts':
                 $columns = array('subject', 'accepter_endtime');
                 break;
             case 'sent':
-                $columns = array('subject', 'accepter_endtime', 'reply', 'lastpost', 'star');
+                $columns = array('subject', 'accepter_endtime', 'reply', 'lastpost', 'star', 'note');
                 break;
             case 'todo':
-                $columns = array('sender', 'subject', 'endtime', 'reply', 'lastpost', 'star');
+                $columns = array('sender', 'subject', 'endtime', 'reply', 'lastpost', 'star', 'note');
                 break;
             default:
-                $columns = array('sender', 'subject' ,'accepter_endtime', 'reply', 'lastpost', 'star');
+                $columns = array('sender', 'subject' ,'accepter_endtime', 'reply', 'lastpost', 'star', 'note');
                 break;
         }
 
@@ -873,7 +885,7 @@ class TuduController extends TuduX_Controller_Base
             $unreadNum += $label['unreadnum'];
         }
 
-        $columns = array('sender', 'subject', 'endtime', 'reply', 'lastpost', 'star');
+        $columns = array('sender', 'subject', 'endtime', 'reply', 'lastpost', 'star', 'note');
 
         $this->view->label   = array(
             'labelalias'  => 'review',
@@ -931,7 +943,7 @@ class TuduController extends TuduX_Controller_Base
         }
 
         $headers = array(
-            'reviewed' => array('sender', 'subject', 'endtime', 'reply', 'lastpost', 'star')
+            'reviewed' => array('sender', 'subject', 'endtime', 'reply', 'lastpost', 'star', 'note')
         );
 
         if ($sortType > 0 && isset($this->_sortTypes[$sortType])) {
@@ -1281,7 +1293,7 @@ class TuduController extends TuduX_Controller_Base
 
             if ($isForward) {
                 $tudu['to'] = array();
-                $tudu['cc'] = array();
+                //$tudu['cc'] = array();
                 $this->view->action = 'forward';
             }
 
@@ -1558,7 +1570,7 @@ class TuduController extends TuduX_Controller_Base
             // 更新进度 - 执行人&已接受
             'progress' => $isAccepter && $tudu->selfAcceptTime,
             // 确认完成 - 发起人&未确认
-            'confirm'  => $isSender && !$tudu->isDone && $tudu->status >= 2,
+            'confirm'  => $isSender && !$tudu->isDone,
             // 取消确认 - 发起人&已确认
             'undone'   => $isSender && $tudu->isDone,
             // (取消)忽略 - 相关人员
@@ -1802,6 +1814,7 @@ class TuduController extends TuduX_Controller_Base
                 $remind .= sprintf($this->lang['remind_flow_tips_info'], $flow->subject, ($tudu->from[1] == $this->_user->userId)? $this->lang['me'] : $tudu->from[0]);
                 $this->view->remind = $remind;
             }
+
         // 会议
         } elseif ($tudu->type == 'meeting') {
 
@@ -1851,32 +1864,6 @@ class TuduController extends TuduX_Controller_Base
             $access['review'] = false;
             $access['modify'] &= !$tudu->isDone;
             $access['reply']  &= !$tudu->isDone;
-        }
-
-        // 如果是公告发起人可进行回复
-        if ($tudu->type == 'notice') {
-            $access['reply']= false;
-            $access['upload'] = false;
-            if ($tudu->stepId && strpos($tudu->stepId, '^') !== 0) {
-                /* @var $daoStep Dao_Td_Tudu_Step */
-                $daoStep = $this->getDao('Dao_Td_Tudu_Step');
-
-                $step = $daoStep->getCurrentStep($tuduId, $tudu->stepId, $this->_user->uniqueId);
-
-                if (null !== $step && $step['type'] == Dao_Td_Tudu_Step::TYPE_EXAMINE) {
-                    $this->view->isreview = true;
-                }
-
-                if (null !== $step && $step['type'] == Dao_Td_Tudu_Step::TYPE_EXAMINE) {
-                    if ($step['uniqueid'] == $this->_user->uniqueId
-                        && $step['status'] == 1
-                        && !$tudu->isDone)
-                    {
-                        $access['agree']  = true;
-                        $access['disagree']  = true;
-                    }
-                }
-            }
         }
 
         // 已分工不能更新任务进度
@@ -2000,12 +1987,23 @@ class TuduController extends TuduX_Controller_Base
             //    $post['email'] = null;
             //}
 
-            /*if ($post['email']) {
+            if ($post['email']) {
                 if (!array_key_exists($post['email'], $status)) {
                     $status[$post['email']] = false;
                 }
                 $posts[$key]['imstatus'] = &$status[$post['email']];
-            }*/
+            }
+        }
+
+        // 获取联系人的IM在线信息
+        $config = $this->bootstrap->getOption('im');
+        $im = new Oray_Im_Client($config['host'], $config['port']);
+        $imStatus = $im->getUserStatus(array_keys($status));
+
+        foreach ($imStatus as $email => $_status) {
+            if (isset($status[$email])) {
+                $status[$email] = $_status;
+            }
         }
 
         $unSendPost = $daoPost->getPost(array('tuduid' => $tuduId, 'uniqueid' => $this->_user->uniqueId, 'issend' => 0));
@@ -2097,7 +2095,7 @@ class TuduController extends TuduX_Controller_Base
             $flow  = $daoFlow->getFlow(array('tuduid' => $tudu->tuduId));
             $steps = $flow->steps;
 
-            if (0 !== strpos($flow->currentStepId, '^')) {
+            if ($tudu->flowId && 0 !== strpos($flow->currentStepId, '^')) {
                 $access['confirm'] = false;
             }
 
@@ -2113,22 +2111,24 @@ class TuduController extends TuduX_Controller_Base
                 $access['confirm']  = false;
             }
 
-            //var_dump($steps);exit;
             $stepView = array();
             foreach ($steps as &$item) {
 
                 // 处理当前步骤
                 if ($item['stepid'] == $flow->currentStepId && count($item['section'])) {
 
+                    // 导入数据的容错
+                    $currentSection = $item['currentSection'] >= count($item['section']) ? count($item['section']) - 1 : $item['currentSection'];
+
                     // 审批
                     if ($item['type'] == 1) {
                         $this->view->isreview   = true;
-                        $this->view->samereview = count($item['section'][$item['currentSection']]) > 1;
+                        $this->view->samereview = count($item['section'][$currentSection]) > 1;
 
                         $access['forward'] = $access['divide'] = $access['accept'] = $access['reject'] = $access['progress'] = false;
                     }
 
-                    $currentSection = $item['currentSection'];
+                    //$currentSection = $item['currentSection'];
 
                     if (!isset($item['section'][$currentSection])) {
                         break ;
@@ -2375,7 +2375,7 @@ class TuduController extends TuduX_Controller_Base
         $this->view->board  = $board;
         $this->view->boardnav  = $this->getBoardNav($tudu->boardId);
         $this->view->access    = $access;
-        //$this->view->imstatus  = $imStatus;
+        $this->view->imstatus  = $imStatus;
         $this->view->isinvert  = $isInvert;
         $this->view->unreply  = $unSendPost;
         $this->view->moreaccepter = (boolean) (count($tudu->accepter) > 1);
@@ -2629,108 +2629,62 @@ class TuduController extends TuduX_Controller_Base
                     $flowhtml = $this->formatStepsToHtml($flow['steps']);
                 }
             } else {
-                /* @var $daoStep Dao_Td_Tudu_Step */
-                $daoStep = $this->getDao('Dao_Td_Tudu_Step');
 
-                $users    = $daoStep->getTuduStepUsers($tudu['tuduid']);
-                $steps    = array();
-                $isExceed = false;
-                $isDisagreed = false;
+                /* @var $daoTuduFlow Dao_Td_Tudu_Flow */
+                $daoTuduFlow = $this->getDao('Dao_Td_Tudu_Flow');
 
-                foreach ($users as &$user) {
-                    $info = explode(' ', $user['userinfo']);
-                    $user['email']    = $info[0];
-                    $user['truename'] = $info[1];
+                $flow = $daoTuduFlow->getFlow(array('tuduid' => $tudu['tuduid']));
 
-                    if (!$isExceed && $user['stepid'] == $tudu['stepid']) {
-                        $isExceed = true;
-                    } else {
-                        $isExceed = false;
-                    }
-
-                    if ($isExceed && ($user['type'] == 1 && $user['status'] < 1)) {
-                        $user['future'] = true;
-                    }
-
-                    if (!$isExceed && $user['stepid'] != $tudu['stepid'] && $user['type'] == 1) {
-                        $user['future'] = true;
-                    }
-
-                    if (!isset($user['future'])) {
-                        $user['future'] = false;
-                    }
-
-                    $steps[$user['ordernum']]['users'][]    = $user;
-                    $steps[$user['ordernum']]['stepid']     = $user['stepid'];
-                    $steps[$user['ordernum']]['type']       = $user['type'];
-                    $steps[$user['ordernum']]['stepstatus'] = $user['stepstatus'];
-
-                    if ($user['type'] == Dao_Td_Tudu_Step::TYPE_EXAMINE && $user['status'] > 2) {
-                        $isDisagreed = true;
-                    }
-                    $isExceed = false;
-                }
-                ksort($steps);
-
-                if (!$isDisagreed && count($steps)) {
-                    $lastStep = end($steps);
-                    reset($steps);
-                }
-
-                if (count($steps) > 0) {
-                    $html   = array();
-                    $pidx   = null;
-                    $sidx   = null;
-                    $html[] = '<div class="flowhtml">';
-                    $html[] = '<span>'.$this->lang['tudu_flow'].'：</span>';
+                $html = array();
+                if ($flow) {
+                    $steps = $flow->steps;
                     foreach ($steps as $step) {
-                        if ($step['type'] == 1) {
-                            foreach ($step['users'] as $user) {
-                                if (!empty($pidx) && !empty($sidx)) {
-                                    if ($pidx != $user['processindex'] || $sidx != $user['stepid']) {
-                                        $html[] = '<span class="icon icon_flow_arrow"></span>';
-                                    } else {
-                                        $html[] = '<span class="icon icon_flow_plus"></span>';
-                                    }
-                                }
-                                $pidx = $user['processindex'];
-                                $sidx = $user['stepid'];
 
-                                if (!$user['future'] || $user['status'] >= 2) {
-                                    $html[] = '<span title="<'.$user['email'].'>'.$user['truename'].'">'.$user['truename'];
-
-                                    if ($user['status'] == 2) {
-                                        $html[] = '('.$this->lang['agree'].')';
-                                    } elseif ($user['status'] == 3) {
-                                        $html[] = '('.$this->lang['disagree'].')';
-                                    } else {
-                                        $html[] = '('.$this->lang['wait_review'].')';
-                                    }
-                                    $html[] = '</span>';
-                                } else {
-                                    $html[] = '<span title="<'.$user['email'].'>'.$user['truename'].'">'.$user['truename'].'('.$this->lang['future_review'].')</span>';
-                                }
-                            }
-                        } else {
-                            if (count($step['users']) > 1) {
-                                $html[] = '<span class="icon icon_flow_arrow"></span>';
-                                $title = array();
-                                foreach ($step['users'] as $user) {
-                                    $title[] = '<'.$user['email'].'>'.$user['truename'];
-                                }
-                                $html[] = '<span title="'.implode(',', $title).'">'.$this->lang['multi_accepter'];
-                                $html[] = '</span>';
-                            } else {
-                                $html[] = '<span class="icon icon_flow_arrow"></span>';
-                                $html[] = '<span title="<'.$step['users'][0]['email'].'>'.$step['users'][0]['truename'].'">'.$step['users'][0]['truename'];
-                                $html[] = '</span>';
-                            }
+                        if (!empty($html)) {
+                            $html[] = '<span class="icon icon_flow_arrow"></span>';
                         }
-                    }
 
-                    $html[]   = '</div>';
-                    $flowhtml = implode('', $html);
+                        $st = array();
+                        foreach ($step['section'] as $section) {
+                            if (!empty($st)) {
+                                $st[] = '<span class="icon icon_flow_arrow"></span>';
+                            }
+
+                            $sec = array();
+                            foreach ($section as $user) {
+                                if (!empty($sec)) {
+                                    $sec[] = '<span class="icon icon_flow_plus"></span>';
+                                }
+
+                                if ($step['type'] == 1) {
+                                    if (!isset($user['status']) || $user['status'] == 0 || $user['status'] >= 2) {
+                                        $sec[] = '<span title="<'.$user['username'].'>'.$user['truename'].'">'.$user['truename'];
+
+                                        if (isset($user['status']) && $user['status'] == 2) {
+                                            $sec[] = '('.$this->lang['agree'].')';
+                                        } elseif (isset($user['status']) && $user['status'] == 3) {
+                                            $sec[] = '('.$this->lang['disagree'].')';
+                                        } else {
+                                            $sec[] = '('.$this->lang['wait_review'].')';
+                                        }
+                                        $sec[] = '</span>';
+                                    } else {
+                                        $sec[] = '<span title="<'.$user['username'].'>'.$user['truename'].'">'.$user['truename'].'('.$this->lang['future_review'].')</span>';
+                                    }
+
+                                } else {
+                                    $sec[] = '<span title="<'.$user['username'].'>'.$user['truename'].'">'. $user['truename'] . '</span>';
+                                }
+                            }
+
+                            $st[] = implode('', $sec);
+                        }
+                        $html = implode('', $st);
+                    }
                 }
+
+                $flowhtml = '<div class="flowhtml"><span>'.$this->lang['tudu_flow'].'：</span>' . implode('', $html);
+
             }
         }
 
@@ -2768,8 +2722,63 @@ class TuduController extends TuduX_Controller_Base
 
         // 审批人填充
         if ($tudu && $tudu['type'] == 'task' && $tudu['stepid'] && empty($tudu['flowid'])) {
+            /* @var $daoTuduFlow Dao_Td_Tudu_Flow */
+            $daoTuduFlow = $this->getDao('Dao_Td_Tudu_Flow');
+
+            $flow = $daoTuduFlow->getFlow(array('tuduid' => $tudu['tuduid']));
+
+            $isExceed = false;
+            $reviewer = '';
+            $to       = '';
+            $toText   = '';
+            if ($flow) {
+
+                foreach ($flow->steps as $step) {
+                    if (!$isExceed && ($step['stepid'] == $flow->currentStepId || $flow->currentStepId == '^head')) {
+                        $isExceed = true;
+                    }
+
+                    if (!$isExceed) {
+                        continue ;
+                    }
+
+                    $sec   = array();
+                    $stext = array();
+                    foreach ($step['section'] as $i => $section) {
+                        if ($step['stepid'] == $flow->currentStepId && $i < $step['currentSection']) {
+                            continue ;
+                        }
+
+                        if (!empty($sec)) {
+                            $sec[] = '>';
+                        }
+
+                        $su = array();
+                        foreach ($section as $u) {
+                            if (!empty($su)) {
+                                $su[] = '+';
+                            }
+
+                            $su[] = $u['username'] . ' ' . $u['truename'];
+                            $stext[] = $u['username'];
+                        }
+
+                        $sec[] = implode("\n", $su);
+                    }
+
+                    $stepUser = implode("\n", $sec);
+
+                    if ($step['type'] == 1) {
+                        $tudu['reviewer'] = implode("\n", $sec);
+                    } else {
+                        $tudu['to']       = implode("\n", $sec);
+                        $tudu['to-text']  = implode(',', $stext);
+                    }
+                }
+            }
+
             /* @var $daoStep Dao_Td_Tudu_Step */
-            $daoStep = $this->getDao('Dao_Td_Tudu_Step');
+            /*$daoStep = $this->getDao('Dao_Td_Tudu_Step');
 
             $stepUsers = $daoStep->getTuduStepUsers($tudu['tuduid']);
 
@@ -2836,7 +2845,7 @@ class TuduController extends TuduX_Controller_Base
                 $tudu['to-text'] = implode(',', $toText);
                 $tudu['to'] = implode("\n", $to);
             }
-            $tudu['reviewer'] = implode("\n", $reviewer);
+            $tudu['reviewer'] = implode("\n", $reviewer);*/
         }
         $tudu['ismodifypercent'] = $isModifyPercent;
 
@@ -2851,29 +2860,57 @@ class TuduController extends TuduX_Controller_Base
     {
         $tuduId = $this->_request->getQuery('tid');
 
-        $accepters = $this->getDao('Dao_Td_Tudu_Tudu')->getAccepters($tuduId);
+        /* @var $daoTudu Dao_Td_Tudu_Tudu */
+        $daoTudu = $this->getDao('Dao_Td_Tudu_Tudu');
 
-        foreach($accepters as &$accepter) {
-            $accepter['accepttime']  = is_numeric($accepter['accepttime']) ? (int) $accepter['accepttime'] : null;
-            $accepter['elapsedtime'] = round((float) $accepter['elapsedtime'], 1);
+        $tudu = $daoTudu->getTuduById($this->_user->uniqueId, $tuduId);
 
-            $info = explode(' ', $accepter['accepterinfo'], 2);
-            if (count($info) == 2) {
-                $accepter['email']    = $info[0];
-                $accepter['truename'] = $info[1];
+        if ($tudu->sendStatus != Dao_Td_Tudu_Tudu::SEND_STATUS_SUCCESS) {
+
+            $accepters = array();
+            $to = $tudu->to;
+            $count = 0;
+            foreach ($to as $item) {
+                $accepters[] = array(
+                    'uniqueid'     => $count ++,
+                    'accepterinfo' => $item[3] . ' ' . $item[0],
+                    'email'        => $item[3],
+                    'truename'     => $item[0],
+                    'accepttime'   => null,
+                    'elapsedtime'  => null,
+                    'percent'      => null,
+                    'pendding'     => true,
+                    'tudustatus'   => 0,
+                    'statustext'   => $this->lang['status_sending']
+                );
             }
 
-            $accepter['percent']  = (int) $accepter['percent'];
+        } else {
 
-            if ($accepter['forwardinfo']) {
-                $forwardInfo = explode("\n", $accepter['forwardinfo']);
-                $accepter['forwardfrom'] = $forwardInfo[0];
-                $accepter['forwardtime'] = isset($forwardInfo[1]) ? (int) $forwardInfo[1] : null;
+            $accepters = $this->getDao('Dao_Td_Tudu_Tudu')->getAccepters($tuduId);
+
+            foreach($accepters as &$accepter) {
+                $accepter['accepttime']  = is_numeric($accepter['accepttime']) ? (int) $accepter['accepttime'] : null;
+                $accepter['elapsedtime'] = round((float) $accepter['elapsedtime'], 1);
+
+                $info = explode(' ', $accepter['accepterinfo'], 2);
+                if (count($info) == 2) {
+                    $accepter['email']    = $info[0];
+                    $accepter['truename'] = $info[1];
+                }
+
+                $accepter['percent']  = (int) $accepter['percent'];
+
+                if ($accepter['forwardinfo']) {
+                    $forwardInfo = explode("\n", $accepter['forwardinfo']);
+                    $accepter['forwardfrom'] = $forwardInfo[0];
+                    $accepter['forwardtime'] = isset($forwardInfo[1]) ? (int) $forwardInfo[1] : null;
+                }
+
+                $accepter['statustext'] = !$accepter['accepttime'] && $accepter['tudustatus'] != Dao_Td_Tudu_Tudu::STATUS_REJECT
+                                        ? $this->lang['status_needaccept']
+                                        : $this->lang['tudu_status_' . $accepter['tudustatus']];
             }
-
-            $accepter['statustext'] = !$accepter['accepttime'] && $accepter['tudustatus'] != Dao_Td_Tudu_Tudu::STATUS_REJECT
-                                    ? $this->lang['status_needaccept']
-                                    : $this->lang['tudu_status_' . $accepter['tudustatus']];
         }
 
         $this->json(true, null, $accepters);
@@ -3105,6 +3142,7 @@ class TuduController extends TuduX_Controller_Base
                 $this->view->cycle = $cycle->toArray();
             }
 
+
             /* @var $daoFlow Dao_Td_Tudu_Flow */
             $daoFlow = $this->getDao('Dao_Td_Tudu_Flow');
 
@@ -3319,31 +3357,11 @@ class TuduController extends TuduX_Controller_Base
                 /* @var $daoFlow Dao_Td_Tudu_Flow */
                 $daoFlow = Tudu_Dao_Manager::getDao('Dao_Td_Tudu_Flow', Tudu_Dao_Manager::DB_TS);
 
+
                 $flow = $daoFlow->getFlow(array('tuduid' => $tudu['tuduid']));
 
                 $steps = $flow->steps;
-                
-                $currStepId = null;
-                if (false === strpos($flow->currentStepId, '^')) {
-                	$currStepId = $flow->currentStepId;
-                } else {
-                	foreach ($flow->steps as $st) {
-                        foreach ($st['section'] as $sec) {
-                        	foreach ($sec as $u) {
-                        		if (!isset($u['status']) || $u['status'] <= 1 || $u['status'] == 3) {
-                        			$currStepId = $st['stepid'];
-                        			break 3;
-                        		}
-                        	}
-                        }
-                	}
-
-                	$currStepId = null === $currStepId ? '^head': $currStepId;
-                }
-                
-                //$currStepId = false === strpos($flow->currentStepId, '^') ? $flow->currentStepId : 
-                
-                $step  = isset($flow->steps[$currStepId]) ? $flow->steps[$currStepId] : null;
+                $step  = isset($flow->steps[$flow->currentStepId]) ? $flow->steps[$flow->currentStepId] : null;
 
                 foreach ($steps as $st) {
                     if ($st['type'] == 1 && $st['section']) {
@@ -3395,7 +3413,7 @@ class TuduController extends TuduX_Controller_Base
 
                         $executeStep = isset($steps[$step['next']]) ? $steps[$step['next']] : null;
                     } else {
-                        $executeStep = isset($steps[$currStepId]) ? $steps[$currStepId] : null;
+                        $executeStep = isset($steps[$flow->currentStepId]) ? $steps[$flow->currentStepId] : null;
                     }
 
                     if ($executeStep && $executeStep['type'] != 1) {
@@ -4202,6 +4220,55 @@ class TuduController extends TuduX_Controller_Base
         }
 
         return $this->json(true, null, array('content' => $content));
+    }
+
+    /**
+     * 获取需定时提醒的图度
+     */
+    public function getRemindAction()
+    {
+        return $this->json(true, null, array());
+    }
+
+    /**
+     * 格式定时提醒描述
+     */
+    public function formatRemindDetail(array $params, &$smarty)
+    {
+        $mode = $params['mode'];
+        $date = $params['date'];
+        $hour = $params['hour'];
+        $min  = $params['min'];
+        $defineDay = $params['defineday'];
+        $langDetail = $this->lang['remind_detail'];
+
+        if (!$mode) {
+            return ;
+        }
+
+        $ret = array();
+        $ret[] = $langDetail['mode_' . $mode];
+
+        if ($mode == 'define' && $defineDay) {
+            $define = array();
+            foreach ($defineDay as $item) {
+                $define[] = $langDetail['week_' . $item];
+            }
+            if (!empty($define)) {
+                $ret[] = implode(',', $define);
+            }
+        } elseif ($mode == 'once' && $date) {
+            $ret[] = $date;
+        }
+
+        $ret[] = str_pad($hour, 2, '0', STR_PAD_LEFT) . ':' . str_pad($min, 2, '0', STR_PAD_LEFT);
+
+        $content = implode('&nbsp;', $ret);
+        if (!empty($params['assign'])) {
+            $smarty->assign($params['assign'], $content);
+        } else {
+            return $content;
+        }
     }
 
     /**

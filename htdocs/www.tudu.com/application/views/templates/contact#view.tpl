@@ -24,7 +24,7 @@ if (top == this) {
 <div class="tab_panel">
 	<div class="toolbar">
         <div>
-        <button class="btn" type="button" name="back">{{$LANG.back}}</button><span class="tb-sep"></span><button class="btn" type="button" name="send">{{$LANG.send_tudu}}</button>
+        <button class="btn" type="button" name="back">{{$LANG.back}}</button><span class="tb-sep"></span><button class="btn" type="button" name="send" _to="{{$email|cat:' '|cat:$userinfo.truename|escape:'url'}}">{{$LANG.send_tudu}}</button>
         </div>
     </div>
 	<div class="tab-panel-body">
@@ -35,7 +35,7 @@ if (top == this) {
 		        <img src="/logo?unid={{$profile.uniqueid}}" width="40" height="40" />
 		    </td>
 		    <td style="line-height:18px">
-		        <p><span class="f14 b">{{$userinfo.truename}}</span>&nbsp;&nbsp;&nbsp;[<a href="/tudu?search=query&cat=all&to={{$userinfo.truename|escape:'url'}}">{{$LANG.contact_tudu}}</a>]</p>
+		        <p><span class="f14 b">{{$userinfo.truename}}</span>&nbsp;&nbsp;&nbsp;[<a href="/tudu?search=query&cat=all&to={{$userinfo.truename|escape:'url'}}">{{$LANG.contact_tudu}}</a> | <a href="javascript:void(0)" onclick="Contact.chat('{{$profile.userid}}@{{$profile.orgid}}')">{{$LANG.contact_chat}}</a> | <a href="/chat/log?email={{$profile.userid}}%40{{$profile.orgid}}">{{$LANG.view_chat_record}}</a>]</p>
 		        <p>{{$imstatus.chat}}&nbsp;</p>
 		    </td>
 		  </tr>
@@ -78,7 +78,7 @@ if (top == this) {
     </div>
     <div class="toolbar">
         <div>
-        <button class="btn" type="button" name="back">{{$LANG.back}}</button><span class="tb-sep"></span><button class="btn" type="button" name="send">{{$LANG.send_tudu}}</button>
+        <button class="btn" type="button" name="back">{{$LANG.back}}</button><span class="tb-sep"></span><button class="btn" type="button" name="send" _to="{{$email|cat:' '|cat:$userinfo.truename|escape:'url'}}">{{$LANG.send_tudu}}</button>
         </div>
     </div>
 </div>
@@ -86,7 +86,7 @@ if (top == this) {
 <div class="tab_panel">
 	<div class="toolbar">
         <div>
-        <button class="btn" type="button" name="back">{{$LANG.back}}</button><span class="tb-sep"></span><button class="btn" type="button" name="send">{{$LANG.send_tudu}}</button><span class="tb-sep"></span><button class="btn" type="button" name="modify">{{$LANG.edit_info}}</button><button class="btn" type="button" name="delete">{{$LANG.delete}}</button>
+        <button class="btn" type="button" name="back">{{$LANG.back}}</button><span class="tb-sep"></span><button class="btn" type="button" name="send" _to="{{$contact.email|cat:' '|cat:$contact.truename|escape:'url'}}">{{$LANG.send_tudu}}</button><span class="tb-sep"></span><button class="btn" type="button" name="modify">{{$LANG.edit_info}}</button><button class="btn" type="button" name="delete">{{$LANG.delete}}</button>
         </div>
     </div>
 	<div class="tab-panel-body">
@@ -165,11 +165,12 @@ if (top == this) {
     </div>
     <div class="toolbar">
         <div>
-        <button class="btn" type="button" name="back">{{$LANG.back}}</button><span class="tb-sep"></span><button class="btn" type="button" name="send">{{$LANG.send_tudu}}</button><span class="tb-sep"></span><button class="btn" type="button" name="modify">编辑资料</button><button class="btn" type="button" name="delete">删除</button>
+        <button class="btn" type="button" name="back">{{$LANG.back}}</button><span class="tb-sep"></span><button class="btn" type="button" name="send" _to="{{$contact.email|cat:' '|cat:$contact.truename|escape:'url'}}">{{$LANG.send_tudu}}</button><span class="tb-sep"></span><button class="btn" type="button" name="modify">编辑资料</button><button class="btn" type="button" name="delete">删除</button>
         </div>
     </div>
 </div>
 {{/if}}
+<script src="{{$options.sites.static}}/js/contact.js" type="text/javascript"></script>
 <script type="text/javascript">
 <!--
 $(function(){
@@ -177,56 +178,14 @@ $(function(){
 	TOP.Frame.title('{{$LANG.contact}}');
 	TOP.Frame.hash(LH);
 
-	$('button[name="back"]').click(function(){
-		{{if $email}}
-		location = '{{$back|default:"/contact/"}}';
-		{{else}}
-		location = '{{$back|default:"/contact/?type=contact"}}';
-		{{/if}}
-	});
+	var back = '{{if $email}}{{$back|default:"/contact/"}}{{else}}{{$back|default:"/contact/?type=contact"}}{{/if}}';
+	var currUrl = '{{$smarty.server.REQUEST_URI|escape:'url'}}';
+	var currCtid = '{{$contact.contactid}}';
 
-	{{if !$email}}
-	$('button[name="modify"]').click(function(){
-		location = '/contact/modify?ctid={{$contact.contactid}}&back={{$smarty.server.REQUEST_URI|escape:'url'}}';
-	});
-	$('button[name="delete"]').click(function(){
-		deleteContact('{{$contact.contactid}}', '/contact/?type=contact');
-	});
-	{{/if}}
-
-	$('button[name="send"]').click(function(){
-		{{if $email}}
-		location = '/tudu/modify?to={{$email|cat:' '|cat:$userinfo.truename|escape:'url'}}';
-		{{else}}
-		location = '/tudu/modify/?to={{$contact.email|cat:' '|cat:$contact.truename|escape:'url'}}';
-		{{/if}}
-	});
-
+	Contact.initView(currCtid, currUrl, back);
 });
-
-{{if !$email}}
-function deleteContact(contactId, back) {
-	if (!confirm(TOP.TEXT.CONFIRM_DELETE_CONTACT)) {
-		return false;
-	}
-
-	$.ajax({
-		type: 'GET',
-		dataType: 'json',
-		url: '/contact/delete?ctid=' + contactId,
-		success: function(ret) {
-		   TOP.showMessage(ret.message, 5000, ret.success ? 'success' : null);
-		   if (ret.success) {
-			    location = back;
-		   }
-		},
-		error: function(res) {
-		    TOP.showMessage(TOP.TEXT.PROCESSING_ERROR);
-		}
-	});
-}
-{{/if}}
 -->
 </script>
+
 </body>
 </html>

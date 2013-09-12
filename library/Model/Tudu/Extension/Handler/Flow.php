@@ -387,7 +387,7 @@ class Model_Tudu_Extension_Handler_Flow extends Model_Tudu_Extension_Handler_Abs
                         // 拒绝的
                         } elseif ($item['type'] == 0 && isset($u['status']) && ($u['status'] <= 1 || $u['status'] == 3)) {
 
-                            if (null === $step && 0 === strpos($flow->currentStepId, '^')) {
+                        	if (null === $step && 0 === strpos($flow->currentStepId, '^')) {
                         		$step = $item;
                         		$flow->currentStepId = $item['stepid'];
                         	}
@@ -777,7 +777,15 @@ class Model_Tudu_Extension_Handler_Flow extends Model_Tudu_Extension_Handler_Abs
                 $flow->addStepSection($stepId, $item);
             }
 
-            $tudu->to = $flow->getStepSection($stepId, 0);
+            $to = $flow->getStepSection($stepId, 0);
+
+            foreach ($to as $k => $t) {
+                if (isset($tudu->to[0][$t['username']]) && isset($tudu->to[0][$t['username']]['percent'])) {
+                    $to[$k]['percent'] = $tudu->to[0][$t['username']]['percent'];
+                    continue ;
+                }
+            }
+            $tudu->to = $to;
 
             if (0 !== strpos($prev, '^')) {
                 $flow->updateStep($prev, array('next' => $stepId));
@@ -819,6 +827,7 @@ class Model_Tudu_Extension_Handler_Flow extends Model_Tudu_Extension_Handler_Abs
 
         $su    = $flow->getStepSection($flow->currentStepId);
         $users = array();
+        $to    = $tudu->to;
 
         foreach ($su as $k => $u) {
             $users[$u['username']] = array(
@@ -827,6 +836,13 @@ class Model_Tudu_Extension_Handler_Flow extends Model_Tudu_Extension_Handler_Abs
                 'truename' => $u['truename'],
                 'email'    => $u['username']
             );
+
+            foreach ($to as $t) {
+                if ($t['uniqueid'] == $u['uniqueid'] && !empty($t['percent'])) {
+                    $users[$u['username']]['percent'] = $t['percent'];
+                    break;
+                }
+            }
         }
 
         if ($step['type'] == 1) {

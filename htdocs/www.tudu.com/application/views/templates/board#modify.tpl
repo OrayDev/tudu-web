@@ -61,7 +61,7 @@
                     <table cellspacing="0" cellpadding="0">
                       <tr>
                         <td class="info_txt">{{$LANG.content}}</td>
-                        <td class="info_forms info_input"><textarea class="form_textarea" name="memo" id="memo" cols="" rows="">{{$board.memo|escape:'html'}}</textarea></td>
+                        <td class="info_forms info_input"><textarea name="memo" id="memo" cols="" rows="" style="width:100%;height:180px">{{$board.memo|escape:'html'}}</textarea></td>
                       </tr>
                     </table>
                 </div>
@@ -127,7 +127,7 @@
 					                      </tr>
 					                      <tr>
 					                        <td valign="top">{{$LANG.tpl_content}}{{$LANG.cln}}</td>
-					                        <td><textarea class="form_textarea" id="templateContent" name="templateContent" cols="" rows=""></textarea></td>
+					                        <td><textarea id="templateContent" name="templateContent" cols="" rows=""></textarea></td>
 					                      </tr>
 					                      <tr>
 					                        <td>&nbsp;</td>
@@ -203,8 +203,8 @@ $(function(){
 
     {{if $user.option.fontfamily || $user.option.fontsize}}
     var editorCss = {
-        'font-family':'{{$user.option.fontfamily|default:'SimSun'}}',
-        'font-size':'{{$user.option.fontsize|default:'12px'}}'
+        'fontfamily':'{{$user.option.fontfamily|default:'SimSun'}}',
+        'fontsize':'{{$user.option.fontsize|default:'12px'}}'
     };
     {{else}}
     var editorCss = {};
