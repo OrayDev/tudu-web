@@ -10,7 +10,7 @@
  * @author     Oray-Yongfa
  * @copyright  Copyright (c) 2009-2010 Shanghai Best Oray Information S&T CO., Ltd.
  * @link       http://www.tudu.com/
- * @version    $Id: User.php 2788 2013-03-20 10:58:18Z chenyongfa $
+ * @version    $Id: User.php 2825 2013-04-15 09:55:11Z chenyongfa $
  */
 
 /**
@@ -53,6 +53,7 @@ class Model_User_User extends Model_Abstract
     const CODE_DELETE_SUPER_ADMIN = 120;
     const CODE_INVALID_NDQUOTA    = 121;
     const CODE_INVALID_EMAIL      = 122;
+    const CODE_EXCEED_MAX_NDSPACE = 123;
 
     /**
      * 创建用户
@@ -81,16 +82,6 @@ class Model_User_User extends Model_Abstract
                 require_once 'Model/User/Exception.php';
                 throw new Model_User_Exception('Create dept failed', self::CODE_SAVE_DEPT_FAILED);
             }
-
-            $domains = $daoOrg->getDomains($orgId);
-            $domains = $domains[0];
-            $params['domainid'] = (int) $domains['domainid'];
-        }
-
-        // 参数错误[domainid]
-        if (empty($params['domainid']) || !$daoOrg->existDomain((int) $params['domainid'], $orgId)) {
-            require_once 'Model/User/Exception.php';
-            throw new Model_User_Exception('Missing or invalid value of parameter "domainid"', self::CODE_INVALID_DOMAINID);
         }
 
         // 读取组织信息
@@ -150,7 +141,6 @@ class Model_User_User extends Model_Abstract
             'userid'         => $userId,
             'uniqueid'       => $uniqueId,
             'status'         => isset($params['status']) ? (int) $params['status'] : 1,
-            'domainid'       => (int) $params['domainid'],
             'deptid'         => isset($params['deptid']) ? $params['deptid'] : null,
             'isshow'         => !empty($params['isshow']) ? 1 : 0,
             'ordernum'       => isset($params['ordernum']) ? (int) $params['ordernum'] : 0,
@@ -179,12 +169,11 @@ class Model_User_User extends Model_Abstract
 
         // 网盘空间
         if (!empty($params['maxndquota'])) {
-            $ndQuota = (float) $params['maxndquota'] * 1000000;
-            if ($org->maxNdQuota * 1000000 - $daoOrg->getUsedNetdiskQuota($orgId) < $ndQuota) {
+            if ($params['maxndquota'] > 1000) {
                 require_once 'Model/User/Exception.php';
-                throw new Model_User_Exception('This organization has not enough netdisk space', self::CODE_NOT_ENOUGH_NDSPACE);
+                throw new Model_User_Exception('You can not set exceed 1000MB netdisk space', self::CODE_EXCEED_MAX_NDSPACE);
             }
-            $user['maxndquota'] = $ndQuota;
+            $user['maxndquota'] = (float) $params['maxndquota'] * 1000000;
         }
 
         // 无效的出生日期
@@ -407,9 +396,9 @@ class Model_User_User extends Model_Abstract
         if ($edit['netdisk'] && !empty($params['maxndquota'])) {
             $ndQuota = (float) $params['maxndquota'] * 1000000;
             if ($ndQuota != $user->maxNdQuota) {
-                if ($org->maxNdQuota * 1000000 - ($daoOrg->getUsedNetdiskQuota($orgId) - $user->maxNdQuota) < $ndQuota) {
+                if ($params['maxndquota'] > 1000) {
                     require_once 'Model/User/Exception.php';
-                    throw new Model_User_Exception('This organization has not enough netdisk space', self::CODE_NOT_ENOUGH_NDSPACE);
+                    throw new Model_User_Exception('You can not set exceed 1000MB netdisk space', self::CODE_EXCEED_MAX_NDSPACE);
                 }
 
                 /* @var $daoFolder Dao_Td_Netdisk_Folder */
@@ -469,11 +458,11 @@ class Model_User_User extends Model_Abstract
             $userInfo['avatars']    = $params['avatars'];
 
             /* @var $daoImContact Dao_Im_Contact_Contact */
-            $daoImContact = Tudu_Dao_Manager::getDao('Dao_Im_Contact_Contact', Tudu_Dao_Manager::DB_IM);
+            //$daoImContact = Tudu_Dao_Manager::getDao('Dao_Im_Contact_Contact', Tudu_Dao_Manager::DB_IM);
 
             // 需要更新im自定义联系人表的updatetime
             // im通过更新时间判断是否需要获取用户头像
-            $daoImContact->updateUser($userId . '@' . $orgId, array('updatetime' => time()));
+            //$daoImContact->updateUser($userId . '@' . $orgId, array('updatetime' => time()));
         }
 
         // 更新用户数据
