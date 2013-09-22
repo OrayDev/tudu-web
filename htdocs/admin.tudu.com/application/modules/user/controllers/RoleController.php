@@ -419,13 +419,10 @@ class User_RoleController extends TuduX_Controller_Admin
         /* @var $daoOrg Dao_Md_Org_Org */
         $daoOrg = $this->getDao('Dao_Md_Org_Org');
 
-        $domains = $daoOrg->getDomains($this->_orgId);
-        $domain  = $domains[0]['domainname'];
-
         foreach ($userIds as $userId) {
             $key = 'TUDU-ACCESS-' . $userId . '@' . $this->_orgId;
 
-            $memcache->delete($userId . '@' . $domain . '_info');
+            $memcache->delete($userId . '@' . $this->_orgId . '_info');
             $memcache->delete($key);
         }
     }
