@@ -55,7 +55,7 @@
 $(function() {
     Org.Logo
     .setCookies('{{$cookies}}')
-    .setFlashUrl('{{$smarty.const.PROTOCOL}}//{{$options.sites.www}}/images/swfupload.swf')
+    .setFlashUrl('{{$options.sites.www}}/images/swfupload.swf')
     .init();
 });
 -->
