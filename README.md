@@ -9,7 +9,7 @@ http://www.tudu.com/
 --------
 操作系统：Linux/Unix/Windows(Windows可运行Web、PHP、mysql等支持Windows的服务，必要服务如：httpsqs，需要Linux/Unix系统运行)<br />
 数 据 库：mysql<br />
-Web 服务：nginx/Apache<br />
+Web 服务：nginx/Apache (原代码只支持80端口)<br />
 队列服务：httpsqs<br />
 其他：memcache（或其他兼容memcache协议的服务）,coreseek<br />
 
